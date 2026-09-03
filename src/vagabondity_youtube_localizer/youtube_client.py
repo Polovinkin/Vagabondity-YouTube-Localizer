@@ -121,6 +121,24 @@ def best_thumbnail_url(thumbnails):
     return ""
 
 
+def normalize_language_code(language_code):
+    """Collapse YouTube locale variants to the language choices used by the app."""
+    if not language_code:
+        return None
+
+    normalized = str(language_code).strip().replace("_", "-").lower()
+    aliases = {
+        "he": "iw",
+        "zh-cn": "zh-CN",
+        "zh-hans": "zh-CN",
+        "zh-tw": "zh-TW",
+        "zh-hant": "zh-TW",
+    }
+    if normalized in aliases:
+        return aliases[normalized]
+    return normalized.split("-", 1)[0]
+
+
 class YouTubeClient:
     def __init__(
         self,
@@ -403,7 +421,7 @@ class YouTubeClient:
                     item["snippet"]["resourceId"]["videoId"] for item in batch
                 ]
                 details_response = self.youtube.videos().list(
-                    part="contentDetails,localizations",
+                    part="snippet,contentDetails,localizations",
                     id=",".join(video_ids),
                     maxResults=50,
                 ).execute()
@@ -416,6 +434,9 @@ class YouTubeClient:
                     video_id = snippet["resourceId"]["videoId"]
                     details = details_by_id.get(video_id, {})
                     localizations = self._localization_codes(details)
+                    default_language_code = normalize_language_code(
+                        details.get("snippet", {}).get("defaultLanguage")
+                    )
                     duration_seconds = parse_iso8601_duration(
                         details.get("contentDetails", {}).get("duration")
                     )
@@ -427,6 +448,7 @@ class YouTubeClient:
                             best_thumbnail_url(snippet.get("thumbnails", {})),
                             localizations,
                             duration_seconds,
+                            default_language_code=default_language_code,
                         )
                     )
 
@@ -438,11 +460,36 @@ class YouTubeClient:
     def _localization_codes(video_data):
         localizations = list(video_data.get("localizations", {}).keys())
         return list(
-            {
-                "en" if language.startswith("en-") else language
-                for language in localizations
-            }
+            filter(None, {normalize_language_code(code) for code in localizations})
         )
+
+    def refresh_video_language_metadata(self, videos):
+        """Refresh source and localization languages for the selected videos."""
+        videos_by_id = {video.id: video for video in videos}
+        video_ids = list(videos_by_id)
+
+        try:
+            for start in range(0, len(video_ids), 50):
+                response = self.youtube.videos().list(
+                    part="snippet,localizations",
+                    id=",".join(video_ids[start:start + 50]),
+                    maxResults=50,
+                ).execute()
+                for item in response.get("items", []):
+                    video = videos_by_id.get(item.get("id"))
+                    if video is None:
+                        continue
+                    video.current_languages = self._localization_codes(item)
+                    video.default_language_code = normalize_language_code(
+                        item.get("snippet", {}).get("defaultLanguage")
+                    )
+                    video.default_language_name = self.code_to_name.get(
+                        video.default_language_code
+                    )
+            return True
+        except googleapiclient.errors.HttpError as exc:
+            print(f"Error refreshing video languages: {exc}")
+            return False
 
     def load_page_videos(self, page):
         """Load videos for a specific page efficiently"""
@@ -650,13 +697,7 @@ class YouTubeClient:
             if not results['items']:
                 return []
             
-            localizations = list(results['items'][0].get('localizations', {}).keys())
-            
-            for i in range(len(localizations)):
-                if 'en-' in localizations[i]:
-                    localizations[i] = "en"
-                    
-            return list(set(localizations))
+            return self._localization_codes(results['items'][0])
             
         except googleapiclient.errors.HttpError as e:
             print(f"Error getting localizations for video {video_id}: {e}")
@@ -674,6 +715,7 @@ class Video:
         thumb_url,
         curr_langs,
         duration_seconds=None,
+        default_language_code=None,
     ):
         self.video_title = title
         self.id = vid_id
@@ -682,6 +724,8 @@ class Video:
         self.current_languages = curr_langs if curr_langs else []
         self.language_names = []
         self.duration_seconds = duration_seconds
+        self.default_language_code = default_language_code
+        self.default_language_name = None
 
     @property
     def is_short(self):

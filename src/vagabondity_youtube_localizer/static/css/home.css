@@ -1126,6 +1126,27 @@ a.top-page-btn:focus-visible {
     line-height: 1;
 }
 
+.source-language-badge {
+    border-color: rgba(96, 165, 250, 0.48);
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.12);
+}
+
+.source-language-value {
+    margin-bottom: 12px;
+}
+
+.badge-kind {
+    margin-left: 4px;
+    padding-left: 6px;
+    border-left: 1px solid rgba(147, 197, 253, 0.35);
+    color: #93c5fd;
+    font-size: 0.56rem;
+    font-weight: 760;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
 .language-flag {
     margin-left: 4px;
     font-size: 0.95rem;
@@ -1621,8 +1642,27 @@ a.top-page-btn:focus-visible {
     line-height: 1.1;
 }
 
-.language-option.is-existing .language-status {
+.language-option.has-status .language-status {
     display: inline-flex;
+}
+
+.language-option.is-source {
+    border-color: rgba(96, 165, 250, 0.38);
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.language-option.is-source .language-label {
+    opacity: 1;
+}
+
+.language-option.is-source .language-status {
+    border-color: rgba(96, 165, 250, 0.48);
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.13);
+}
+
+.language-option.is-partial:not(.is-source) {
+    border-color: rgba(245, 158, 11, 0.28);
 }
 
 .language-option.is-existing.is-retranslating {
@@ -1790,6 +1830,144 @@ a.top-page-btn:focus-visible {
 #errorPopUpContent {
     color: var(--muted-strong);
     font-size: 0.86rem;
+}
+
+.localization-progress {
+    width: 100%;
+    margin-top: 16px;
+    text-align: left;
+}
+
+.localization-progress-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--muted-strong);
+    font-size: 0.72rem;
+}
+
+.localization-progress-heading strong {
+    color: var(--text);
+    font-size: 0.78rem;
+}
+
+.localization-progress-track {
+    height: 9px;
+    margin-top: 7px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(22, 15, 9, 0.7);
+}
+
+.localization-progress-track span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--amber), var(--amber-bright));
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+    transition: width 260ms ease;
+}
+
+.progress-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 12px;
+}
+
+.progress-metric {
+    display: flex;
+    min-width: 0;
+    padding: 9px 10px;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: rgba(51, 36, 22, 0.36);
+}
+
+.progress-metric span {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 0.6rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.progress-metric strong {
+    margin-top: 2px;
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.progress-metric.is-success strong {
+    color: #86efac;
+}
+
+.progress-metric.is-skipped strong {
+    color: var(--amber-bright);
+}
+
+.progress-metric.is-failed strong {
+    color: #f0bdc9;
+}
+
+.progress-current {
+    display: grid;
+    min-width: 0;
+    margin-top: 10px;
+    padding: 11px 12px;
+    border: 1px solid var(--border-bright);
+    border-radius: 12px;
+    background: var(--surface-soft);
+}
+
+.progress-current-label {
+    color: var(--amber-bright);
+    font-size: 0.61rem;
+    font-weight: 760;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+}
+
+.progress-current strong {
+    margin-top: 4px;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 0.79rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#progressCurrentLanguage {
+    margin-top: 2px;
+    color: var(--muted-strong);
+    font-size: 0.7rem;
+}
+
+.progress-breakdown {
+    display: none;
+    gap: 5px;
+    margin-top: 9px;
+}
+
+.progress-breakdown span {
+    color: var(--muted);
+    font-size: 0.65rem;
+}
+
+.progress-breakdown strong {
+    color: var(--muted-strong);
+}
+
+.progress-modal-content[data-state="success"] .localization-progress-track span {
+    background: #4ade80;
+}
+
+.progress-modal-content[data-state="error"] .localization-progress-track span {
+    background: #d77b91;
 }
 
 #progressDoneBtn {
@@ -2090,5 +2268,9 @@ a.top-page-btn:focus-visible {
 
     .language-list {
         grid-template-columns: 1fr;
+    }
+
+    .progress-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }

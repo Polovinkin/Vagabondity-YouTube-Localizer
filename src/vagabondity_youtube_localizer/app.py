@@ -1,17 +1,24 @@
 import argparse
 import os
+import threading
 
 import googleapiclient.errors
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 
 from .localization import LocalizationService
+from .progress import LocalizationProgressTracker
 from .settings import load_settings
 from .translators import DeepLTranslator, GoogleCloudTranslator
 from .usage import GoogleUsageTracker
 from .youtube_client import LANGUAGE_FLAGS, YouTubeClient
 
 
-def create_app(youtube_client=None, localization_service=None, usage_tracker=None):
+def create_app(
+    youtube_client=None,
+    localization_service=None,
+    usage_tracker=None,
+    progress_tracker=None,
+):
     """Create and configure the local Flask application."""
     settings = load_settings()
     usage_tracker = usage_tracker or GoogleUsageTracker()
@@ -31,11 +38,13 @@ def create_app(youtube_client=None, localization_service=None, usage_tracker=Non
         ),
         deepl_translator=DeepLTranslator(api_key=settings.deepl_api_key),
     )
+    progress_tracker = progress_tracker or LocalizationProgressTracker()
 
     # Expose dependencies for diagnostics and isolated tests.
     app.extensions["youtube_client"] = youtube
     app.extensions["localization_service"] = localizer
     app.extensions["google_usage_tracker"] = usage_tracker
+    app.extensions["localization_progress_tracker"] = progress_tracker
 
     @app.route("/", methods=["GET", "POST"])
     def home():
@@ -73,6 +82,7 @@ def create_app(youtube_client=None, localization_service=None, usage_tracker=Non
                         payload.get("overwrite", False),
                         translation_provider,
                         payload.get("trim_checked", False),
+                        selected_video_ids=payload.get("selected_video_ids"),
                     )
                     youtube.clear_video_cache()
                     return jsonify({"status": "ok"})
@@ -91,11 +101,17 @@ def create_app(youtube_client=None, localization_service=None, usage_tracker=Non
                 if youtube.results_per_page == -1
                 else []
             )
+            all_video_ids = (
+                [video.id for video in youtube.all_videos_cache]
+                if youtube.results_per_page == -1
+                else []
+            )
 
             return render_template(
                 "home.html",
                 page_videos=youtube.page_videos,
                 all_videos=all_video_titles,
+                all_video_ids=all_video_ids,
                 all_language_names=youtube.language_names_in_display_order,
                 language_flags=LANGUAGE_FLAGS,
                 channel_thumbnail=youtube.channel_thumbnail,
@@ -131,6 +147,58 @@ def create_app(youtube_client=None, localization_service=None, usage_tracker=Non
             }
         )
 
+    @app.route("/localizations", methods=["POST"])
+    def start_localization():
+        """Start a localization run and return an id for live progress polling."""
+        payload = request.get_json(silent=True) or {}
+        selected_videos = payload.get("selected_videos", [])
+        selected_languages = payload.get("selected_languages", [])
+        if not selected_videos or not selected_languages:
+            return jsonify({"error": "Select at least one video and language."}), 400
+
+        provider = payload.get("translation_provider")
+        job_id, job = progress_tracker.start(
+            len(selected_videos), len(selected_languages), provider
+        )
+        if job_id is None:
+            return jsonify({"error": "A localization run is already active.", "job": job}), 409
+
+        def run_localization():
+            try:
+                youtube.error_code = ""
+                localizer.localize_videos(
+                    selected_videos,
+                    selected_languages,
+                    payload.get("overwrite", False),
+                    provider,
+                    payload.get("trim_checked", False),
+                    selected_video_ids=payload.get("selected_video_ids"),
+                    progress_callback=lambda event: progress_tracker.update(
+                        job_id, event
+                    ),
+                )
+                youtube.clear_video_cache()
+                progress_tracker.finish(job_id, youtube.error_code)
+            except Exception as exc:
+                print(f"Unexpected localization error: {exc}")
+                progress_tracker.fail(job_id, exc)
+
+        threading.Thread(target=run_localization, daemon=True).start()
+        return jsonify({"job_id": job_id, "job": job}), 202
+
+    @app.route("/localizations/<job_id>", methods=["GET"])
+    def get_localization_progress(job_id):
+        """Return a snapshot of a running or recently finished localization run."""
+        job = progress_tracker.get(job_id)
+        if job is None:
+            return jsonify({"error": "Localization run not found."}), 404
+        return jsonify(job)
+
+    @app.route("/localizations/active", methods=["GET"])
+    def get_active_localization():
+        """Let a reloaded page reconnect to the active localization run."""
+        return jsonify({"job": progress_tracker.get_active()})
+
     @app.route("/providers/usage", methods=["POST"])
     def get_provider_usage():
         """Return provider usage without exposing configured credentials."""
@@ -143,32 +211,80 @@ def create_app(youtube_client=None, localization_service=None, usage_tracker=Non
 
     @app.route("/languages", methods=["POST"])
     def get_common_localization_languages():
-        """Return localizations shared by every selected video."""
+        """Return localization and source-language state for selected videos."""
         try:
             payload = request.get_json(silent=True) or {}
             selected_video_names = {
                 normalize_title(name) for name in payload.get("vidNames", [])
             }
-            expected_count = int(payload.get("num", 0))
-            language_counts = {}
+            selected_video_ids = {
+                str(video_id) for video_id in payload.get("videoIds", [])
+            }
             videos_to_check = (
                 youtube.all_videos_cache
                 if youtube.results_per_page == -1
                 else youtube.page_videos
             )
 
-            for video in videos_to_check:
-                if normalize_title(video.video_title) not in selected_video_names:
-                    continue
-                for language in video.language_names:
-                    language_counts[language] = language_counts.get(language, 0) + 1
+            selected_videos = [
+                video
+                for video in videos_to_check
+                if (
+                    str(video.id) in selected_video_ids
+                    if selected_video_ids
+                    else normalize_title(video.video_title) in selected_video_names
+                )
+            ]
+            languages_refreshed = False
+            if payload.get("refresh") and selected_videos:
+                languages_refreshed = youtube.refresh_video_language_metadata(
+                    selected_videos
+                )
+                populate_video_language_names(youtube, selected_videos)
+
+            language_states = {}
+            for video in selected_videos:
+                localized_names = set(getattr(video, "language_names", []))
+                localized_names.update(
+                    filter(
+                        None,
+                        (
+                            youtube.code_to_name.get(code)
+                            for code in getattr(video, "current_languages", [])
+                        ),
+                    )
+                )
+                for language in localized_names:
+                    state = language_states.setdefault(
+                        language, {"localized_count": 0, "default_count": 0}
+                    )
+                    state["localized_count"] += 1
+
+                default_language = getattr(video, "default_language_name", None)
+                if not default_language:
+                    default_language = youtube.code_to_name.get(
+                        getattr(video, "default_language_code", None)
+                    )
+                if default_language:
+                    state = language_states.setdefault(
+                        default_language,
+                        {"localized_count": 0, "default_count": 0},
+                    )
+                    state["default_count"] += 1
 
             common_languages = [
                 language
-                for language, count in language_counts.items()
-                if count == expected_count
+                for language, state in language_states.items()
+                if state["localized_count"] == len(selected_videos)
             ]
-            return jsonify({"current_languages": common_languages})
+            return jsonify(
+                {
+                    "current_languages": common_languages,
+                    "language_states": language_states,
+                    "selected_count": len(selected_videos),
+                    "refreshed": languages_refreshed,
+                }
+            )
         except (AttributeError, TypeError, ValueError) as exc:
             print(f"Error reading selected languages: {exc}")
             return jsonify({"current_languages": []}), 400
@@ -190,12 +306,20 @@ def create_app(youtube_client=None, localization_service=None, usage_tracker=Non
 
 def populate_localization_language_names(youtube_client):
     """Populate display names for the currently loaded video localizations."""
-    for video in youtube_client.page_videos:
+    populate_video_language_names(youtube_client, youtube_client.page_videos)
+
+
+def populate_video_language_names(youtube_client, videos):
+    """Populate display names for localization and source language codes."""
+    for video in videos:
         video.language_names = []
         for language_code in video.current_languages:
             language_name = youtube_client.code_to_name.get(language_code)
             if language_name and language_name not in video.language_names:
                 video.language_names.append(language_name)
+        video.default_language_name = youtube_client.code_to_name.get(
+            getattr(video, "default_language_code", None)
+        )
 
 
 def normalize_title(title):

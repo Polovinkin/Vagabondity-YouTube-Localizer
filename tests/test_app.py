@@ -1,4 +1,5 @@
 import unittest
+import threading
 from types import SimpleNamespace
 
 from vagabondity_youtube_localizer.app import create_app
@@ -15,12 +16,17 @@ class FakeYouTubeClient:
         self.channel_thumbnail = ""
         self.channel_name = "Test channel"
         self.language_names_in_display_order = ["English", "Spanish"]
-        self.code_to_name = {"en": "English", "es": "Spanish"}
+        self.code_to_name = {
+            "en": "English",
+            "es": "Spanish",
+            "ru": "Russian",
+        }
         self.videos_trimmed = 0
         self.videos_skipped = 0
         self.video_filter = "all"
         self.filtered_video_count = 0
         self.video_filter_counts = {"all": 0, "videos": 0, "shorts": 0}
+        self.language_refreshes = []
 
     @property
     def num_pages(self):
@@ -41,14 +47,39 @@ class FakeYouTubeClient:
         self.page_videos = []
         self.all_videos_cache = []
 
+    def refresh_video_language_metadata(self, videos):
+        self.language_refreshes.append([video.video_title for video in videos])
+        return True
+
 
 class FakeLocalizationService:
     def __init__(self):
         self.google_translator = FakeProvider("Google connected")
         self.deepl_translator = FakeProvider("DeepL connected")
+        self.completed = threading.Event()
 
-    def localize_videos(self, *args):
+    def localize_videos(self, *args, **kwargs):
         self.last_request = args
+        self.last_request_kwargs = kwargs
+        progress_callback = kwargs.get("progress_callback")
+        if progress_callback:
+            progress_callback(
+                {
+                    "type": "item_started",
+                    "video": args[0][0],
+                    "language": args[1][0],
+                    "stage": "preparing",
+                }
+            )
+            progress_callback(
+                {
+                    "type": "item_finished",
+                    "video": args[0][0],
+                    "language": args[1][0],
+                    "outcome": "succeeded",
+                }
+            )
+        self.completed.set()
 
 
 class FakeProvider:
@@ -155,7 +186,7 @@ class AppTests(unittest.TestCase):
     def test_all_videos_view_serializes_titles_as_javascript(self):
         self.youtube.results_per_page = -1
         self.youtube.all_videos_cache = [
-            SimpleNamespace(video_title='A "quoted" title'),
+            SimpleNamespace(id="video-id", video_title='A "quoted" title'),
         ]
 
         response = self.client.get("/?video_filter=all")
@@ -171,6 +202,29 @@ class AppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.mimetype, "image/png")
         response.close()
+
+    def test_source_language_is_rendered_for_a_video(self):
+        self.youtube.page_videos = [
+            SimpleNamespace(
+                id="video-id",
+                video_title="English source video",
+                description="Description",
+                thumbnail_url="thumbnail.jpg",
+                current_languages=["ru"],
+                language_names=[],
+                default_language_code="en",
+                default_language_name=None,
+                num_languages=1,
+            )
+        ]
+
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Source language", response.data)
+        self.assertIn(b"English", response.data)
+        self.assertIn(b"Default", response.data)
+        self.assertIn(b"Russian", response.data)
 
     def test_localization_request_is_delegated(self):
         response = self.client.post(
@@ -190,6 +244,49 @@ class AppTests(unittest.TestCase):
             self.localizer.last_request,
             (["Video"], ["Spanish"], True, "deepl", False),
         )
+        self.assertEqual(
+            self.localizer.last_request_kwargs,
+            {"selected_video_ids": None},
+        )
+
+    def test_localization_progress_endpoint_reports_completed_work(self):
+        response = self.client.post(
+            "/localizations",
+            json={
+                "selected_videos": ["Video"],
+                "selected_languages": ["Spanish"],
+                "translation_provider": "deepl",
+            },
+        )
+
+        self.assertEqual(response.status_code, 202)
+        job_id = response.get_json()["job_id"]
+        self.assertTrue(self.localizer.completed.wait(1))
+
+        progress = self.client.get(f"/localizations/{job_id}")
+        payload = progress.get_json()
+        self.assertEqual(progress.status_code, 200)
+        self.assertEqual(payload["status"], "completed")
+        self.assertEqual(payload["total"], 1)
+        self.assertEqual(payload["processed"], 1)
+        self.assertEqual(payload["succeeded"], 1)
+        self.assertEqual(payload["remaining"], 0)
+        self.assertEqual(payload["percent"], 100)
+
+    def test_progress_page_markup_contains_live_counts(self):
+        response = self.client.get("/")
+
+        self.assertIn(b'id="progressBar"', response.data)
+        self.assertIn(b'id="progressCurrentVideo"', response.data)
+        self.assertIn(b'id="progressSucceeded"', response.data)
+        self.assertIn(b'id="progressSkipped"', response.data)
+        self.assertIn(b'id="progressFailed"', response.data)
+
+    def test_active_progress_endpoint_is_empty_without_a_run(self):
+        response = self.client.get("/localizations/active")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"job": None})
 
     def test_provider_connections_are_checked_without_youtube_update(self):
         response = self.client.post("/providers/test", json={})
@@ -219,6 +316,77 @@ class AppTests(unittest.TestCase):
         self.assertEqual(response.get_json()["google"]["used"], 34)
         self.assertEqual(response.get_json()["deepl"]["used"], 12)
         self.assertFalse(hasattr(self.localizer, "last_request"))
+
+    def test_language_states_include_partial_localizations_and_source_language(self):
+        self.youtube.page_videos = [
+            SimpleNamespace(
+                video_title="Video A",
+                current_languages=["ru"],
+                language_names=["Russian"],
+                default_language_code="en",
+                default_language_name="English",
+            ),
+            SimpleNamespace(
+                video_title="Video B",
+                current_languages=[],
+                language_names=[],
+                default_language_code="en",
+                default_language_name="English",
+            ),
+        ]
+
+        response = self.client.post(
+            "/languages",
+            json={
+                "num": 2,
+                "vidNames": ["Video A", "Video B"],
+                "refresh": True,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.get_json()["refreshed"])
+        self.assertEqual(self.youtube.language_refreshes, [["Video A", "Video B"]])
+        self.assertEqual(response.get_json()["selected_count"], 2)
+        self.assertEqual(
+            response.get_json()["language_states"]["Russian"],
+            {"localized_count": 1, "default_count": 0},
+        )
+        self.assertEqual(
+            response.get_json()["language_states"]["English"],
+            {"localized_count": 0, "default_count": 2},
+        )
+        self.assertNotIn("Russian", response.get_json()["current_languages"])
+
+    def test_language_states_match_duplicate_titles_by_video_id(self):
+        self.youtube.page_videos = [
+            SimpleNamespace(
+                id="first-id",
+                video_title="Same title",
+                current_languages=["es"],
+                language_names=["Spanish"],
+                default_language_code="en",
+                default_language_name="English",
+            ),
+            SimpleNamespace(
+                id="second-id",
+                video_title="Same title",
+                current_languages=["ru"],
+                language_names=["Russian"],
+                default_language_code="en",
+                default_language_name="English",
+            ),
+        ]
+
+        response = self.client.post(
+            "/languages",
+            json={"videoIds": ["second-id"], "vidNames": ["Same title"]},
+        )
+
+        payload = response.get_json()
+        self.assertEqual(payload["selected_count"], 1)
+        self.assertEqual(payload["current_languages"], ["Russian"])
+        self.assertNotIn("Spanish", payload["language_states"])
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ class FakeYouTubeClient:
             video_title="Taipei Walk",
             description="A city walk",
             language_names=[],
+            default_language_name="English",
         )
         self.page_videos = [video]
         self.all_videos_cache = []
@@ -57,6 +58,57 @@ class LocalizationServiceTests(unittest.TestCase):
         self.assertEqual(len(youtube.updates), 1)
         self.assertEqual(youtube.updates[0][3], "Taipei Walk (es)")
 
+    def test_progress_reports_each_stage_and_success(self):
+        youtube = FakeYouTubeClient()
+        service = LocalizationService(
+            youtube, FakeTranslator(name="Google"), FakeTranslator(), delay=0
+        )
+        events = []
+
+        service.localize_videos(
+            ["Taipei Walk"],
+            ["Spanish"],
+            False,
+            "google",
+            False,
+            progress_callback=events.append,
+        )
+
+        self.assertEqual(
+            [event.get("stage") for event in events[:-1]],
+            [
+                "preparing",
+                "translating_title",
+                "translating_description",
+                "publishing",
+            ],
+        )
+        self.assertEqual(events[-1]["type"], "item_finished")
+        self.assertEqual(events[-1]["outcome"], "succeeded")
+        self.assertEqual(events[-1]["video"], "Taipei Walk")
+        self.assertEqual(events[-1]["language"], "Spanish")
+
+    def test_existing_localization_is_reported_as_skipped(self):
+        youtube = FakeYouTubeClient()
+        youtube.page_videos[0].language_names = ["Spanish"]
+        service = LocalizationService(
+            youtube, FakeTranslator(name="Google"), FakeTranslator(), delay=0
+        )
+        events = []
+
+        service.localize_videos(
+            ["Taipei Walk"],
+            ["Spanish"],
+            False,
+            "google",
+            False,
+            progress_callback=events.append,
+        )
+
+        self.assertEqual(events[-1]["outcome"], "skipped")
+        self.assertEqual(events[-1]["reason"], "already_localized")
+        self.assertEqual(youtube.updates, [])
+
     def test_provider_error_is_not_published(self):
         youtube = FakeYouTubeClient()
         google = FakeTranslator(name="Google", error="simulated failure")
@@ -68,6 +120,45 @@ class LocalizationServiceTests(unittest.TestCase):
 
         self.assertEqual(youtube.videos_skipped, 1)
         self.assertEqual(youtube.updates, [])
+
+    def test_source_language_is_not_added_as_a_localization(self):
+        youtube = FakeYouTubeClient()
+        service = LocalizationService(
+            youtube, FakeTranslator(name="Google"), FakeTranslator(), delay=0
+        )
+
+        service.localize_videos(
+            ["Taipei Walk"], ["English"], False, "google", False
+        )
+
+        self.assertEqual(youtube.videos_skipped, 0)
+        self.assertEqual(youtube.updates, [])
+
+    def test_duplicate_titles_are_resolved_by_video_id(self):
+        youtube = FakeYouTubeClient()
+        youtube.page_videos.append(
+            SimpleNamespace(
+                id="second-video-id",
+                video_title="Taipei Walk",
+                description="Second description",
+                language_names=[],
+                default_language_name="English",
+            )
+        )
+        service = LocalizationService(
+            youtube, FakeTranslator(name="Google"), FakeTranslator(), delay=0
+        )
+
+        service.localize_videos(
+            ["Taipei Walk"],
+            ["Spanish"],
+            False,
+            "google",
+            False,
+            selected_video_ids=["second-video-id"],
+        )
+
+        self.assertEqual(youtube.updates[0][0], "second-video-id")
 
 
 class LocalizationTextLimitTests(unittest.TestCase):

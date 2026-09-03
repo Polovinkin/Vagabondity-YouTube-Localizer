@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 </head>
 <body>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
         crossorigin="anonymous"></script>
@@ -208,6 +207,7 @@
                     <li class="video-card">
                         <div class="video-row-main">
                             <input type="checkbox" class="form-check-input video-selector"
+                                   data-video-id="{{ video.id }}"
                                    aria-label="Select {{ video.video_title }}"/>
                             <button class="video-thumbnail-button" type="button"
                                     aria-label="Select {{ video.video_title }}"
@@ -230,6 +230,17 @@
                             </div>
                         </div>
                         <div class="show-hide">
+                            <div class="localizations-title">Source language</div>
+                            <div class="source-language-value">
+                                {% if video.default_language_name %}
+                                    <span class="badge source-language-badge">
+                                        <span>{{ video.default_language_name }}</span>{% if language_flags.get(video.default_language_name) %} <span class="badge-flag">{{ language_flags[video.default_language_name] }}</span>{% endif %}
+                                        <span class="badge-kind">Default</span>
+                                    </span>
+                                {% else %}
+                                    <span class="muted-text">Not set on YouTube</span>
+                                {% endif %}
+                            </div>
                             <div class="localizations-title">Current localizations</div>
                             {% if video.language_names %}
                                 {% for language in video.language_names %}
@@ -319,6 +330,45 @@
             <span></span>
         </div>
         <p id="progress-content" aria-live="polite">Translating videos, this may take some time…</p>
+        <section class="localization-progress" id="localizationProgress" aria-live="polite">
+            <div class="localization-progress-heading">
+                <span id="progressCount">0 of 0 processed</span>
+                <strong id="progressPercent">0%</strong>
+            </div>
+            <div class="localization-progress-track"
+                 id="progressTrack"
+                 role="progressbar"
+                 aria-label="Localization progress"
+                 aria-valuemin="0"
+                 aria-valuemax="100"
+                 aria-valuenow="0">
+                <span id="progressBar"></span>
+            </div>
+            <div class="progress-metrics">
+                <div class="progress-metric is-success">
+                    <span>Published</span>
+                    <strong id="progressSucceeded">0</strong>
+                </div>
+                <div class="progress-metric is-skipped">
+                    <span>Skipped</span>
+                    <strong id="progressSkipped">0</strong>
+                </div>
+                <div class="progress-metric is-failed">
+                    <span>Failed</span>
+                    <strong id="progressFailed">0</strong>
+                </div>
+                <div class="progress-metric">
+                    <span>Remaining</span>
+                    <strong id="progressRemaining">0</strong>
+                </div>
+            </div>
+            <div class="progress-current" id="progressCurrent">
+                <span class="progress-current-label" id="progressCurrentLabel">Preparing</span>
+                <strong id="progressCurrentVideo">Waiting for the first video…</strong>
+                <span id="progressCurrentLanguage"></span>
+            </div>
+            <div class="progress-breakdown" id="progressBreakdown"></div>
+        </section>
         <div id="errorPopUpContent" aria-live="polite"></div>
         <button class="btn btn-primary" id="progressDoneBtn" onclick="closeProgressWindow()"
                 style="display: none;">Done</button>
@@ -487,6 +537,19 @@
     const progressDoneBtn = document.getElementById("progressDoneBtn");
     const formSelect = document.getElementById("form-select");
     const progressSpinner = document.getElementById("progressSpinner");
+    const localizationProgress = document.getElementById("localizationProgress");
+    const progressCount = document.getElementById("progressCount");
+    const progressPercent = document.getElementById("progressPercent");
+    const progressTrack = document.getElementById("progressTrack");
+    const progressBar = document.getElementById("progressBar");
+    const progressSucceeded = document.getElementById("progressSucceeded");
+    const progressSkipped = document.getElementById("progressSkipped");
+    const progressFailed = document.getElementById("progressFailed");
+    const progressRemaining = document.getElementById("progressRemaining");
+    const progressCurrentLabel = document.getElementById("progressCurrentLabel");
+    const progressCurrentVideo = document.getElementById("progressCurrentVideo");
+    const progressCurrentLanguage = document.getElementById("progressCurrentLanguage");
+    const progressBreakdown = document.getElementById("progressBreakdown");
     const addLanguageBtn = document.getElementById("addLanguageBtn");
     const closeModalSpan = document.getElementsByClassName("close")[0];
     const overwriteCheck = document.getElementById("overwrite");
@@ -515,6 +578,7 @@
     let allPageVideosSelected = false;
     let allLanguagesSelected = false;
     let allChannelVideosSelected = false;
+    let progressPollFailures = 0;
 
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize selectors
@@ -527,6 +591,7 @@
         formSelect.selectedIndex = {{ per_page_index }};
         initializeTranslationProvider();
         updateVideoSelectionState();
+        resumeActiveLocalization();
         
         // Add event listeners
         addLanguageBtn.addEventListener('click', onAddLanguageClick);
@@ -748,11 +813,11 @@
         addLanguagePopup.style.display = "block";
         resetLanguageDialog();
         
-        await updateLanguageStates();
+        await updateLanguageStates(true);
     }
     
     async function onOverwriteChange() {
-        // If the language modal is open, refresh the language states
+        // Recalculate the controls from the language state loaded for this dialog.
         if (addLanguagePopup.style.display === "block") {
             const selectedCount = videoSelectors.filter(s => s.checked).length;
             if (selectedCount > 0) {
@@ -761,36 +826,73 @@
         }
     }
 
-    async function updateLanguageStates() {
+    async function updateLanguageStates(refresh = false) {
         const numSelected = videoSelectors.filter(s => s.checked).length;
         const selectedVideos = getSelectedVideos();
+        const selectedVideoIds = getSelectedVideoIds();
         const overwrite = overwriteCheck.checked;
 
         try {
-            const data = await postData('/languages', { num: numSelected, vidNames: selectedVideos });
+            const data = await postData('/languages', {
+                num: numSelected,
+                vidNames: selectedVideos,
+                videoIds: selectedVideoIds,
+                refresh: refresh
+            });
             const existingLanguages = data['current_languages'] || [];
+            const languageStates = data['language_states'] || {};
+            const selectedCount = data['selected_count'] || numSelected;
 
             for (let i = 0; i < languageLabels.length; i++) {
                 const langName = languageLabels[i].getAttribute('data-lang') || languageLabels[i].innerText.trim();
                 const languageOption = languageLabels[i].closest('.language-option');
+                const languageName = languageLabels[i].querySelector('.language-name');
                 const languageStatus = languageLabels[i].querySelector('.language-status');
-                if (existingLanguages.includes(langName)) {
-                    languageSelectors[i].disabled = !overwrite;
-                    languageLabels[i].style.textDecoration = overwrite ? 'none' : 'line-through';
-                    languageLabels[i].title = overwrite ? 'This language exists and will be overwritten.' : 'Enable "overwrite" to modify this language.';
-                    languageOption.classList.add('is-existing');
-                    languageOption.classList.toggle('is-retranslating', overwrite);
-                    languageStatus.textContent = overwrite ? 'Will replace' : 'Already published';
-                    if (!overwrite) {
-                        languageSelectors[i].checked = false;
-                    }
-                } else {
-                    languageSelectors[i].disabled = false;
-                    languageLabels[i].style.textDecoration = 'none';
-                    languageLabels[i].title = '';
-                    languageOption.classList.remove('is-existing', 'is-retranslating');
-                    languageStatus.textContent = '';
+                const state = languageStates[langName] || {
+                    localized_count: existingLanguages.includes(langName) ? selectedCount : 0,
+                    default_count: 0
+                };
+                const localizedCount = Number(state.localized_count || 0);
+                const defaultCount = Number(state.default_count || 0);
+                const localizedForAll = localizedCount === selectedCount && selectedCount > 0;
+                const defaultForAll = defaultCount === selectedCount && selectedCount > 0;
+                const unavailableCount = defaultCount + (overwrite ? 0 : localizedCount);
+                const hasEligibleVideos = unavailableCount < selectedCount;
+                const statuses = [];
+
+                if (defaultCount > 0) {
+                    statuses.push(
+                        defaultForAll
+                            ? 'Source language'
+                            : `Source for ${defaultCount} of ${selectedCount}`
+                    );
                 }
+                if (localizedCount > 0) {
+                    if (localizedForAll) {
+                        statuses.push(overwrite ? 'Will replace' : 'Already published');
+                    } else {
+                        statuses.push(
+                            overwrite
+                                ? `Will replace ${localizedCount} of ${selectedCount}`
+                                : `Published for ${localizedCount} of ${selectedCount}`
+                        );
+                    }
+                }
+
+                languageSelectors[i].disabled = !hasEligibleVideos;
+                if (!hasEligibleVideos) languageSelectors[i].checked = false;
+                languageName.style.textDecoration = localizedForAll && !overwrite ? 'line-through' : 'none';
+                languageLabels[i].title = statuses.join('. ');
+                languageStatus.textContent = statuses.join(' · ');
+                languageOption.classList.toggle('has-status', statuses.length > 0);
+                languageOption.classList.toggle('is-existing', localizedCount > 0);
+                languageOption.classList.toggle('is-retranslating', overwrite && localizedCount > 0);
+                languageOption.classList.toggle('is-source', defaultCount > 0);
+                languageOption.classList.toggle(
+                    'is-partial',
+                    (localizedCount > 0 && !localizedForAll)
+                        || (defaultCount > 0 && !defaultForAll)
+                );
             }
         } catch (error) {
             console.error('Error getting current languages:', error);
@@ -826,53 +928,161 @@
         progressDoneBtn.style.display = state === 'translating' ? 'none' : 'block';
     }
 
-    function fillErrorContent(errorStr, trimmed, skipped) {
-        if (errorStr === 'defaultLanguageNotSet') {
-            setProgressState(
-                'error',
-                'Translation stopped',
-                'Translation could not be completed',
-                'One or more videos need a default language before you can try again.'
-            );
-            errorPopUpContent.innerHTML = "Request failed <br> At least one video has no default language,<br>set this on youtube";
-        } else if (errorStr === 'quotaExceeded') {
-            setProgressState(
-                'error',
-                'Translation stopped',
-                'YouTube quota exceeded',
-                'The translation run could not finish.'
-            );
-            errorPopUpContent.innerHTML = 'YouTube API quota exceeded.<br>Please try again tomorrow.';
-        } else if (errorStr) {
-            setProgressState(
-                'error',
-                'Translation stopped',
-                'Translation could not be completed',
-                'Review the details below, then try again.'
-            );
-            errorPopUpContent.innerText = errorStr;
-        } else {
-            let messages = [];
-            if (trimmed > 0) messages.push(`${trimmed} videos were trimmed.`);
-            if (skipped > 0) messages.push(`${skipped} videos were skipped.`);
-            
-            if (messages.length > 0) {
-                 setProgressState(
-                    'warning',
-                    'Translation complete',
-                    'Finished with notes',
-                    'The translation run is no longer in progress.'
-                 );
-                 errorPopUpContent.innerHTML = messages.join('<br>') + '<br>(Check browser console for more details)';
-            } else {
-                setProgressState(
-                    'success',
-                    'Translation complete',
-                    'All translations are ready',
-                    'Your localized video metadata was published successfully.'
+    const progressStageLabels = {
+        preparing: 'Preparing',
+        translating_title: 'Translating title',
+        translating_description: 'Translating description',
+        publishing: 'Publishing to YouTube',
+        succeeded: 'Published',
+        skipped: 'Skipped',
+        failed: 'Failed'
+    };
+
+    const progressReasonLabels = {
+        already_localized: 'already published',
+        source_language: 'source language',
+        text_too_long: 'over character limit',
+        unsupported_language: 'unsupported by provider',
+        provider_unavailable: 'provider unavailable',
+        unknown_language: 'unknown language',
+        unknown_provider: 'unknown provider',
+        video_not_found: 'video not found',
+        translation_error: 'translation provider error',
+        youtube_error: 'YouTube API error'
+    };
+
+    const progressErrorLabels = {
+        quotaExceeded: 'YouTube API quota exceeded. Please try again tomorrow.',
+        defaultLanguageNotSet: 'One or more videos need a default language on YouTube.'
+    };
+
+    function renderProgressBreakdown(job) {
+        const groups = [
+            ['Skipped', job.skip_reasons || {}],
+            ['Failed', job.failure_reasons || {}]
+        ];
+        const entries = [];
+        groups.forEach(([group, reasons]) => {
+            Object.entries(reasons).forEach(([reason, count]) => {
+                entries.push(
+                    `<span><strong>${group} ${count}</strong> · ${progressReasonLabels[reason] || reason}</span>`
                 );
-                errorPopUpContent.innerText = '';
+            });
+        });
+        if (Number(job.trimmed || 0) > 0) {
+            entries.push(`<span><strong>Shortened ${job.trimmed}</strong> · safely fitted to YouTube limits</span>`);
+        }
+        progressBreakdown.innerHTML = entries.join('');
+        progressBreakdown.style.display = entries.length ? 'grid' : 'none';
+    }
+
+    function renderLocalizationProgress(job) {
+        const total = Number(job.total || 0);
+        const processed = Number(job.processed || 0);
+        const percent = Math.max(0, Math.min(100, Number(job.percent || 0)));
+        progressCount.innerText = `${processed} of ${total} processed`;
+        progressPercent.innerText = `${percent}%`;
+        progressBar.style.width = `${percent}%`;
+        progressTrack.setAttribute('aria-valuenow', String(percent));
+        progressSucceeded.innerText = Number(job.succeeded || 0);
+        progressSkipped.innerText = Number(job.skipped || 0);
+        progressFailed.innerText = Number(job.failed || 0);
+        progressRemaining.innerText = Number(job.remaining || 0);
+
+        if (job.current) {
+            const stage = progressStageLabels[job.current.stage] || 'Processing';
+            progressCurrentLabel.innerText = job.status === 'running' ? stage : 'Last item';
+            progressCurrentVideo.innerText = job.current.video || 'Untitled video';
+            progressCurrentVideo.title = job.current.video || '';
+            progressCurrentLanguage.innerText = job.current.language
+                ? `→ ${job.current.language}`
+                : '';
+        }
+        renderProgressBreakdown(job);
+    }
+
+    function finishProgress(job) {
+        renderLocalizationProgress(job);
+        const summary = `${job.processed} of ${job.total} localization operations processed.`;
+        if (job.status === 'error' || job.status === 'stopped') {
+            setProgressState(
+                'error',
+                'Translation stopped',
+                'Localization run stopped',
+                summary
+            );
+            errorPopUpContent.innerText = progressErrorLabels[job.error]
+                || job.error
+                || 'An unexpected error stopped the run.';
+            return;
+        }
+        if (job.failed > 0 || job.skipped > 0) {
+            setProgressState(
+                'warning',
+                'Translation complete',
+                'Finished with notes',
+                summary
+            );
+            errorPopUpContent.innerText = '';
+            return;
+        }
+        setProgressState(
+            'success',
+            'Translation complete',
+            'All localizations are ready',
+            summary
+        );
+        errorPopUpContent.innerText = '';
+    }
+
+    async function pollLocalizationProgress(jobId) {
+        try {
+            const response = await fetch(`/localizations/${encodeURIComponent(jobId)}`);
+            if (!response.ok) throw new Error(`Progress request failed (${response.status})`);
+            const job = await response.json();
+            progressPollFailures = 0;
+            renderLocalizationProgress(job);
+            if (job.status === 'running') {
+                window.setTimeout(() => pollLocalizationProgress(jobId), 500);
+            } else {
+                finishProgress(job);
             }
+        } catch (error) {
+            console.error('Could not update localization progress:', error);
+            progressPollFailures += 1;
+            if (progressPollFailures >= 3) {
+                setProgressState(
+                    'error',
+                    'Connection lost',
+                    'Progress is unavailable',
+                    'The app could not read the latest translation status.'
+                );
+                errorPopUpContent.innerText = 'The run may still be active. Check the app console before retrying.';
+                return;
+            }
+            window.setTimeout(() => pollLocalizationProgress(jobId), 1500);
+        }
+    }
+
+    async function resumeActiveLocalization() {
+        try {
+            const response = await fetch('/localizations/active');
+            if (!response.ok) return;
+            const result = await response.json();
+            if (!result.job || result.job.status !== 'running') return;
+            progressPopup.style.display = 'block';
+            localizationProgress.style.display = 'block';
+            errorPopUpContent.innerText = '';
+            setProgressState(
+                'translating',
+                'Translation in progress',
+                'Localizing metadata',
+                `${result.job.video_count} video(s) × ${result.job.language_count} language(s)`
+            );
+            renderLocalizationProgress(result.job);
+            await pollLocalizationProgress(result.job.id);
+        } catch (error) {
+            console.error('Could not reconnect to active localization:', error);
         }
     }
 
@@ -894,8 +1104,9 @@
         return response.json();
     }
 
-    function onClickTranslate() {
+    async function onClickTranslate() {
         const selectedVideos = getSelectedVideos();
+        const selectedVideoIds = getSelectedVideoIds();
         const selectedLanguages = getSelectedLanguages();
         const translationProvider = getTranslationProvider();
 
@@ -911,31 +1122,55 @@
 
         addLanguagePopup.style.display = "none";
         progressPopup.style.display = "block";
+        progressPollFailures = 0;
         errorPopUpContent.innerHTML = '';
+        localizationProgress.style.display = 'block';
         setProgressState(
             'translating',
             'Translation in progress',
             'Localizing metadata',
-            `Translating ${selectedVideos.length} video(s) to ${selectedLanguages.length} language(s)…`
+            `${selectedVideos.length} video(s) × ${selectedLanguages.length} language(s) · ${translationProvider === 'deepl' ? 'DeepL' : 'Google Cloud'}`
         );
 
-        const options = {
-            url: '/',
-            method: 'POST',
-            data: {
+        renderLocalizationProgress({
+            total: selectedVideos.length * selectedLanguages.length,
+            processed: 0,
+            succeeded: 0,
+            skipped: 0,
+            failed: 0,
+            remaining: selectedVideos.length * selectedLanguages.length,
+            percent: 0,
+            current: null
+        });
+
+        try {
+            const response = await fetch('/localizations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
                 selected_videos: selectedVideos,
+                selected_video_ids: selectedVideoIds,
                 selected_languages: selectedLanguages,
                 translation_provider: translationProvider,
                 overwrite: overwriteCheck.checked,
                 trim_checked: trimCheck.checked
-            },
-        };
-
-        axios(options).then(() => {
-            return fetch("/error")
-                .then(res => res.json())
-                .then(json => fillErrorContent(json['error'], json['trimmed'], json['skipped']));
-        }).catch(error => {
+                })
+            });
+            const result = await response.json();
+            if (response.status === 409 && result.job) {
+                renderLocalizationProgress(result.job);
+                await pollLocalizationProgress(result.job.id);
+                return;
+            }
+            if (!response.ok || !result.job_id) {
+                throw new Error(result.error || `Localization request failed (${response.status})`);
+            }
+            renderLocalizationProgress(result.job);
+            await pollLocalizationProgress(result.job_id);
+        } catch (error) {
             console.error('Translation error:', error);
             setProgressState(
                 'error',
@@ -943,8 +1178,8 @@
                 'Something went wrong',
                 'The translation run could not be completed.'
             );
-            errorPopUpContent.innerHTML = 'An error occurred. Check the browser console.';
-        });
+            errorPopUpContent.innerText = error.message || 'An unexpected error occurred.';
+        }
     }
 
     function closeProgressWindow() {
@@ -966,6 +1201,20 @@
             }
         }
         return vids;
+    }
+
+    function getSelectedVideoIds() {
+        let ids = [];
+        if (allChannelVideosSelected) {
+            {% for video_id in all_video_ids %}
+                ids.push({{ video_id|tojson }});
+            {% endfor %}
+        } else {
+            videoSelectors.forEach(selector => {
+                if (selector.checked) ids.push(selector.dataset.videoId);
+            });
+        }
+        return ids;
     }
 
     function getSelectedLanguages() {
@@ -1058,9 +1307,11 @@
             s.disabled = false;
         });
         languageLabels.forEach(l => {
-            l.style.textDecoration = 'none';
+            l.querySelector('.language-name').style.textDecoration = 'none';
             l.title = '';
-            l.closest('.language-option').classList.remove('is-existing', 'is-retranslating');
+            l.closest('.language-option').classList.remove(
+                'has-status', 'is-existing', 'is-retranslating', 'is-source', 'is-partial'
+            );
             l.querySelector('.language-status').textContent = '';
         });
     }

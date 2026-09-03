@@ -1,10 +1,12 @@
 import unittest
+from types import SimpleNamespace
 
 from vagabondity_youtube_localizer.youtube_client import (
     LANGUAGE_FLAGS,
     Video,
     YouTubeClient,
     best_thumbnail_url,
+    normalize_language_code,
     parse_iso8601_duration,
 )
 
@@ -64,6 +66,50 @@ class VideoFilteringTests(unittest.TestCase):
             num_flags = len(flags) // 2
             self.assertGreaterEqual(num_flags, 1)
             self.assertLessEqual(num_flags, 3, f"Language {lang_name} has {num_flags} flags, expected <= 3")
+
+    def test_language_locale_variants_are_normalized(self):
+        self.assertEqual(normalize_language_code("ru-RU"), "ru")
+        self.assertEqual(normalize_language_code("en-GB"), "en")
+        self.assertEqual(normalize_language_code("zh-Hant"), "zh-TW")
+        self.assertEqual(
+            set(
+                YouTubeClient._localization_codes(
+                    {"localizations": {"ru-RU": {}, "en-GB": {}, "zh-Hant": {}}}
+                )
+            ),
+            {"ru", "en", "zh-TW"},
+        )
+
+    def test_selected_video_language_metadata_is_refreshed(self):
+        response = {
+            "items": [
+                {
+                    "id": "video-id",
+                    "snippet": {"defaultLanguage": "en-GB"},
+                    "localizations": {"ru-RU": {}},
+                }
+            ]
+        }
+
+        class FakeVideosResource:
+            def __init__(self):
+                self.request = None
+
+            def list(self, **kwargs):
+                self.request = kwargs
+                return SimpleNamespace(execute=lambda: response)
+
+        resource = FakeVideosResource()
+        client = YouTubeClient.__new__(YouTubeClient)
+        client.youtube = SimpleNamespace(videos=lambda: resource)
+        client.code_to_name = {"en": "English", "ru": "Russian"}
+        video = SimpleNamespace(id="video-id")
+
+        self.assertTrue(client.refresh_video_language_metadata([video]))
+        self.assertEqual(resource.request["part"], "snippet,localizations")
+        self.assertEqual(video.current_languages, ["ru"])
+        self.assertEqual(video.default_language_code, "en")
+        self.assertEqual(video.default_language_name, "English")
 
 
 if __name__ == "__main__":
