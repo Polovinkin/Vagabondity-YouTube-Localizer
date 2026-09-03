@@ -214,7 +214,7 @@
                     <span class="localization-heading">Localizations</span>
                 </div>
 
-                <p class="video-list-hint">Click a video title to view its existing languages.</p>
+                <p class="video-list-hint">Click a title or description to select a video; use its language count to view localizations.</p>
                 <ul id="video-list-container">
                     {% for video in page_videos %}
                     <li class="video-card">
@@ -228,21 +228,26 @@
                                 <img class="video-thumbnail" src="{{ video.thumbnail_url }}"
                                      alt="" loading="lazy">
                             </button>
-                            <div class="always-vis-container" onclick="showHideLanguages(this)"
-                                 role="button" tabindex="0" aria-expanded="false"
-                                 onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();showHideLanguages(this);}">
-                                <div class="title-and-desc">
-                                    <div class="video-title">{{ video.video_title }}</div>
-                                    <div class="video-description">
-                                        {{ video.description[:200] }}{% if video.description|length > 200 %}...{% endif %}
-                                    </div>
-                                </div>
-                                <div class="localization-count" title="{{ video.num_languages }} current localizations">
+                            <div class="always-vis-container">
+                                <button class="video-text-button" type="button"
+                                        aria-label="Select {{ video.video_title }}"
+                                        aria-pressed="false" onclick="toggleVideoSelection(this)">
+                                    <span class="video-title">{{ video.video_title }}</span>
+                                    <span class="video-description">
+                                        {{ video.description }}
+                                    </span>
+                                </button>
+                                <button class="localization-count" type="button"
+                                        title="{{ video.num_languages }} current localizations"
+                                        aria-label="Show {{ video.num_languages }} current localizations for {{ video.video_title }}"
+                                        aria-expanded="false"
+                                        aria-controls="video-localizations-{{ loop.index }}"
+                                        onclick="showHideLanguages(this)">
                                     {{ video.num_languages }}
-                                </div>
+                                </button>
                             </div>
                         </div>
-                        <div class="show-hide">
+                        <div class="show-hide" id="video-localizations-{{ loop.index }}">
                             <div class="localizations-title">Source language</div>
                             <div class="source-language-value">
                                 {% if video.default_language_name %}
@@ -1335,10 +1340,12 @@
         allPageVideosSelected = entirePageSelected;
         selectAllVideosCheck.checked = entirePageSelected;
         videoSelectors.forEach(selector => {
-            const thumbnailButton = selector.parentElement.querySelector(
-                '.video-thumbnail-button'
+            const selectionButtons = selector.parentElement.querySelectorAll(
+                '.video-thumbnail-button, .video-text-button'
             );
-            thumbnailButton.setAttribute('aria-pressed', String(selector.checked));
+            selectionButtons.forEach(button => {
+                button.setAttribute('aria-pressed', String(selector.checked));
+            });
         });
         if (!entirePageSelected && selectAllChannelSpan) {
             selectAllChannelSpan.style.display = 'none';
@@ -1418,16 +1425,16 @@
         updateVideoSelectionState();
     }
 
-    function toggleVideoSelection(thumbnailButton) {
-        const selector = thumbnailButton.parentElement.querySelector('.video-selector');
+    function toggleVideoSelection(selectionButton) {
+        const selector = selectionButton.closest('.video-row-main').querySelector('.video-selector');
         selector.checked = !selector.checked;
         selector.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    function showHideLanguages(clicked) {
-        const lang_div = clicked.parentElement.parentElement.getElementsByClassName('show-hide')[0];
-        const isOpen = lang_div.classList.toggle('is-open');
-        clicked.setAttribute('aria-expanded', String(isOpen));
+    function showHideLanguages(button) {
+        const languagePanel = button.closest('.video-card').querySelector('.show-hide');
+        const isOpen = languagePanel.classList.toggle('is-open');
+        button.setAttribute('aria-expanded', String(isOpen));
     }
 </script>
 

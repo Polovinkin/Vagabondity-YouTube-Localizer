@@ -303,6 +303,36 @@ class AppTests(unittest.TestCase):
         self.assertIn(b"English", response.data)
         self.assertIn(b"Default", response.data)
         self.assertIn(b"Russian", response.data)
+        self.assertIn(b'class="video-text-button"', response.data)
+        self.assertIn(b'onclick="toggleVideoSelection(this)"', response.data)
+        self.assertIn(b'class="localization-count" type="button"', response.data)
+        self.assertIn(b'onclick="showHideLanguages(this)"', response.data)
+        self.assertIn(b'aria-controls="video-localizations-1"', response.data)
+        self.assertIn(
+            b"Click a title or description to select a video",
+            response.data,
+        )
+
+    def test_full_description_is_available_for_responsive_line_clamping(self):
+        description = ("A complete video description with natural word breaks. " * 5) + "Final words."
+        self.youtube.page_videos = [
+            SimpleNamespace(
+                id="video-id",
+                video_title="Long description video",
+                description=description,
+                thumbnail_url="thumbnail.jpg",
+                current_languages=[],
+                language_names=[],
+                default_language_code="en",
+                default_language_name="English",
+                num_languages=0,
+            )
+        ]
+
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Final words.", response.data)
 
     def test_localization_request_is_delegated(self):
         response = self.client.post(

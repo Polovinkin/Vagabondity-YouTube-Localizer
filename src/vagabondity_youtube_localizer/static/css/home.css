@@ -1058,20 +1058,31 @@ a.top-page-btn:focus-visible {
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    cursor: pointer;
-    outline: none;
 }
 
-.always-vis-container:focus-visible {
+.video-text-button {
+    min-width: 0;
+    flex: 1 1 auto;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.video-text-button:focus-visible {
     border-radius: 10px;
+    outline: none;
     box-shadow: 0 0 0 3px var(--amber-soft);
 }
 
-.title-and-desc {
-    min-width: 0;
+.video-text-button[aria-pressed="true"] .video-title {
+    color: var(--amber-bright);
 }
 
 .video-title {
+    display: block;
     overflow: hidden;
     color: var(--text);
     font-size: 0.97rem;
@@ -1098,12 +1109,23 @@ a.top-page-btn:focus-visible {
     height: 42px;
     flex: 0 0 42px;
     place-items: center;
+    padding: 0;
     border: 1px solid var(--border-bright);
     border-radius: 13px;
     color: var(--amber-bright);
     background: var(--amber-soft);
     font-size: 0.9rem;
     font-weight: 750;
+    cursor: pointer;
+    transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.localization-count:hover,
+.localization-count:focus-visible,
+.localization-count[aria-expanded="true"] {
+    border-color: var(--amber);
+    background: rgba(245, 158, 11, 0.2);
+    outline: none;
 }
 
 .show-hide {
