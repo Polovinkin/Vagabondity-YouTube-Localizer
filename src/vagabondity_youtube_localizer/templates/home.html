@@ -85,7 +85,7 @@
                 <button class="btn btn-primary add-language-btn" id="sidebarAddLanguageBtn" disabled>
                     <span class="primary-action-title">Choose languages &amp; localize</span>
                     <span class="primary-action-status video-selection-hint" aria-live="polite">
-                        Select at least one video below to continue.
+                        Select at least one video to continue.
                     </span>
                 </button>
             </div>
@@ -123,7 +123,7 @@
                             <button class="btn btn-primary add-language-btn" id="addLanguageBtn" disabled>
                                 <span class="primary-action-title">Choose languages &amp; localize</span>
                                 <span class="primary-action-status video-selection-hint" id="videoSelectionHint" aria-live="polite">
-                                    Select at least one video below to continue.
+                                    Select at least one video to continue.
                                 </span>
                             </button>
                         </div>
@@ -495,7 +495,15 @@
             <div>
                 <h2 id="language-modal-title">Choose languages</h2>
             </div>
-            <button class="close" type="button" aria-label="Close">&times;</button>
+            <div class="modal-header-actions">
+                <span class="modal-provider-badge">
+                    <span>Translation via</span>
+                    <strong id="modalProviderName" aria-live="polite">
+                        {{ 'DeepL' if default_translation_provider == 'deepl' else 'Google Cloud' }}
+                    </strong>
+                </span>
+                <button class="close" type="button" aria-label="Close">&times;</button>
+            </div>
         </div>
 
         <label class="select-all-languages" for="selectAllLanguages">
@@ -586,6 +594,7 @@
         document.querySelectorAll('input[name="translationProvider"]')
     );
     const providerStatus = document.getElementById("providerStatus");
+    const modalProviderName = document.getElementById("modalProviderName");
     const testProvidersBtn = document.getElementById("testProvidersBtn");
     const usageProvidersBtn = document.getElementById("usageProvidersBtn");
     const providerTestPopup = document.getElementById("providerTestPopup");
@@ -711,15 +720,15 @@
     }
 
     function updateProviderStatus() {
-        const selected = providerInputs.find(input => input.checked);
+        const selected = providerInputs.find(input => input.checked && !input.disabled);
         if (selected) {
-            providerStatus.innerText = (
-                (selected.value === 'deepl' ? 'DeepL' : 'Google Cloud')
-                + ' will be used'
-            );
+            const providerName = selected.value === 'deepl' ? 'DeepL' : 'Google Cloud';
+            providerStatus.innerText = providerName + ' will be used';
+            modalProviderName.innerText = providerName;
             return;
         }
         providerStatus.innerText = 'No translation provider is configured';
+        modalProviderName.innerText = 'Unavailable';
     }
 
     function getTranslationProvider() {
@@ -1305,7 +1314,7 @@
             });
         } else {
             selectionHints.forEach(hint => {
-                hint.innerText = 'Select at least one video below to continue.';
+                hint.innerText = 'Select at least one video to continue.';
             });
         }
 

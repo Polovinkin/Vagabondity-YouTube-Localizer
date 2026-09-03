@@ -1324,6 +1324,33 @@ a.top-page-btn:focus-visible {
     border-bottom: 1px solid var(--border);
 }
 
+.modal-header-actions,
+.modal-provider-badge {
+    display: flex;
+    align-items: center;
+}
+
+.modal-header-actions {
+    gap: 10px;
+}
+
+.modal-provider-badge {
+    min-height: 38px;
+    gap: 5px;
+    padding: 7px 11px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--muted);
+    background: var(--surface-soft);
+    font-size: 0.68rem;
+    white-space: nowrap;
+}
+
+.modal-provider-badge strong {
+    color: var(--amber-bright);
+    font-weight: 740;
+}
+
 .close,
 .provider-test-close,
 .provider-usage-close {

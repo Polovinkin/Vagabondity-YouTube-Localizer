@@ -153,6 +153,10 @@ class AppTests(unittest.TestCase):
         self.assertIn(b'id="usageProvidersBtn"', response.data)
         self.assertIn(b"Provider connections", response.data)
         self.assertIn(b'id="language-modal-title">Choose languages</h2>', response.data)
+        self.assertIn(b'id="modalProviderName"', response.data)
+        self.assertIn(b"Translation via", response.data)
+        self.assertIn(b"modalProviderName.innerText = providerName", response.data)
+        self.assertNotIn(b"Select at least one video below to continue.", response.data)
         self.assertNotIn(b"Target markets", response.data)
         self.assertNotIn(
             b"Select one or more languages for the chosen videos.",
