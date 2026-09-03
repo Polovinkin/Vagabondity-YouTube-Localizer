@@ -158,6 +158,15 @@ class AppTests(unittest.TestCase):
             b"Select one or more languages for the chosen videos.",
             response.data,
         )
+        self.assertIn(
+            b'id="translateSelectedBtn"\n                    onclick="onClickTranslate()" disabled>Select at least one language</button>',
+            response.data,
+        )
+        self.assertIn(b"selector.checked && !selector.disabled", response.data)
+        self.assertNotIn(
+            b'alert("Please select at least one video and one language.")',
+            response.data,
+        )
 
     def test_top_pagination_buttons_render(self):
         # When num_pages is 2 (e.g. app passes num_pages=2 to template), page 1 is the first page and page 1 is also the last page
@@ -209,6 +218,36 @@ class AppTests(unittest.TestCase):
         )
         self.assertNotIn(
             b".page-link, .video-filter-option",
+            response.data,
+        )
+
+    def test_languages_are_grouped_into_collapsible_priority_tiers(self):
+        self.youtube.language_names_in_display_order = [
+            "English",
+            "Korean",
+            "Italian",
+            "Hindi",
+            "Vietnamese",
+            "Zulu",
+        ]
+
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'id="tier-1" open', response.data)
+        self.assertIn(b"Tier 1 \xc2\xb7 Priority languages", response.data)
+        self.assertIn(b'id="tier-2"', response.data)
+        self.assertNotIn(b'id="tier-2" open', response.data)
+        self.assertIn(b"Tier 2 \xc2\xb7 Additional languages", response.data)
+        self.assertIn(b'id="tier-3"', response.data)
+        self.assertNotIn(b'id="tier-3" open', response.data)
+        self.assertIn(b"Tier 3 \xc2\xb7 Other languages", response.data)
+        self.assertIn(
+            b"document.body.classList.add('language-modal-open')",
+            response.data,
+        )
+        self.assertIn(
+            b"document.body.classList.remove('language-modal-open')",
             response.data,
         )
 

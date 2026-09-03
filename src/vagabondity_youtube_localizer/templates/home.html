@@ -504,19 +504,30 @@
         </label>
 
         <div class="language-list">
-            {% for language in all_language_names %}
-                <label class="language-option">
-                    <input type="checkbox" class="form-check-input language-selector"/>
-                    <span class="language-label" data-lang="{{ language }}">
-                        <span class="language-name">{{ language }}</span>{% if language_flags.get(language) %} <span class="language-flag">{{ language_flags[language] }}</span>{% endif %}
-                        <span class="language-status" aria-live="polite"></span>
-                    </span>
-                </label>
+            {% for tier in language_tiers %}
+                <details class="language-tier" id="{{ tier.id }}"{% if tier.expanded %} open{% endif %}>
+                    <summary>
+                        <span>{{ tier.label }}</span>
+                        <span class="language-tier-count">{{ tier.languages|length }}</span>
+                    </summary>
+                    <div class="language-tier-options">
+                        {% for language in tier.languages %}
+                            <label class="language-option">
+                                <input type="checkbox" class="form-check-input language-selector"/>
+                                <span class="language-label" data-lang="{{ language }}">
+                                    <span class="language-name">{{ language }}</span>{% if language_flags.get(language) %} <span class="language-flag">{{ language_flags[language] }}</span>{% endif %}
+                                    <span class="language-status" aria-live="polite"></span>
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </details>
             {% endfor %}
         </div>
 
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary" onclick="onClickTranslate()">Translate selected</button>
+            <button type="button" class="btn btn-primary" id="translateSelectedBtn"
+                    onclick="onClickTranslate()" disabled>Select at least one language</button>
             <label class="modal-retranslate-option" for="overwrite">
                 <input id="overwrite" type="checkbox" class="form-check-input"/>
                 <span>
@@ -528,7 +539,7 @@
                 <input id="trim" type="checkbox" class="form-check-input"/>
                 <span>
                     <strong>Shorten oversized text</strong>
-                    <small>100-character titles and 5,000-byte descriptions;<br>adds an ellipsis.</small>
+                    <small>100-character titles and 5,000-byte descriptions; adds an ellipsis.</small>
                 </span>
             </label>
         </div>
@@ -563,6 +574,7 @@
     const progressBreakdown = document.getElementById("progressBreakdown");
     const addLanguageBtn = document.getElementById("addLanguageBtn");
     const addLanguageButtons = Array.from(document.querySelectorAll(".add-language-btn"));
+    const translateSelectedBtn = document.getElementById("translateSelectedBtn");
     const closeModalSpan = document.getElementsByClassName("close")[0];
     const overwriteCheck = document.getElementById("overwrite");
     const trimCheck = document.getElementById("trim");
@@ -616,6 +628,9 @@
         });
         videoSelectors.forEach(selector => {
             selector.addEventListener('change', updateVideoSelectionState);
+        });
+        languageSelectors.forEach(selector => {
+            selector.addEventListener('change', updateTranslateButtonState);
         });
         formSelect.addEventListener('change', () => changePerPage(formSelect.selectedIndex));
         overwriteCheck.addEventListener('change', onOverwriteChange);
@@ -792,6 +807,7 @@
 
     function closeLanguagePopup() {
         addLanguagePopup.style.display = 'none';
+        document.body.classList.remove('language-modal-open');
         languagePopupTrigger.focus();
     }
 
@@ -829,6 +845,7 @@
             return;
         }
 
+        document.body.classList.add('language-modal-open');
         addLanguagePopup.style.display = "block";
         resetLanguageDialog();
         
@@ -913,6 +930,7 @@
                         || (defaultCount > 0 && !defaultForAll)
                 );
             }
+            updateTranslateButtonState();
         } catch (error) {
             console.error('Error getting current languages:', error);
             alert('Could not fetch existing language data. Please try again.');
@@ -1135,11 +1153,11 @@
         }
 
         if (selectedVideos.length === 0 || selectedLanguages.length === 0) {
-            alert("Please select at least one video and one language.");
             return;
         }
 
         addLanguagePopup.style.display = "none";
+        document.body.classList.remove('language-modal-open');
         progressPopup.style.display = "block";
         progressPollFailures = 0;
         errorPopUpContent.innerHTML = '';
@@ -1324,6 +1342,17 @@
         languageSelectors.forEach(s => {
             if (!s.disabled) s.checked = allLanguagesSelected;
         });
+        updateTranslateButtonState();
+    }
+
+    function updateTranslateButtonState() {
+        const hasSelectedLanguage = languageSelectors.some(
+            selector => selector.checked && !selector.disabled
+        );
+        translateSelectedBtn.disabled = !hasSelectedLanguage;
+        translateSelectedBtn.innerText = hasSelectedLanguage
+            ? 'Translate selected'
+            : 'Select at least one language';
     }
 
     function resetLanguageSelectors() {
@@ -1341,6 +1370,7 @@
             );
             l.querySelector('.language-status').textContent = '';
         });
+        updateTranslateButtonState();
     }
 
     function resetLanguageDialog() {

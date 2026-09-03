@@ -13,6 +13,54 @@ from .usage import GoogleUsageTracker
 from .youtube_client import LANGUAGE_FLAGS, YouTubeClient
 
 
+TIER_1_LANGUAGES = {
+    "English",
+    "Russian",
+    "Spanish",
+    "Portuguese",
+    "Japanese",
+    "German",
+    "French",
+    "Korean",
+}
+TIER_2_LANGUAGES = {
+    "Italian",
+    "Polish",
+    "Turkish",
+    "Indonesian",
+    "Arabic",
+    "Hindi",
+}
+
+
+def build_language_tiers(language_names):
+    """Group display languages without changing their configured order."""
+    tier_definitions = (
+        ("tier-1", "Tier 1 · Priority languages", TIER_1_LANGUAGES, True),
+        ("tier-2", "Tier 2 · Additional languages", TIER_2_LANGUAGES, False),
+        ("tier-3", "Tier 3 · Other languages", None, False),
+    )
+    prioritized_languages = TIER_1_LANGUAGES | TIER_2_LANGUAGES
+    tiers = []
+    for tier_id, label, included_languages, expanded in tier_definitions:
+        if included_languages is None:
+            languages = [
+                name for name in language_names if name not in prioritized_languages
+            ]
+        else:
+            languages = [name for name in language_names if name in included_languages]
+        if languages:
+            tiers.append(
+                {
+                    "id": tier_id,
+                    "label": label,
+                    "languages": languages,
+                    "expanded": expanded,
+                }
+            )
+    return tiers
+
+
 def create_app(
     youtube_client=None,
     localization_service=None,
@@ -112,7 +160,9 @@ def create_app(
                 page_videos=youtube.page_videos,
                 all_videos=all_video_titles,
                 all_video_ids=all_video_ids,
-                all_language_names=youtube.language_names_in_display_order,
+                language_tiers=build_language_tiers(
+                    youtube.language_names_in_display_order
+                ),
                 language_flags=LANGUAGE_FLAGS,
                 channel_thumbnail=youtube.channel_thumbnail,
                 channel_name=youtube.channel_name,
