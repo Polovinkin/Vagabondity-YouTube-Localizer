@@ -35,50 +35,61 @@
     </header>
 
     <div class="workspace-layout">
-        <aside class="channel-card">
-            <span class="eyebrow">Your channel</span>
-            <img class="channel-thumbnail" src="{{ channel_thumbnail }}" alt="{{ channel_name }} channel thumbnail">
-            <h2>{{ channel_name }}</h2>
-            <section class="channel-filter-section" aria-labelledby="video-format-heading">
-                <div class="channel-filter-heading">
-                    <span id="video-format-heading">Video format</span>
-                    <button class="filter-help" type="button"
-                            aria-label="How Shorts are detected"
-                            aria-describedby="shorts-filter-help">
-                        ?
-                        <span class="filter-help-tooltip" id="shorts-filter-help" role="tooltip">
-                            Shorts are determined by duration only. Videos up to and including
-                            3 minutes are treated as Shorts because the YouTube Data API does
-                            not expose YouTube's official Shorts classification.
-                        </span>
-                    </button>
+        <div class="channel-sidebar">
+            <aside class="channel-card">
+                <span class="eyebrow">Your channel</span>
+                <img class="channel-thumbnail" src="{{ channel_thumbnail }}" alt="{{ channel_name }} channel thumbnail">
+                <h2>{{ channel_name }}</h2>
+                <section class="channel-filter-section" aria-labelledby="video-format-heading">
+                    <div class="channel-filter-heading">
+                        <span id="video-format-heading">Video format</span>
+                        <button class="filter-help" type="button"
+                                aria-label="How Shorts are detected"
+                                aria-describedby="shorts-filter-help">
+                            ?
+                            <span class="filter-help-tooltip" id="shorts-filter-help" role="tooltip">
+                                Shorts are determined by duration only. Videos up to and including
+                                3 minutes are treated as Shorts because the YouTube Data API does
+                                not expose YouTube's official Shorts classification.
+                            </span>
+                        </button>
+                    </div>
+                    <nav class="video-filter" aria-label="Filter videos by format">
+                        <a class="video-filter-option{% if video_filter == 'all' %} is-active{% endif %}"
+                           href="{{ url_for('home', page=1, video_filter='all') }}"
+                           {% if video_filter == 'all' %}aria-current="page"{% endif %}>
+                            <span>All videos</span>
+                            <strong>{{ video_filter_counts.all }}</strong>
+                        </a>
+                        <a class="video-filter-option{% if video_filter == 'videos' %} is-active{% endif %}"
+                           href="{{ url_for('home', page=1, video_filter='videos') }}"
+                           {% if video_filter == 'videos' %}aria-current="page"{% endif %}>
+                            <span>Full videos</span>
+                            <strong>{{ video_filter_counts.videos }}</strong>
+                        </a>
+                        <a class="video-filter-option{% if video_filter == 'shorts' %} is-active{% endif %}"
+                           href="{{ url_for('home', page=1, video_filter='shorts') }}"
+                           {% if video_filter == 'shorts' %}aria-current="page"{% endif %}>
+                            <span>Shorts</span>
+                            <strong>{{ video_filter_counts.shorts }}</strong>
+                        </a>
+                    </nav>
+                </section>
+                <div class="channel-metric">
+                    <span>Total videos</span>
+                    <strong>{{ total_videos }}</strong>
                 </div>
-                <nav class="video-filter" aria-label="Filter videos by format">
-                    <a class="video-filter-option{% if video_filter == 'all' %} is-active{% endif %}"
-                       href="{{ url_for('home', page=1, video_filter='all') }}"
-                       {% if video_filter == 'all' %}aria-current="page"{% endif %}>
-                        <span>All videos</span>
-                        <strong>{{ video_filter_counts.all }}</strong>
-                    </a>
-                    <a class="video-filter-option{% if video_filter == 'videos' %} is-active{% endif %}"
-                       href="{{ url_for('home', page=1, video_filter='videos') }}"
-                       {% if video_filter == 'videos' %}aria-current="page"{% endif %}>
-                        <span>Full videos</span>
-                        <strong>{{ video_filter_counts.videos }}</strong>
-                    </a>
-                    <a class="video-filter-option{% if video_filter == 'shorts' %} is-active{% endif %}"
-                       href="{{ url_for('home', page=1, video_filter='shorts') }}"
-                       {% if video_filter == 'shorts' %}aria-current="page"{% endif %}>
-                        <span>Shorts</span>
-                        <strong>{{ video_filter_counts.shorts }}</strong>
-                    </a>
-                </nav>
-            </section>
-            <div class="channel-metric">
-                <span>Total videos</span>
-                <strong>{{ total_videos }}</strong>
+            </aside>
+
+            <div class="primary-action sidebar-primary-action">
+                <button class="btn btn-primary add-language-btn" id="sidebarAddLanguageBtn" disabled>
+                    <span class="primary-action-title">Choose languages &amp; localize</span>
+                    <span class="primary-action-status video-selection-hint" aria-live="polite">
+                        Select at least one video below to continue.
+                    </span>
+                </button>
             </div>
-        </aside>
+        </div>
 
         <main class="main-content">
             <section class="controls-card">
@@ -109,9 +120,9 @@
                         </ol>
 
                         <div class="primary-action">
-                            <button class="btn btn-primary" id="addLanguageBtn" disabled>
+                            <button class="btn btn-primary add-language-btn" id="addLanguageBtn" disabled>
                                 <span class="primary-action-title">Choose languages &amp; localize</span>
-                                <span class="primary-action-status" id="videoSelectionHint" aria-live="polite">
+                                <span class="primary-action-status video-selection-hint" id="videoSelectionHint" aria-live="polite">
                                     Select at least one video below to continue.
                                 </span>
                             </button>
@@ -164,7 +175,7 @@
 
             </section>
 
-            <section class="videos-panel">
+            <section class="videos-panel" id="videos-library">
                 <div class="video-list-heading">
                     <div class="video-list-title-wrap">
                         <div>
@@ -172,13 +183,15 @@
                         </div>
                         <nav class="top-pagination" aria-label="Compact video pagination">
                             {% if current_page > 1 %}
-                                <a class="top-page-btn page-link" href="{{ url_for('home', page=current_page - 1, video_filter=video_filter) }}" aria-label="Previous page">&lt;</a>
+                                <a class="top-page-btn page-link" href="{{ url_for('home', page=current_page - 1, video_filter=video_filter, _anchor='videos-library') }}" aria-label="Previous page">&lt;</a>
                             {% else %}
                                 <span class="top-page-btn is-disabled" aria-disabled="true" aria-label="Previous page">&lt;</span>
                             {% endif %}
 
+                            <span class="top-page-number" aria-current="page" aria-label="Current page {{ current_page }}">{{ current_page }}</span>
+
                             {% if current_page < num_pages - 1 %}
-                                <a class="top-page-btn page-link" href="{{ url_for('home', page=current_page + 1, video_filter=video_filter) }}" aria-label="Next page">&gt;</a>
+                                <a class="top-page-btn page-link" href="{{ url_for('home', page=current_page + 1, video_filter=video_filter, _anchor='videos-library') }}" aria-label="Next page">&gt;</a>
                             {% else %}
                                 <span class="top-page-btn is-disabled" aria-disabled="true" aria-label="Next page">&gt;</span>
                             {% endif %}
@@ -267,7 +280,7 @@
             <ul class="pagination">
             {% if current_page > 1 %}
                 <li class="page-item">
-                    <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page - 1, video_filter=video_filter) }}" aria-label="Previous page">&lt;</a>
+                    <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page - 1, video_filter=video_filter, _anchor='videos-library') }}" aria-label="Previous page">&lt;</a>
                 </li>
             {% endif %}
 
@@ -278,7 +291,7 @@
                     </li>
                 {% elif n <= 3 or n >= num_pages - 2 or (n >= current_page - 2 and n <= current_page + 2) %}
                     <li class="page-item">
-                        <a class="page-link" href="{{ url_for('home', page=n, video_filter=video_filter) }}">{{ n }}</a>
+                        <a class="page-link" href="{{ url_for('home', page=n, video_filter=video_filter, _anchor='videos-library') }}">{{ n }}</a>
                     </li>
                 {% elif n == 4 and current_page > 6 %}
                     <li class="page-item disabled"><span class="page-link">…</span></li>
@@ -289,7 +302,7 @@
 
             {% if current_page < num_pages - 1 %}
                 <li class="page-item">
-                    <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page + 1, video_filter=video_filter) }}" aria-label="Next page">&gt;</a>
+                    <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page + 1, video_filter=video_filter, _anchor='videos-library') }}" aria-label="Next page">&gt;</a>
                 </li>
             {% endif %}
             </ul>
@@ -316,7 +329,7 @@
     <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>
-    <p>Loading videos…</p>
+    <p id="loadingOverlayMessage" aria-live="polite">Loading videos…</p>
 </div>
 
 
@@ -480,9 +493,7 @@
     <div class="modal-content language-modal-content">
         <div class="modal-header">
             <div>
-                <span class="eyebrow">Target markets</span>
                 <h2 id="language-modal-title">Choose languages</h2>
-                <p>Select one or more languages for the chosen videos.</p>
             </div>
             <button class="close" type="button" aria-label="Close">&times;</button>
         </div>
@@ -551,11 +562,12 @@
     const progressCurrentLanguage = document.getElementById("progressCurrentLanguage");
     const progressBreakdown = document.getElementById("progressBreakdown");
     const addLanguageBtn = document.getElementById("addLanguageBtn");
+    const addLanguageButtons = Array.from(document.querySelectorAll(".add-language-btn"));
     const closeModalSpan = document.getElementsByClassName("close")[0];
     const overwriteCheck = document.getElementById("overwrite");
     const trimCheck = document.getElementById("trim");
     const selectAllVideosCheck = document.getElementById("selectAllVideos");
-    const selectionHint = document.getElementById("videoSelectionHint");
+    const selectionHints = Array.from(document.querySelectorAll(".video-selection-hint"));
     const selectVideosStep = document.getElementById("selectVideosStep");
     const chooseLanguagesStep = document.getElementById("chooseLanguagesStep");
     const providerInputs = Array.from(
@@ -571,6 +583,7 @@
     const providerUsageClose = document.querySelector(".provider-usage-close");
     const providerUsageDone = document.querySelector(".provider-usage-done");
     const loadingOverlay = document.getElementById("loading-overlay");
+    const loadingOverlayMessage = document.getElementById("loadingOverlayMessage");
     const defaultTranslationProvider = {{ default_translation_provider|tojson }};
 
     // Global variables
@@ -579,6 +592,7 @@
     let allLanguagesSelected = false;
     let allChannelVideosSelected = false;
     let progressPollFailures = 0;
+    let languagePopupTrigger = addLanguageBtn;
 
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize selectors
@@ -594,7 +608,12 @@
         resumeActiveLocalization();
         
         // Add event listeners
-        addLanguageBtn.addEventListener('click', onAddLanguageClick);
+        addLanguageButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                languagePopupTrigger = button;
+                onAddLanguageClick();
+            });
+        });
         videoSelectors.forEach(selector => {
             selector.addEventListener('change', updateVideoSelectionState);
         });
@@ -773,7 +792,7 @@
 
     function closeLanguagePopup() {
         addLanguagePopup.style.display = 'none';
-        addLanguageBtn.focus();
+        languagePopupTrigger.focus();
     }
 
     async function testProviderConnections() {
@@ -1183,8 +1202,10 @@
     }
 
     function closeProgressWindow() {
+        progressPopup.style.display = 'none';
+        loadingOverlayMessage.innerText = 'Refreshing videos and published translations from YouTube…';
         loadingOverlay.style.display = 'flex';
-        location.href = "{{ url_for('home', page=1, video_filter=video_filter) }}";
+        location.href = "{{ url_for('home', page=current_page, video_filter=video_filter, _anchor='videos-library') }}";
     }
 
     function getSelectedVideos() {
@@ -1253,15 +1274,21 @@
             videoSelectors.length > 0 && selectedCount === videoSelectors.length
         );
 
-        addLanguageBtn.disabled = !hasSelection;
+        addLanguageButtons.forEach(button => {
+            button.disabled = !hasSelection;
+        });
         if (hasSelection) {
             const videoWord = selectedCount === 1 ? 'video' : 'videos';
-            selectionHint.innerText = (
-                selectedCount + ' ' + videoWord
-                + ' selected. Ready to continue.'
-            );
+            selectionHints.forEach(hint => {
+                hint.innerText = (
+                    selectedCount + ' ' + videoWord
+                    + ' selected. Ready to continue.'
+                );
+            });
         } else {
-            selectionHint.innerText = 'Select at least one video below to continue.';
+            selectionHints.forEach(hint => {
+                hint.innerText = 'Select at least one video below to continue.';
+            });
         }
 
         selectVideosStep.classList.toggle('is-active', !hasSelection);

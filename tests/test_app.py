@@ -139,10 +139,25 @@ class AppTests(unittest.TestCase):
         self.assertIn(b"Shorts are determined by duration only", response.data)
         self.assertIn(b"Choose languages &amp; localize", response.data)
         self.assertIn(b'id="addLanguageBtn"', response.data)
+        self.assertIn(b'id="sidebarAddLanguageBtn"', response.data)
+        self.assertEqual(
+            response.data.count(b'class="btn btn-primary add-language-btn"'),
+            2,
+        )
+        self.assertIn(
+            b'document.querySelectorAll(".add-language-btn")',
+            response.data,
+        )
         self.assertIn(b"disabled", response.data)
         self.assertIn(b'id="testProvidersBtn"', response.data)
         self.assertIn(b'id="usageProvidersBtn"', response.data)
         self.assertIn(b"Provider connections", response.data)
+        self.assertIn(b'id="language-modal-title">Choose languages</h2>', response.data)
+        self.assertNotIn(b"Target markets", response.data)
+        self.assertNotIn(
+            b"Select one or more languages for the chosen videos.",
+            response.data,
+        )
 
     def test_top_pagination_buttons_render(self):
         # When num_pages is 2 (e.g. app passes num_pages=2 to template), page 1 is the first page and page 1 is also the last page
@@ -152,6 +167,10 @@ class AppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         # On page 1 of 1, both buttons are disabled
         self.assertEqual(response.data.count(b'class="top-page-btn is-disabled"'), 2)
+        self.assertIn(
+            b'class="top-page-number" aria-current="page" aria-label="Current page 1">1</span>',
+            response.data,
+        )
 
         # When num_pages is 3 (2 pages total: page 1 and page 2)
         self.youtube.num_pages = 2
@@ -159,14 +178,24 @@ class AppTests(unittest.TestCase):
         response_p1 = self.client.get("/")
         self.assertEqual(response_p1.status_code, 200)
         # On page 1 of 2: left is disabled, right links to page 2
-        self.assertIn(b'href="/?page=2&amp;video_filter=all"', response_p1.data)
+        self.assertIn(
+            b'href="/?page=2&amp;video_filter=all#videos-library"',
+            response_p1.data,
+        )
 
         self.youtube.current_page = 2
         response_p2 = self.client.get("/?page=2")
         self.assertEqual(response_p2.status_code, 200)
         # On page 2 of 2 (last page): left links to page 1, right is disabled
-        self.assertIn(b'href="/?page=1&amp;video_filter=all"', response_p2.data)
+        self.assertIn(
+            b'href="/?page=1&amp;video_filter=all#videos-library"',
+            response_p2.data,
+        )
         self.assertIn(b'class="top-page-btn is-disabled"', response_p2.data)
+        self.assertIn(
+            b'class="top-page-number" aria-current="page" aria-label="Current page 2">2</span>',
+            response_p2.data,
+        )
 
     def test_video_filter_is_applied(self):
         response = self.client.get("/?video_filter=videos")
@@ -281,6 +310,22 @@ class AppTests(unittest.TestCase):
         self.assertIn(b'id="progressSucceeded"', response.data)
         self.assertIn(b'id="progressSkipped"', response.data)
         self.assertIn(b'id="progressFailed"', response.data)
+        self.assertIn(b'id="loadingOverlayMessage"', response.data)
+        self.assertIn(
+            b'Refreshing videos and published translations from YouTube',
+            response.data,
+        )
+
+    def test_done_refreshes_the_current_video_page(self):
+        self.youtube.num_pages = 4
+
+        response = self.client.get("/?page=4&video_filter=videos")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            b'location.href = "/?page=4&amp;video_filter=videos#videos-library";',
+            response.data,
+        )
 
     def test_active_progress_endpoint_is_empty_without_a_run(self):
         response = self.client.get("/localizations/active")

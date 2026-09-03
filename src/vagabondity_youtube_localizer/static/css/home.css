@@ -145,12 +145,21 @@ a {
     box-shadow: var(--shadow);
 }
 
-.channel-card {
+.channel-sidebar {
     position: sticky;
     top: 22px;
+    display: grid;
+    gap: 12px;
+}
+
+.channel-card {
     overflow: visible;
     padding: 20px;
     border-radius: 22px;
+}
+
+.sidebar-primary-action {
+    margin-top: 0;
 }
 
 .channel-card::before {
@@ -894,6 +903,7 @@ a {
 .videos-panel {
     overflow: hidden;
     padding: 20px;
+    scroll-margin-top: 24px;
 }
 
 .video-list-heading {
@@ -951,6 +961,15 @@ a.top-page-btn:focus-visible {
     background: transparent;
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+.top-page-number {
+    min-width: 22px;
+    color: var(--muted-strong);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
 }
 
 .localization-heading {
@@ -2025,6 +2044,10 @@ a.top-page-btn:focus-visible {
 @media (max-width: 1050px) {
     .workspace-layout {
         grid-template-columns: 1fr;
+    }
+
+    .channel-sidebar {
+        position: static;
     }
 
     .channel-card {
