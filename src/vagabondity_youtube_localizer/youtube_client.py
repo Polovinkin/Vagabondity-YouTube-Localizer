@@ -330,7 +330,6 @@ class YouTubeClient:
                 with open(self.token_file, "wb") as token_file:
                     pickle.dump(self.credentials, token_file)
 
-    # --- NEW METHOD ADDED ---
     def clear_video_cache(self):
         """Clears all in-memory video data to force a re-fetch on the next page load."""
         self.page_videos = []
@@ -338,7 +337,6 @@ class YouTubeClient:
         self.video_inventory = []
         self.page_tokens = {} # Important to reset this as well
         print("In-memory video cache cleared.")
-    # --- END OF NEW METHOD ---
 
     def set_channel_data(self, channel_response):
         """Extract channel information from API response"""
