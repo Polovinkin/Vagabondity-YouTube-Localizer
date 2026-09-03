@@ -1,22 +1,27 @@
 # Vagabondity YouTube Localizer
 
+A local web app for translating YouTube video titles and descriptions
+into multiple languages.
 
-Bulk-translate YouTube video titles and descriptions, review existing
-localizations, and publish the results back to YouTube. All is done safely and predictably.
+Review existing localizations, choose videos and target languages,
+and publish translations directly to YouTube — without changing the
+original title or description.
 
-Built by the author of [Vagabondity Walks](https://www.youtube.com/@vagabondity) channel
-for creators who want to localize YouTube metadata at scale.
+Created by the authors of [Vagabondity Walks](https://www.youtube.com/@vagabondity) channel.
 
-Product is in active development! :)
+> **Status:** Actively developed. Expect occasional changes and rough edges.
 
 ## Features
 
 - Translate multiple videos and languages in one run.
-- Switch explicitly between DeepL and Google Cloud Translation and test both provider connections before starting a localization run.
-- Retranslate and overwrite existing localizations explicitly.
+- See existing localizations before selecting target languages.
+- Translate one video, a page of videos, or the entire channel.
+- Choose explicitly between DeepL and Google Cloud Translation.
+- Track live progress, including published, skipped, and failed localizations.
+- Optionally replace existing localizations.
 - Keep the original video, thumbnail, title, and description unchanged.
 - Keep local provider settings together in the `config/` directory.
-- Store API credentials locally; the app binds only to `127.0.0.1`.
+- Run the interface locally on `127.0.0.1`.
 
 ## Requirements
 
@@ -25,7 +30,7 @@ Product is in active development! :)
 - YouTube Data API v3 OAuth credentials.
 - At least one translation provider: DeepL API or Google Cloud Translation.
 
-Python or anything else does not need to be installed separately. Python package and project manager `uv` downloads and manages the needed Python version automatically!
+You do not need to install Python separately. Python package and project manager `uv` downloads and manages the needed Python version automatically!
 
 ### Install uv
 
@@ -78,7 +83,7 @@ Git by `.gitignore` file, they are not shared and completely private.
 
 Only accounts listed under **Test users** can authorize the application while
 its publishing status is **Testing**. If you don't add your Google account here, you will not be
-able to log-in to your Google account when app starts.
+able to log in to your Google account when app starts.
 
 #### 1.2 Create the OAuth client
 
@@ -108,7 +113,7 @@ config/translate_key.json
 
 ## DeepL setup (optional, if you choose Google Translate)
 
-In order to use DeepL, you need to register in DeepL API, Free tier is, well, free :), you don't need to add any billing info.
+In order to use DeepL, you need to register in DeepL API, Free tier is, well, free - you don't need to add any billing info.
 Open `config/settings.toml` and paste the key from
 **DeepL → Account → API Keys & Limits**:
 
@@ -136,7 +141,7 @@ does not open automatically.
 
 On first launch, Google may show an “Google hasn’t verified this app” warning because the OAuth app is in Testing mode.
 
-It's expected and it's find. If this is your Google Cloud project and the app name is correct:
+This is expected. If this is your Google Cloud project and the app name is correct:
 1. Sign in with an account added to Google Auth Platform → Audience → Test users.
 2. Click Continue and approve the requested YouTube permissions. If you see `Error 403: access_denied`, add the selected Google account to the project’s Test users.
 3. After authorization, window closes, return to the application by opening <http://127.0.0.1:5050>.
@@ -147,7 +152,7 @@ Stop the application with Ctrl+C at any time.
 
 ### Test translation-provider connections
 
-Service has a feature which allows to verify that Google Cloud Translation and DeepL keys work fine before localizing any videos.
+The app lets you verify that Google Cloud Translation and DeepL keys work fine before localizing any videos.
 In order to do so, click **Test** in **Translation provider** window. The check sends the short
 phrase `Connection test` through each configured provider, so it verifies the
 actual credentials, API access, and translation request — not just whether a key file exists.
@@ -157,14 +162,14 @@ characters of translation quota for each configured provider.
 
 ## Safe first test
 
-1. Start with selecting one public or unlisted video.
+1. Start by selecting one public or unlisted video.
 2. Select either **DeepL** or **Google** in the translation-provider switch.
 3. Choose one language that has not been localized yet.
 4. Run the translation and look for `DeepL completed` in the terminal (if you used DeepL)
 5. Confirm the localized title and description in YouTube Studio.
 6. Test **retranslate existing languages** on that same localization only if
    you intentionally want to replace it.
-7. If everything works fine - feel free to bulk translate another videos! :)
+7. If everything works fine - feel free to translate more videos!
 
 ## Project structure
 
@@ -187,6 +192,12 @@ uv run python -m unittest discover -s tests -v
 uv run python -m compileall -q src
 ```
 
+### About `uv.lock`
+
+`pyproject.toml` contains the human-readable list of the application's direct dependencies. `uv.lock` is an automatically generated dependency lock file and should not be edited manually.
+
+The long URLs in `uv.lock` point to package files hosted by the official Python Package Index (`pypi.org` and `files.pythonhosted.org`). The file records package versions, platform-specific builds, and SHA-256 hashes so that `uv` can install reproducible dependencies and verify downloaded files. Only the build appropriate for the current operating system and processor is downloaded.
+
 ## Security notes
 
 - The application runs locally and listens on `127.0.0.1`, not on the public
@@ -198,18 +209,12 @@ uv run python -m compileall -q src
   `token.pickle`.
 - Revoke access at any time from your Google Account's third-party access page.
 
-### About `uv.lock`
-
-`pyproject.toml` contains the human-readable list of the application's direct dependencies. `uv.lock` is an automatically generated dependency lock file and should not be edited manually.
-
-The long URLs in `uv.lock` point to package files hosted by the official Python Package Index (`pypi.org` and `files.pythonhosted.org`). The file records package versions, platform-specific builds, and SHA-256 hashes so that `uv` can install reproducible dependencies and verify downloaded files. Only the build appropriate for the current operating system and processor is downloaded.
-
 ## License
 
 This is proprietary software. All rights are reserved.
 
 The project contains portions derived from
 [YouTube-Video-Metadata-Translator](https://github.com/jordicor/YouTube-Video-Metadata-Translator)
-by Jordi Cor. Those portions remain available under the MIT License.
+by Jordi Cor. Those portions are licensed under the MIT License.
 
 See `LICENSE` and `THIRD_PARTY_NOTICES.md`.
