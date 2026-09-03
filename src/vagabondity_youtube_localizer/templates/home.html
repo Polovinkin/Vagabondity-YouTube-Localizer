@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Localizer by Vagabondity</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+
+<div class="app-shell">
+    <header class="app-header">
+        <div class="brand-lockup">
+            <h1>YouTube Localizer</h1>
+            <a class="brand-byline" href="https://www.youtube.com/@vagabondity"
+               target="_blank" rel="noopener noreferrer">
+                <span>by</span>
+                <span class="brand-channel-name">
+                    <img class="brand-channel-icon"
+                         src="{{ url_for('static', filename='images/vagabondity-walks-icon.png') }}"
+                         alt="">
+                    <span>Vagabondity Walks ↗</span>
+                </span>
+            </a>
+        </div>
+        <div class="local-status"
+             title="The app runs on this computer. Video metadata is sent to the selected translation provider and YouTube.">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>Local app · cloud translation</span>
+        </div>
+    </header>
+
+    <div class="workspace-layout">
+        <aside class="channel-card">
+            <span class="eyebrow">Your channel</span>
+            <img class="channel-thumbnail" src="{{ channel_thumbnail }}" alt="{{ channel_name }} channel thumbnail">
+            <h2>{{ channel_name }}</h2>
+            <section class="channel-filter-section" aria-labelledby="video-format-heading">
+                <div class="channel-filter-heading">
+                    <span id="video-format-heading">Video format</span>
+                    <button class="filter-help" type="button"
+                            aria-label="How Shorts are detected"
+                            aria-describedby="shorts-filter-help">
+                        ?
+                        <span class="filter-help-tooltip" id="shorts-filter-help" role="tooltip">
+                            Shorts are determined by duration only. Videos up to and including
+                            3 minutes are treated as Shorts because the YouTube Data API does
+                            not expose YouTube's official Shorts classification.
+                        </span>
+                    </button>
+                </div>
+                <nav class="video-filter" aria-label="Filter videos by format">
+                    <a class="video-filter-option{% if video_filter == 'all' %} is-active{% endif %}"
+                       href="{{ url_for('home', page=1, video_filter='all') }}"
+                       {% if video_filter == 'all' %}aria-current="page"{% endif %}>
+                        <span>All videos</span>
+                        <strong>{{ video_filter_counts.all }}</strong>
+                    </a>
+                    <a class="video-filter-option{% if video_filter == 'videos' %} is-active{% endif %}"
+                       href="{{ url_for('home', page=1, video_filter='videos') }}"
+                       {% if video_filter == 'videos' %}aria-current="page"{% endif %}>
+                        <span>Full videos</span>
+                        <strong>{{ video_filter_counts.videos }}</strong>
+                    </a>
+                    <a class="video-filter-option{% if video_filter == 'shorts' %} is-active{% endif %}"
+                       href="{{ url_for('home', page=1, video_filter='shorts') }}"
+                       {% if video_filter == 'shorts' %}aria-current="page"{% endif %}>
+                        <span>Shorts</span>
+                        <strong>{{ video_filter_counts.shorts }}</strong>
+                    </a>
+                </nav>
+            </section>
+            <div class="channel-metric">
+                <span>Total videos</span>
+                <strong>{{ total_videos }}</strong>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <section class="controls-card">
+                <div class="controls-heading">
+                    <div>
+                        <h2>Translation Settings</h2>
+                    </div>
+                </div>
+
+                <div class="translation-settings-layout">
+                    <section class="translation-workflow-panel" aria-labelledby="workflow-title">
+                        <span class="settings-panel-label" id="workflow-title">Translation workflow</span>
+                        <ol class="workflow-steps" aria-label="Localization workflow">
+                            <li class="workflow-step is-active" id="selectVideosStep" aria-current="step">
+                                <span class="workflow-step-number">1</span>
+                                <span>
+                                    <strong>Select videos to localize</strong>
+                                    <small>Use the checkboxes in the library below</small>
+                                </span>
+                            </li>
+                            <li class="workflow-step" id="chooseLanguagesStep">
+                                <span class="workflow-step-number">2</span>
+                                <span>
+                                    <strong>Choose languages &amp; localize</strong>
+                                    <small>Available after selecting at least one video</small>
+                                </span>
+                            </li>
+                        </ol>
+
+                        <div class="primary-action">
+                            <button class="btn btn-primary" id="addLanguageBtn" disabled>
+                                <span class="primary-action-title">Choose languages &amp; localize</span>
+                                <span class="primary-action-status" id="videoSelectionHint" aria-live="polite">
+                                    Select at least one video below to continue.
+                                </span>
+                            </button>
+                        </div>
+
+                    </section>
+
+                    <section class="provider-panel" aria-labelledby="provider-panel-title">
+                        <div class="provider-control">
+                            <div class="provider-control-heading">
+                                <div class="provider-control-label" id="provider-panel-title">Translation providers</div>
+                            </div>
+                            <div class="provider-switch" role="radiogroup"
+                                 aria-label="Translation provider">
+                                <label class="provider-option">
+                                    <input type="radio" name="translationProvider" value="google"
+                                           {% if not provider_availability.google %}disabled{% endif %}>
+                                    <span class="provider-option-content">
+                                        <span class="provider-icon provider-icon-google" aria-hidden="true">G</span>
+                                        Google
+                                    </span>
+                                </label>
+                                <label class="provider-option">
+                                    <input type="radio" name="translationProvider" value="deepl"
+                                           {% if not provider_availability.deepl %}disabled{% endif %}>
+                                    <span class="provider-option-content">
+                                        <span class="provider-icon provider-icon-deepl" aria-hidden="true">D</span>
+                                        DeepL
+                                    </span>
+                                </label>
+                            </div>
+                            <small id="providerStatus"></small>
+                            <div class="provider-actions">
+                                <button id="usageProvidersBtn" class="provider-tool-button" type="button"
+                                        aria-label="Show translation usage and limits"
+                                        title="Usage and limits">
+                                    <span class="provider-tool-title"><span aria-hidden="true">◔</span> Usage</span>
+                                    <span class="provider-tool-description">See current quota, usage, and limits.</span>
+                                </button>
+                                <button id="testProvidersBtn" class="provider-tool-button" type="button"
+                                        aria-label="Test provider connections"
+                                        title="Test provider connections">
+                                    <span class="provider-tool-title"><span aria-hidden="true">✓</span> Test</span>
+                                    <span class="provider-tool-description">Check both configured provider connections.</span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+            </section>
+
+            <section class="videos-panel">
+                <div class="video-list-heading">
+                    <div class="video-list-title-wrap">
+                        <div>
+                            <h2>Videos Library</h2>
+                        </div>
+                        <nav class="top-pagination" aria-label="Compact video pagination">
+                            {% if current_page > 1 %}
+                                <a class="top-page-btn page-link" href="{{ url_for('home', page=current_page - 1, video_filter=video_filter) }}" aria-label="Previous page">&lt;</a>
+                            {% else %}
+                                <span class="top-page-btn is-disabled" aria-disabled="true" aria-label="Previous page">&lt;</span>
+                            {% endif %}
+
+                            {% if current_page < num_pages - 1 %}
+                                <a class="top-page-btn page-link" href="{{ url_for('home', page=current_page + 1, video_filter=video_filter) }}" aria-label="Next page">&gt;</a>
+                            {% else %}
+                                <span class="top-page-btn is-disabled" aria-disabled="true" aria-label="Next page">&gt;</span>
+                            {% endif %}
+                        </nav>
+                    </div>
+                    <div class="selection-bar">
+                        <label class="selection-option" for="selectAllVideos">
+                            <input id="selectAllVideos" type="checkbox" class="form-check-input"
+                                   onclick="selectAllPageVideos()"/>
+                            <span>Select all on this page</span>
+                        </label>
+                        {% if all_videos %}
+                        <label class="selection-option" id="selectAllChannelSpan" for="selectAllChannel">
+                            <input id="selectAllChannel" type="checkbox" class="form-check-input"
+                                   onclick="selectAllChannelVideos()"/>
+                            <span>Select the entire channel</span>
+                        </label>
+                        {% endif %}
+                    </div>
+                    <span class="localization-heading">Localizations</span>
+                </div>
+
+                <p class="video-list-hint">Click a video title to view its existing languages.</p>
+                <ul id="video-list-container">
+                    {% for video in page_videos %}
+                    <li class="video-card">
+                        <div class="video-row-main">
+                            <input type="checkbox" class="form-check-input video-selector"
+                                   aria-label="Select {{ video.video_title }}"/>
+                            <button class="video-thumbnail-button" type="button"
+                                    aria-label="Select {{ video.video_title }}"
+                                    aria-pressed="false" onclick="toggleVideoSelection(this)">
+                                <img class="video-thumbnail" src="{{ video.thumbnail_url }}"
+                                     alt="" loading="lazy">
+                            </button>
+                            <div class="always-vis-container" onclick="showHideLanguages(this)"
+                                 role="button" tabindex="0" aria-expanded="false"
+                                 onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();showHideLanguages(this);}">
+                                <div class="title-and-desc">
+                                    <div class="video-title">{{ video.video_title }}</div>
+                                    <div class="video-description">
+                                        {{ video.description[:200] }}{% if video.description|length > 200 %}...{% endif %}
+                                    </div>
+                                </div>
+                                <div class="localization-count" title="{{ video.num_languages }} current localizations">
+                                    {{ video.num_languages }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="show-hide">
+                            <div class="localizations-title">Current localizations</div>
+                            {% if video.language_names %}
+                                {% for language in video.language_names %}
+                                    <span class="badge">
+                                        <span>{{ language }}</span>{% if language_flags.get(language) %} <span class="badge-flag">{{ language_flags[language] }}</span>{% endif %}
+                                    </span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="muted-text">No localizations yet</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="empty-state">No videos were found on this page.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </main>
+    </div>
+
+    <div class="pagination-controls">
+        {% if num_pages > 1 %}
+        <nav class="pagination-wrap" aria-label="Video pages">
+            <ul class="pagination">
+            {% if current_page > 1 %}
+                <li class="page-item">
+                    <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page - 1, video_filter=video_filter) }}" aria-label="Previous page">&lt;</a>
+                </li>
+            {% endif %}
+
+            {% for n in range(1, num_pages) %}
+                {% if n == current_page %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ n }}</span>
+                    </li>
+                {% elif n <= 3 or n >= num_pages - 2 or (n >= current_page - 2 and n <= current_page + 2) %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('home', page=n, video_filter=video_filter) }}">{{ n }}</a>
+                    </li>
+                {% elif n == 4 and current_page > 6 %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% elif n == num_pages - 3 and current_page < num_pages - 5 %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if current_page < num_pages - 1 %}
+                <li class="page-item">
+                    <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page + 1, video_filter=video_filter) }}" aria-label="Next page">&gt;</a>
+                </li>
+            {% endif %}
+            </ul>
+        </nav>
+        {% else %}
+        <span></span>
+        {% endif %}
+
+        <label class="page-size-control" for="form-select">
+            <span>Videos per page</span>
+            <select id="form-select" class="form-control">
+                <option class="per-page" value="10">10</option>
+                <option class="per-page" value="25">25</option>
+                <option class="per-page" value="50">50</option>
+                <option class="per-page" value="{{ total_videos }}">All</option>
+            </select>
+        </label>
+    </div>
+</div>
+
+
+<!-- Loading Overlay -->
+<div id="loading-overlay">
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Loading videos…</p>
+</div>
+
+
+<!-- Progress Modal -->
+<div id="progressPopup" class="modal" role="dialog" aria-modal="true" aria-labelledby="progress-title">
+    <div class="modal-content progress-modal-content" id="progressModalContent" data-state="translating">
+        <span class="eyebrow" id="progressEyebrow">Translation in progress</span>
+        <h2 id="progress-title">Localizing metadata</h2>
+        <div class="spinner-border modal-spinner" role="status" id="progressSpinner"></div>
+        <div class="progress-success-burst" id="progressSuccessBurst" aria-hidden="true">
+            <span></span>
+        </div>
+        <p id="progress-content" aria-live="polite">Translating videos, this may take some time…</p>
+        <div id="errorPopUpContent" aria-live="polite"></div>
+        <button class="btn btn-primary" id="progressDoneBtn" onclick="closeProgressWindow()"
+                style="display: none;">Done</button>
+    </div>
+</div>
+
+<!-- Translation Provider Test Modal -->
+<div id="providerTestPopup" class="modal" role="dialog" aria-modal="true"
+     aria-labelledby="provider-test-title">
+    <div class="modal-content provider-test-modal-content">
+        <div class="modal-header">
+            <div>
+                <h2 id="provider-test-title">Provider connections</h2>
+            </div>
+            <button class="provider-test-close" type="button" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="provider-test-results" aria-live="polite">
+            <div class="provider-test-result" id="googleTestResult" data-state="idle">
+                <span class="provider-test-indicator" aria-hidden="true"></span>
+                <span>
+                    <strong><span class="provider-icon provider-icon-google" aria-hidden="true">G</span>Google Cloud Translation</strong>
+                    <small id="googleTestStatus">Waiting to start</small>
+                </span>
+            </div>
+            <div class="provider-test-result" id="deeplTestResult" data-state="idle">
+                <span class="provider-test-indicator" aria-hidden="true"></span>
+                <span>
+                    <strong><span class="provider-icon provider-icon-deepl" aria-hidden="true">D</span>DeepL</strong>
+                    <small id="deeplTestStatus">Waiting to start</small>
+                </span>
+            </div>
+        </div>
+
+        <div class="provider-test-note">
+            Does not change anything on YouTube · Uses a few translation-quota characters.
+        </div>
+
+        <div class="modal-footer provider-test-footer">
+            <button type="button" class="btn btn-primary provider-test-done">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- Translation Provider Usage Modal -->
+<div id="providerUsagePopup" class="modal" role="dialog" aria-modal="true"
+     aria-labelledby="provider-usage-title">
+    <div class="modal-content provider-usage-modal-content">
+        <div class="modal-header">
+            <div>
+                <h2 id="provider-usage-title">Provider usage</h2>
+            </div>
+            <button class="provider-usage-close" type="button" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="provider-usage-results" aria-live="polite">
+            <section class="provider-usage-card">
+                <div class="provider-usage-card-heading">
+                    <span class="provider-icon provider-icon-google" aria-hidden="true">G</span>
+                    <strong>Google Cloud Translation</strong>
+                </div>
+                <div class="usage-meter" aria-label="Google usage">
+                    <span id="googleUsageBar"></span>
+                </div>
+                <strong class="usage-summary" id="googleUsageSummary">Loading usage…</strong>
+                <small id="googleUsageDetail"></small>
+            </section>
+            <section class="provider-usage-card">
+                <div class="provider-usage-card-heading">
+                    <span class="provider-icon provider-icon-deepl" aria-hidden="true">D</span>
+                    <strong>DeepL</strong>
+                </div>
+                <div class="usage-meter" aria-label="DeepL usage">
+                    <span id="deeplUsageBar"></span>
+                </div>
+                <strong class="usage-summary" id="deeplUsageSummary">Loading usage…</strong>
+                <small id="deeplUsageDetail"></small>
+            </section>
+        </div>
+
+        <section class="provider-limits" aria-labelledby="provider-limits-title">
+            <h3 id="provider-limits-title">Limits</h3>
+            <dl>
+                <div>
+                    <dt>Google Cloud Translation</dt>
+                    <dd>500,000 free characters/month ($10 credit); daily characters are unlimited by default; 6,000,000 characters/minute by default.</dd>
+                </div>
+                <div>
+                    <dt>DeepL</dt>
+                    <dd>Your account's exact used characters and limit are loaded above from the DeepL API. The limit period depends on your subscription.</dd>
+                </div>
+            </dl>
+        </section>
+
+        <div class="provider-usage-note">
+            Google is an app-only meter for the current calendar month; it does not include other apps using the same Google Cloud project.
+            <a href="https://console.cloud.google.com/iam-admin/quotas?service=translate.googleapis.com"
+               target="_blank" rel="noopener noreferrer">Open Cloud Translation quotas ↗</a>
+        </div>
+
+        <div class="modal-footer provider-usage-footer">
+            <button type="button" class="btn btn-primary provider-usage-done">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- Language Selection Modal -->
+<div id="addLanguagePopup" class="modal" role="dialog" aria-modal="true" aria-labelledby="language-modal-title">
+    <div class="modal-content language-modal-content">
+        <div class="modal-header">
+            <div>
+                <span class="eyebrow">Target markets</span>
+                <h2 id="language-modal-title">Choose languages</h2>
+                <p>Select one or more languages for the chosen videos.</p>
+            </div>
+            <button class="close" type="button" aria-label="Close">&times;</button>
+        </div>
+
+        <label class="select-all-languages" for="selectAllLanguages">
+            <input type="checkbox" class="form-check-input" id="selectAllLanguages" onclick="selectAllLanguages()"/>
+            <span id="selectAllLanguagesLabel">Select all available languages</span>
+        </label>
+
+        <div class="language-list">
+            {% for language in all_language_names %}
+                <label class="language-option">
+                    <input type="checkbox" class="form-check-input language-selector"/>
+                    <span class="language-label" data-lang="{{ language }}">
+                        <span class="language-name">{{ language }}</span>{% if language_flags.get(language) %} <span class="language-flag">{{ language_flags[language] }}</span>{% endif %}
+                        <span class="language-status" aria-live="polite"></span>
+                    </span>
+                </label>
+            {% endfor %}
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="onClickTranslate()">Translate selected</button>
+            <label class="modal-retranslate-option" for="overwrite">
+                <input id="overwrite" type="checkbox" class="form-check-input"/>
+                <span>
+                    <strong>Retranslate existing</strong>
+                    <small>Replace published localizations</small>
+                </span>
+            </label>
+            <label class="modal-trim-option" for="trim">
+                <input id="trim" type="checkbox" class="form-check-input"/>
+                <span>
+                    <strong>Shorten oversized text</strong>
+                    <small>100-character titles and 5,000-byte descriptions;<br>adds an ellipsis.</small>
+                </span>
+            </label>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // DOM element references
+    const addLanguagePopup = document.getElementById("addLanguagePopup");
+    const selectAllChannelSpan = document.getElementById("selectAllChannelSpan");
+    const progressPopup = document.getElementById("progressPopup");
+    const progressModalContent = document.getElementById("progressModalContent");
+    const progressEyebrow = document.getElementById("progressEyebrow");
+    const progressTitle = document.getElementById("progress-title");
+    const progressContent = document.getElementById("progress-content");
+    const errorPopUpContent = document.getElementById("errorPopUpContent");
+    const progressDoneBtn = document.getElementById("progressDoneBtn");
+    const formSelect = document.getElementById("form-select");
+    const progressSpinner = document.getElementById("progressSpinner");
+    const addLanguageBtn = document.getElementById("addLanguageBtn");
+    const closeModalSpan = document.getElementsByClassName("close")[0];
+    const overwriteCheck = document.getElementById("overwrite");
+    const trimCheck = document.getElementById("trim");
+    const selectAllVideosCheck = document.getElementById("selectAllVideos");
+    const selectionHint = document.getElementById("videoSelectionHint");
+    const selectVideosStep = document.getElementById("selectVideosStep");
+    const chooseLanguagesStep = document.getElementById("chooseLanguagesStep");
+    const providerInputs = Array.from(
+        document.querySelectorAll('input[name="translationProvider"]')
+    );
+    const providerStatus = document.getElementById("providerStatus");
+    const testProvidersBtn = document.getElementById("testProvidersBtn");
+    const usageProvidersBtn = document.getElementById("usageProvidersBtn");
+    const providerTestPopup = document.getElementById("providerTestPopup");
+    const providerTestClose = document.querySelector(".provider-test-close");
+    const providerTestDone = document.querySelector(".provider-test-done");
+    const providerUsagePopup = document.getElementById("providerUsagePopup");
+    const providerUsageClose = document.querySelector(".provider-usage-close");
+    const providerUsageDone = document.querySelector(".provider-usage-done");
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const defaultTranslationProvider = {{ default_translation_provider|tojson }};
+
+    // Global variables
+    let videoSelectors, languageSelectors, languageLabels, videoTitles;
+    let allPageVideosSelected = false;
+    let allLanguagesSelected = false;
+    let allChannelVideosSelected = false;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize selectors
+        videoSelectors = Array.from(document.getElementsByClassName("video-selector"));
+        languageSelectors = Array.from(document.getElementsByClassName("language-selector"));
+        languageLabels = Array.from(document.getElementsByClassName("language-label"));
+        videoTitles = Array.from(document.getElementsByClassName("video-title"));
+
+        // Initialize form select with current value
+        formSelect.selectedIndex = {{ per_page_index }};
+        initializeTranslationProvider();
+        updateVideoSelectionState();
+        
+        // Add event listeners
+        addLanguageBtn.addEventListener('click', onAddLanguageClick);
+        videoSelectors.forEach(selector => {
+            selector.addEventListener('change', updateVideoSelectionState);
+        });
+        formSelect.addEventListener('change', () => changePerPage(formSelect.selectedIndex));
+        overwriteCheck.addEventListener('change', onOverwriteChange);
+        providerInputs.forEach(input => {
+            input.addEventListener('change', () => {
+                if (input.checked) {
+                    localStorage.setItem('translationProvider', input.value);
+                    updateProviderStatus();
+                }
+            });
+        });
+        testProvidersBtn.addEventListener('click', testProviderConnections);
+        usageProvidersBtn.addEventListener('click', showProviderUsage);
+        providerTestClose.addEventListener('click', closeProviderTestPopup);
+        providerTestDone.addEventListener('click', closeProviderTestPopup);
+        providerUsageClose.addEventListener('click', closeProviderUsagePopup);
+        providerUsageDone.addEventListener('click', closeProviderUsagePopup);
+        closeModalSpan.addEventListener('click', closeLanguagePopup);
+        window.addEventListener('click', (event) => {
+            if (event.target === addLanguagePopup) {
+                closeLanguagePopup();
+            }
+            if (event.target === providerTestPopup) {
+                closeProviderTestPopup();
+            }
+            if (event.target === providerUsagePopup) {
+                closeProviderUsagePopup();
+            }
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') {
+                return;
+            }
+            if (providerUsagePopup.style.display === 'block') {
+                closeProviderUsagePopup();
+            } else if (providerTestPopup.style.display === 'block') {
+                closeProviderTestPopup();
+            } else if (addLanguagePopup.style.display === 'block') {
+                closeLanguagePopup();
+                resetLanguageDialog();
+            } else if (videoSelectors.some(selector => selector.checked)) {
+                clearVideoSelection();
+            }
+        });
+
+        // Show the loading overlay only for pagination. Filter changes are
+        // immediate and should not briefly replace the page with a dark screen.
+        const paginationLinks = document.querySelectorAll('.page-link');
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Only show for actual navigation, not for disabled/active items
+                if (link.parentElement.classList.contains('disabled') || link.parentElement.classList.contains('active')) {
+                    return;
+                }
+                loadingOverlay.style.display = 'flex';
+            });
+        });
+    });
+
+    // Browsers may restore checked form controls after a reload or bfcache
+    // navigation. Video selection is intentionally limited to the current view.
+    window.addEventListener('pageshow', clearVideoSelection);
+
+    function initializeTranslationProvider() {
+        const savedProvider = localStorage.getItem('translationProvider');
+        const preferredProvider = savedProvider || defaultTranslationProvider;
+        let selectedInput = providerInputs.find(
+            input => input.value === preferredProvider && !input.disabled
+        );
+        if (!selectedInput) {
+            selectedInput = providerInputs.find(input => !input.disabled);
+        }
+        if (selectedInput) {
+            selectedInput.checked = true;
+            localStorage.setItem('translationProvider', selectedInput.value);
+        }
+        updateProviderStatus();
+    }
+
+    function updateProviderStatus() {
+        const selected = providerInputs.find(input => input.checked);
+        if (selected) {
+            providerStatus.innerText = (
+                (selected.value === 'deepl' ? 'DeepL' : 'Google Cloud')
+                + ' will be used'
+            );
+            return;
+        }
+        providerStatus.innerText = 'No translation provider is configured';
+    }
+
+    function getTranslationProvider() {
+        const selected = providerInputs.find(
+            input => input.checked && !input.disabled
+        );
+        return selected ? selected.value : null;
+    }
+
+    function setProviderTestResult(provider, result) {
+        const resultElement = document.getElementById(provider + 'TestResult');
+        const statusElement = document.getElementById(provider + 'TestStatus');
+        resultElement.dataset.state = result.status || (result.ok ? 'connected' : 'error');
+        statusElement.innerText = result.message || (result.ok ? 'Connected and ready' : 'Connection failed');
+    }
+
+    function closeProviderTestPopup() {
+        providerTestPopup.style.display = 'none';
+        testProvidersBtn.focus();
+    }
+
+    function closeProviderUsagePopup() {
+        providerUsagePopup.style.display = 'none';
+        usageProvidersBtn.focus();
+    }
+
+    function formatCharacterCount(value) {
+        return new Intl.NumberFormat('en-US').format(value);
+    }
+
+    function setProviderUsage(provider, result) {
+        const summary = document.getElementById(provider + 'UsageSummary');
+        const detail = document.getElementById(provider + 'UsageDetail');
+        const bar = document.getElementById(provider + 'UsageBar');
+
+        if (result.status !== 'ready') {
+            summary.innerText = result.message || 'Usage is unavailable';
+            detail.innerText = '';
+            bar.style.width = '0%';
+            return;
+        }
+
+        const used = Number(result.used);
+        const limit = Number(result.limit);
+        const percent = limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
+        summary.innerText = (
+            formatCharacterCount(used) + ' of ' + formatCharacterCount(limit)
+            + ' characters'
+        );
+        detail.innerText = (
+            formatCharacterCount(result.remaining) + ' remaining'
+            + (provider === 'google' ? ' · this app · current calendar month' : '')
+        );
+        bar.style.width = percent + '%';
+    }
+
+    async function showProviderUsage() {
+        providerUsagePopup.style.display = 'block';
+        usageProvidersBtn.disabled = true;
+        usageProvidersBtn.setAttribute('aria-busy', 'true');
+        setProviderUsage('google', {status: 'loading', message: 'Loading usage…'});
+        setProviderUsage('deepl', {status: 'loading', message: 'Loading usage…'});
+
+        try {
+            const results = await postData('/providers/usage');
+            setProviderUsage('google', results.google || {
+                status: 'error', message: 'No Google usage data returned.'
+            });
+            setProviderUsage('deepl', results.deepl || {
+                status: 'error', message: 'No DeepL usage data returned.'
+            });
+        } catch (error) {
+            console.error('Provider usage request failed:', error);
+            const failure = {
+                status: 'error',
+                message: 'Could not load usage. Restart the app after updating it.'
+            };
+            setProviderUsage('google', failure);
+            setProviderUsage('deepl', failure);
+        } finally {
+            usageProvidersBtn.disabled = false;
+            usageProvidersBtn.removeAttribute('aria-busy');
+        }
+    }
+
+    function closeLanguagePopup() {
+        addLanguagePopup.style.display = 'none';
+        addLanguageBtn.focus();
+    }
+
+    async function testProviderConnections() {
+        providerTestPopup.style.display = 'block';
+        testProvidersBtn.disabled = true;
+        testProvidersBtn.setAttribute('aria-busy', 'true');
+        setProviderTestResult('google', {status: 'testing', message: 'Testing…'});
+        setProviderTestResult('deepl', {status: 'testing', message: 'Testing…'});
+
+        try {
+            const results = await postData('/providers/test');
+            setProviderTestResult('google', results.google || {
+                status: 'error',
+                message: 'No response from Google Cloud'
+            });
+            setProviderTestResult('deepl', results.deepl || {
+                status: 'error',
+                message: 'No response from DeepL'
+            });
+        } catch (error) {
+            console.error('Provider connection test failed:', error);
+            const failure = {status: 'error', message: 'Could not run the connection check'};
+            setProviderTestResult('google', failure);
+            setProviderTestResult('deepl', failure);
+        } finally {
+            testProvidersBtn.disabled = false;
+            testProvidersBtn.removeAttribute('aria-busy');
+        }
+    }
+
+    async function onAddLanguageClick() {
+        const selectedCount = videoSelectors.filter(s => s.checked).length;
+        if (selectedCount === 0) {
+            return;
+        }
+
+        addLanguagePopup.style.display = "block";
+        resetLanguageDialog();
+        
+        await updateLanguageStates();
+    }
+    
+    async function onOverwriteChange() {
+        // If the language modal is open, refresh the language states
+        if (addLanguagePopup.style.display === "block") {
+            const selectedCount = videoSelectors.filter(s => s.checked).length;
+            if (selectedCount > 0) {
+                await updateLanguageStates();
+            }
+        }
+    }
+
+    async function updateLanguageStates() {
+        const numSelected = videoSelectors.filter(s => s.checked).length;
+        const selectedVideos = getSelectedVideos();
+        const overwrite = overwriteCheck.checked;
+
+        try {
+            const data = await postData('/languages', { num: numSelected, vidNames: selectedVideos });
+            const existingLanguages = data['current_languages'] || [];
+
+            for (let i = 0; i < languageLabels.length; i++) {
+                const langName = languageLabels[i].getAttribute('data-lang') || languageLabels[i].innerText.trim();
+                const languageOption = languageLabels[i].closest('.language-option');
+                const languageStatus = languageLabels[i].querySelector('.language-status');
+                if (existingLanguages.includes(langName)) {
+                    languageSelectors[i].disabled = !overwrite;
+                    languageLabels[i].style.textDecoration = overwrite ? 'none' : 'line-through';
+                    languageLabels[i].title = overwrite ? 'This language exists and will be overwritten.' : 'Enable "overwrite" to modify this language.';
+                    languageOption.classList.add('is-existing');
+                    languageOption.classList.toggle('is-retranslating', overwrite);
+                    languageStatus.textContent = overwrite ? 'Will replace' : 'Already published';
+                    if (!overwrite) {
+                        languageSelectors[i].checked = false;
+                    }
+                } else {
+                    languageSelectors[i].disabled = false;
+                    languageLabels[i].style.textDecoration = 'none';
+                    languageLabels[i].title = '';
+                    languageOption.classList.remove('is-existing', 'is-retranslating');
+                    languageStatus.textContent = '';
+                }
+            }
+        } catch (error) {
+            console.error('Error getting current languages:', error);
+            alert('Could not fetch existing language data. Please try again.');
+        }
+    }
+
+    function changePerPage(index) {
+        loadingOverlay.style.display = 'flex'; // Show loading screen
+        const perPage = formSelect.options[index].value;
+        
+        postData("/", {
+            per_page: perPage, 
+            per_page_option_index: index
+        }).then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                window.location.reload();
+            }
+        }).catch(error => {
+            console.error('Error changing per page:', error);
+            window.location.reload(); // Reload anyway on error
+        });
+    }
+
+    function setProgressState(state, eyebrow, title, message) {
+        progressModalContent.dataset.state = state;
+        progressEyebrow.innerText = eyebrow;
+        progressTitle.innerText = title;
+        progressContent.innerText = message;
+        progressSpinner.style.display = state === 'translating' ? 'inline-block' : 'none';
+        progressDoneBtn.style.display = state === 'translating' ? 'none' : 'block';
+    }
+
+    function fillErrorContent(errorStr, trimmed, skipped) {
+        if (errorStr === 'defaultLanguageNotSet') {
+            setProgressState(
+                'error',
+                'Translation stopped',
+                'Translation could not be completed',
+                'One or more videos need a default language before you can try again.'
+            );
+            errorPopUpContent.innerHTML = "Request failed <br> At least one video has no default language,<br>set this on youtube";
+        } else if (errorStr === 'quotaExceeded') {
+            setProgressState(
+                'error',
+                'Translation stopped',
+                'YouTube quota exceeded',
+                'The translation run could not finish.'
+            );
+            errorPopUpContent.innerHTML = 'YouTube API quota exceeded.<br>Please try again tomorrow.';
+        } else if (errorStr) {
+            setProgressState(
+                'error',
+                'Translation stopped',
+                'Translation could not be completed',
+                'Review the details below, then try again.'
+            );
+            errorPopUpContent.innerText = errorStr;
+        } else {
+            let messages = [];
+            if (trimmed > 0) messages.push(`${trimmed} videos were trimmed.`);
+            if (skipped > 0) messages.push(`${skipped} videos were skipped.`);
+            
+            if (messages.length > 0) {
+                 setProgressState(
+                    'warning',
+                    'Translation complete',
+                    'Finished with notes',
+                    'The translation run is no longer in progress.'
+                 );
+                 errorPopUpContent.innerHTML = messages.join('<br>') + '<br>(Check browser console for more details)';
+            } else {
+                setProgressState(
+                    'success',
+                    'Translation complete',
+                    'All translations are ready',
+                    'Your localized video metadata was published successfully.'
+                );
+                errorPopUpContent.innerText = '';
+            }
+        }
+    }
+
+    async function postData(url = '', data = {}) {
+        const response = await fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        // If the endpoint redirects, fetch doesn't follow automatically.
+        // We handle the redirect URL manually after the request.
+        if (response.redirected) {
+            return { redirected: true, url: response.url };
+        }
+        return response.json();
+    }
+
+    function onClickTranslate() {
+        const selectedVideos = getSelectedVideos();
+        const selectedLanguages = getSelectedLanguages();
+        const translationProvider = getTranslationProvider();
+
+        if (!translationProvider) {
+            alert("Configure and select a translation provider first.");
+            return;
+        }
+
+        if (selectedVideos.length === 0 || selectedLanguages.length === 0) {
+            alert("Please select at least one video and one language.");
+            return;
+        }
+
+        addLanguagePopup.style.display = "none";
+        progressPopup.style.display = "block";
+        errorPopUpContent.innerHTML = '';
+        setProgressState(
+            'translating',
+            'Translation in progress',
+            'Localizing metadata',
+            `Translating ${selectedVideos.length} video(s) to ${selectedLanguages.length} language(s)…`
+        );
+
+        const options = {
+            url: '/',
+            method: 'POST',
+            data: {
+                selected_videos: selectedVideos,
+                selected_languages: selectedLanguages,
+                translation_provider: translationProvider,
+                overwrite: overwriteCheck.checked,
+                trim_checked: trimCheck.checked
+            },
+        };
+
+        axios(options).then(() => {
+            return fetch("/error")
+                .then(res => res.json())
+                .then(json => fillErrorContent(json['error'], json['trimmed'], json['skipped']));
+        }).catch(error => {
+            console.error('Translation error:', error);
+            setProgressState(
+                'error',
+                'Translation stopped',
+                'Something went wrong',
+                'The translation run could not be completed.'
+            );
+            errorPopUpContent.innerHTML = 'An error occurred. Check the browser console.';
+        });
+    }
+
+    function closeProgressWindow() {
+        loadingOverlay.style.display = 'flex';
+        location.href = "{{ url_for('home', page=1, video_filter=video_filter) }}";
+    }
+
+    function getSelectedVideos() {
+        let vids = [];
+        if (allChannelVideosSelected) {
+            {% for video_title in all_videos %}
+                vids.push({{ video_title|tojson }});
+            {% endfor %}
+        } else {
+            for (let i = 0; i < videoSelectors.length; i++) {
+                if (videoSelectors[i].checked) {
+                    vids.push(videoTitles[i].innerText);
+                }
+            }
+        }
+        return vids;
+    }
+
+    function getSelectedLanguages() {
+        let langs = [];
+        for (let i = 0; i < languageSelectors.length; i++) {
+            if (languageSelectors[i].checked) {
+                const langName = languageLabels[i].getAttribute('data-lang') || languageLabels[i].innerText.trim();
+                langs.push(langName);
+            }
+        }
+        return langs;
+    }
+
+    function selectAllPageVideos() {
+        allPageVideosSelected = selectAllVideosCheck.checked;
+        videoSelectors.forEach(s => s.checked = allPageVideosSelected);
+        if (selectAllChannelSpan) {
+            selectAllChannelSpan.style.display = allPageVideosSelected ? 'inline-flex' : 'none';
+        }
+        if (!allPageVideosSelected) {
+            allChannelVideosSelected = false;
+            const channelCheckbox = document.getElementById('selectAllChannel');
+            if(channelCheckbox) channelCheckbox.checked = false;
+        }
+        updateVideoSelectionState();
+    }
+
+    function selectAllChannelVideos() {
+        allChannelVideosSelected = !allChannelVideosSelected;
+    }
+
+    function updateVideoSelectionState() {
+        const selectedCount = videoSelectors.filter(selector => selector.checked).length;
+        const hasSelection = selectedCount > 0;
+        const entirePageSelected = (
+            videoSelectors.length > 0 && selectedCount === videoSelectors.length
+        );
+
+        addLanguageBtn.disabled = !hasSelection;
+        if (hasSelection) {
+            const videoWord = selectedCount === 1 ? 'video' : 'videos';
+            selectionHint.innerText = (
+                selectedCount + ' ' + videoWord
+                + ' selected. Ready to continue.'
+            );
+        } else {
+            selectionHint.innerText = 'Select at least one video below to continue.';
+        }
+
+        selectVideosStep.classList.toggle('is-active', !hasSelection);
+        selectVideosStep.classList.toggle('is-complete', hasSelection);
+        chooseLanguagesStep.classList.toggle('is-active', hasSelection);
+
+        if (hasSelection) {
+            selectVideosStep.removeAttribute('aria-current');
+            chooseLanguagesStep.setAttribute('aria-current', 'step');
+        } else {
+            chooseLanguagesStep.removeAttribute('aria-current');
+            selectVideosStep.setAttribute('aria-current', 'step');
+        }
+
+        allPageVideosSelected = entirePageSelected;
+        selectAllVideosCheck.checked = entirePageSelected;
+        videoSelectors.forEach(selector => {
+            const thumbnailButton = selector.parentElement.querySelector(
+                '.video-thumbnail-button'
+            );
+            thumbnailButton.setAttribute('aria-pressed', String(selector.checked));
+        });
+        if (!entirePageSelected && selectAllChannelSpan) {
+            selectAllChannelSpan.style.display = 'none';
+            allChannelVideosSelected = false;
+            const channelCheckbox = document.getElementById('selectAllChannel');
+            if (channelCheckbox) channelCheckbox.checked = false;
+        }
+    }
+
+    function selectAllLanguages() {
+        allLanguagesSelected = !allLanguagesSelected;
+        languageSelectors.forEach(s => {
+            if (!s.disabled) s.checked = allLanguagesSelected;
+        });
+    }
+
+    function resetLanguageSelectors() {
+        allLanguagesSelected = false;
+        document.getElementById('selectAllLanguages').checked = false;
+        languageSelectors.forEach(s => {
+            s.checked = false;
+            s.disabled = false;
+        });
+        languageLabels.forEach(l => {
+            l.style.textDecoration = 'none';
+            l.title = '';
+            l.closest('.language-option').classList.remove('is-existing', 'is-retranslating');
+            l.querySelector('.language-status').textContent = '';
+        });
+    }
+
+    function resetLanguageDialog() {
+        resetLanguageSelectors();
+        overwriteCheck.checked = false;
+        trimCheck.checked = false;
+    }
+
+    function clearVideoSelection() {
+        videoSelectors.forEach(selector => {
+            selector.checked = false;
+        });
+        updateVideoSelectionState();
+    }
+
+    function toggleVideoSelection(thumbnailButton) {
+        const selector = thumbnailButton.parentElement.querySelector('.video-selector');
+        selector.checked = !selector.checked;
+        selector.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function showHideLanguages(clicked) {
+        const lang_div = clicked.parentElement.parentElement.getElementsByClassName('show-hide')[0];
+        const isOpen = lang_div.classList.toggle('is-open');
+        clicked.setAttribute('aria-expanded', String(isOpen));
+    }
+</script>
+
+</body>
+</html>

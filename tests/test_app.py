@@ -1,0 +1,225 @@
+import unittest
+from types import SimpleNamespace
+
+from vagabondity_youtube_localizer.app import create_app
+
+
+class FakeYouTubeClient:
+    def __init__(self):
+        self.page_videos = []
+        self.all_videos_cache = []
+        self.results_per_page = 10
+        self.total_video_count = 0
+        self.per_page_option_index = 0
+        self.error_code = ""
+        self.channel_thumbnail = ""
+        self.channel_name = "Test channel"
+        self.language_names_in_display_order = ["English", "Spanish"]
+        self.code_to_name = {"en": "English", "es": "Spanish"}
+        self.videos_trimmed = 0
+        self.videos_skipped = 0
+        self.video_filter = "all"
+        self.filtered_video_count = 0
+        self.video_filter_counts = {"all": 0, "videos": 0, "shorts": 0}
+
+    @property
+    def num_pages(self):
+        return self._num_pages if hasattr(self, "_num_pages") else 1
+
+    @num_pages.setter
+    def num_pages(self, value):
+        self._num_pages = value
+
+    def set_video_page(self, page):
+        self.current_page = page
+        return page
+
+    def set_video_filter(self, video_filter):
+        self.video_filter = video_filter
+
+    def clear_video_cache(self):
+        self.page_videos = []
+        self.all_videos_cache = []
+
+
+class FakeLocalizationService:
+    def __init__(self):
+        self.google_translator = FakeProvider("Google connected")
+        self.deepl_translator = FakeProvider("DeepL connected")
+
+    def localize_videos(self, *args):
+        self.last_request = args
+
+
+class FakeProvider:
+    is_available = True
+
+    def __init__(self, message):
+        self.message = message
+
+    def test_connection(self):
+        return {
+            "ok": True,
+            "status": "connected",
+            "message": self.message,
+        }
+
+    def get_usage(self):
+        return {
+            "status": "ready",
+            "used": 12,
+            "limit": 500_000,
+            "remaining": 499_988,
+            "message": "Test usage",
+        }
+
+
+class FakeUsageTracker:
+    def get_google_usage(self):
+        return {
+            "status": "ready",
+            "used": 34,
+            "limit": 500_000,
+            "remaining": 499_966,
+            "period": "2026-09",
+            "message": "Test usage",
+        }
+
+
+class AppTests(unittest.TestCase):
+    def setUp(self):
+        self.youtube = FakeYouTubeClient()
+        self.localizer = FakeLocalizationService()
+        self.app = create_app(
+            self.youtube,
+            self.localizer,
+            usage_tracker=FakeUsageTracker(),
+        )
+        self.app.config["TESTING"] = True
+        self.client = self.app.test_client()
+
+    def test_home_page_renders_without_external_services(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Test channel", response.data)
+        self.assertIn(b"Vagabondity Walks", response.data)
+        self.assertIn(b"images/vagabondity-walks-icon.png", response.data)
+        self.assertIn(b"Shorts are determined by duration only", response.data)
+        self.assertIn(b"Choose languages &amp; localize", response.data)
+        self.assertIn(b'id="addLanguageBtn"', response.data)
+        self.assertIn(b"disabled", response.data)
+        self.assertIn(b'id="testProvidersBtn"', response.data)
+        self.assertIn(b'id="usageProvidersBtn"', response.data)
+        self.assertIn(b"Provider connections", response.data)
+
+    def test_top_pagination_buttons_render(self):
+        # When num_pages is 2 (e.g. app passes num_pages=2 to template), page 1 is the first page and page 1 is also the last page
+        self.youtube.num_pages = 1
+        self.youtube.current_page = 1
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        # On page 1 of 1, both buttons are disabled
+        self.assertEqual(response.data.count(b'class="top-page-btn is-disabled"'), 2)
+
+        # When num_pages is 3 (2 pages total: page 1 and page 2)
+        self.youtube.num_pages = 2
+        self.youtube.current_page = 1
+        response_p1 = self.client.get("/")
+        self.assertEqual(response_p1.status_code, 200)
+        # On page 1 of 2: left is disabled, right links to page 2
+        self.assertIn(b'href="/?page=2&amp;video_filter=all"', response_p1.data)
+
+        self.youtube.current_page = 2
+        response_p2 = self.client.get("/?page=2")
+        self.assertEqual(response_p2.status_code, 200)
+        # On page 2 of 2 (last page): left links to page 1, right is disabled
+        self.assertIn(b'href="/?page=1&amp;video_filter=all"', response_p2.data)
+        self.assertIn(b'class="top-page-btn is-disabled"', response_p2.data)
+
+    def test_video_filter_is_applied(self):
+        response = self.client.get("/?video_filter=videos")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.youtube.video_filter, "videos")
+        self.assertIn(b"Full videos", response.data)
+        self.assertIn(
+            b"document.querySelectorAll('.page-link')",
+            response.data,
+        )
+        self.assertNotIn(
+            b".page-link, .video-filter-option",
+            response.data,
+        )
+
+    def test_all_videos_view_serializes_titles_as_javascript(self):
+        self.youtube.results_per_page = -1
+        self.youtube.all_videos_cache = [
+            SimpleNamespace(video_title='A "quoted" title'),
+        ]
+
+        response = self.client.get("/?video_filter=all")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'vids.push("A \\"quoted\\" title");', response.data)
+
+    def test_brand_icon_static_file_is_available(self):
+        response = self.client.get(
+            "/static/images/vagabondity-walks-icon.png"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "image/png")
+        response.close()
+
+    def test_localization_request_is_delegated(self):
+        response = self.client.post(
+            "/",
+            json={
+                "selected_videos": ["Video"],
+                "selected_languages": ["Spanish"],
+                "overwrite": True,
+                "translation_provider": "deepl",
+                "trim_checked": False,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"status": "ok"})
+        self.assertEqual(
+            self.localizer.last_request,
+            (["Video"], ["Spanish"], True, "deepl", False),
+        )
+
+    def test_provider_connections_are_checked_without_youtube_update(self):
+        response = self.client.post("/providers/test", json={})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.get_json(),
+            {
+                "google": {
+                    "ok": True,
+                    "status": "connected",
+                    "message": "Google connected",
+                },
+                "deepl": {
+                    "ok": True,
+                    "status": "connected",
+                    "message": "DeepL connected",
+                },
+            },
+        )
+        self.assertFalse(hasattr(self.localizer, "last_request"))
+
+    def test_provider_usage_is_returned_without_youtube_update(self):
+        response = self.client.post("/providers/usage", json={})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["google"]["used"], 34)
+        self.assertEqual(response.get_json()["deepl"]["used"], 12)
+        self.assertFalse(hasattr(self.localizer, "last_request"))
+
+
+if __name__ == "__main__":
+    unittest.main()

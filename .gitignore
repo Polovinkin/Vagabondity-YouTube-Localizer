@@ -1,0 +1,22 @@
+# Credentials and local configuration
+config/*.json
+config/settings.toml
+.env
+token.pickle
+
+# Python virtual environments and cache
+.venv/
+venv/
+__pycache__/
+*.py[codz]
+
+# Build and test output
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store

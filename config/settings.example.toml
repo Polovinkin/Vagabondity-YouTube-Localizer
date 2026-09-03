@@ -1,0 +1,18 @@
+[translation]
+# Used only until you choose a provider in the interface.
+default_provider = "deepl"
+
+[youtube]
+# Original JSON name is something like "client_secret_1234567...googleusercontent.com.json"
+# Put it to config folder and rename it like that:
+oauth_client_file = "config/account_client_secrets_main.json"
+token_file = "token.pickle"
+
+[google]
+# Original JSON name is similar to "channel-name-c12c1d123456.json"
+# Put it to config folder and rename it like that:
+credentials_file = "config/translate_key.json"
+
+[deepl]
+# Key should look similar to this "123f******c:fx"
+api_key = "paste_your_deepl_api_key_here"
