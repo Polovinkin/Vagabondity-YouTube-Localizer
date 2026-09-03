@@ -506,16 +506,16 @@
             </div>
         </div>
 
-        <label class="select-all-languages" for="selectAllLanguages">
-            <input type="checkbox" class="form-check-input" id="selectAllLanguages" onclick="selectAllLanguages()"/>
-            <span id="selectAllLanguagesLabel">Select all available languages</span>
-        </label>
-
         <div class="language-list">
             {% for tier in language_tiers %}
                 <details class="language-tier" id="{{ tier.id }}"{% if tier.expanded %} open{% endif %}>
                     <summary>
                         <span>{{ tier.label }}</span>
+                        <button class="language-tier-select-all" type="button"
+                                data-tier-label="{{ tier.label }}"
+                                aria-label="Select all in {{ tier.label }}"
+                                aria-pressed="false"
+                                onclick="toggleLanguageTierSelection(event, this)">Select all</button>
                         <span class="language-tier-count">{{ tier.languages|length }}</span>
                     </summary>
                     <div class="language-tier-options">
@@ -583,6 +583,9 @@
     const addLanguageBtn = document.getElementById("addLanguageBtn");
     const addLanguageButtons = Array.from(document.querySelectorAll(".add-language-btn"));
     const translateSelectedBtn = document.getElementById("translateSelectedBtn");
+    const languageTierSelectButtons = Array.from(
+        document.querySelectorAll(".language-tier-select-all")
+    );
     const closeModalSpan = document.getElementsByClassName("close")[0];
     const overwriteCheck = document.getElementById("overwrite");
     const trimCheck = document.getElementById("trim");
@@ -610,7 +613,6 @@
     // Global variables
     let videoSelectors, languageSelectors, languageLabels, videoTitles;
     let allPageVideosSelected = false;
-    let allLanguagesSelected = false;
     let allChannelVideosSelected = false;
     let progressPollFailures = 0;
     let languagePopupTrigger = addLanguageBtn;
@@ -1346,12 +1348,34 @@
         }
     }
 
-    function selectAllLanguages() {
-        allLanguagesSelected = !allLanguagesSelected;
-        languageSelectors.forEach(s => {
-            if (!s.disabled) s.checked = allLanguagesSelected;
+    function toggleLanguageTierSelection(event, button) {
+        event.preventDefault();
+        event.stopPropagation();
+        const availableSelectors = Array.from(
+            button.closest('.language-tier').querySelectorAll('.language-selector')
+        ).filter(selector => !selector.disabled);
+        const shouldSelect = availableSelectors.some(selector => !selector.checked);
+        availableSelectors.forEach(selector => {
+            selector.checked = shouldSelect;
         });
         updateTranslateButtonState();
+    }
+
+    function updateTierSelectAllButtons() {
+        languageTierSelectButtons.forEach(button => {
+            const availableSelectors = Array.from(
+                button.closest('.language-tier').querySelectorAll('.language-selector')
+            ).filter(selector => !selector.disabled);
+            const allSelected = (
+                availableSelectors.length > 0
+                && availableSelectors.every(selector => selector.checked)
+            );
+            const action = allSelected ? 'Clear' : 'Select all';
+            button.disabled = availableSelectors.length === 0;
+            button.innerText = action;
+            button.setAttribute('aria-pressed', String(allSelected));
+            button.setAttribute('aria-label', `${action} in ${button.dataset.tierLabel}`);
+        });
     }
 
     function updateTranslateButtonState() {
@@ -1362,11 +1386,10 @@
         translateSelectedBtn.innerText = hasSelectedLanguage
             ? 'Translate selected'
             : 'Select at least one language';
+        updateTierSelectAllButtons();
     }
 
     function resetLanguageSelectors() {
-        allLanguagesSelected = false;
-        document.getElementById('selectAllLanguages').checked = false;
         languageSelectors.forEach(s => {
             s.checked = false;
             s.disabled = false;

@@ -246,6 +246,12 @@ class AppTests(unittest.TestCase):
         self.assertIn(b'id="tier-3"', response.data)
         self.assertNotIn(b'id="tier-3" open', response.data)
         self.assertIn(b"Tier 3 \xc2\xb7 Other languages", response.data)
+        self.assertEqual(
+            response.data.count(b'class="language-tier-select-all"'),
+            3,
+        )
+        self.assertNotIn(b"Select all available languages", response.data)
+        self.assertIn(b"toggleLanguageTierSelection(event, this)", response.data)
         self.assertIn(
             b"document.body.classList.add('language-modal-open')",
             response.data,
