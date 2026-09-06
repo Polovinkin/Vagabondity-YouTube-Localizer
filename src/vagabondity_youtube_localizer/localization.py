@@ -75,6 +75,7 @@ class LocalizationService:
                     )
                 continue
 
+            pending_localizations = []
             for language in selected_languages:
                 self._emit(
                     progress_callback,
@@ -123,14 +124,17 @@ class LocalizationService:
                     )
                     continue
 
-                outcome, reason, trimmed = self._translate_and_publish(
+                translation, outcome, reason = self._translate(
                     provider,
                     target_video,
                     language,
                     language_code,
-                    trim_checked,
                     progress_callback,
                 )
+                if translation is not None:
+                    pending_localizations.append(translation)
+                    continue
+
                 if outcome != "succeeded":
                     youtube.videos_skipped += 1
                 self._emit_finished(
@@ -139,19 +143,67 @@ class LocalizationService:
                     language,
                     outcome,
                     reason,
-                    trimmed,
                 )
 
-                if youtube.error_code:
-                    return
+            if not pending_localizations:
+                continue
 
-    def _translate_and_publish(
+            publishing_language = (
+                pending_localizations[0]["language"]
+                if len(pending_localizations) == 1
+                else f"{len(pending_localizations)} languages"
+            )
+            self._emit_stage(
+                progress_callback,
+                target_video,
+                publishing_language,
+                "publishing",
+            )
+            publish_results = self._publish_video_localizations(
+                target_video,
+                pending_localizations,
+                trim_checked,
+            )
+            published_any = False
+            for localization, result in zip(
+                pending_localizations, publish_results
+            ):
+                outcome = result["outcome"]
+                if outcome == "succeeded":
+                    published_any = True
+                    current_languages = getattr(
+                        target_video, "current_languages", []
+                    )
+                    language_code = localization["language_code"]
+                    if language_code not in current_languages:
+                        current_languages.append(language_code)
+                    target_video.current_languages = current_languages
+                    language_names = getattr(target_video, "language_names", [])
+                    if localization["language"] not in language_names:
+                        language_names.append(localization["language"])
+                    target_video.language_names = language_names
+                else:
+                    youtube.videos_skipped += 1
+                self._emit_finished(
+                    progress_callback,
+                    target_video.video_title,
+                    localization["language"],
+                    outcome,
+                    result.get("reason"),
+                    result.get("trimmed", False),
+                )
+
+            if published_any and self.delay:
+                time.sleep(self.delay)
+            if youtube.error_code:
+                return
+
+    def _translate(
         self,
         provider,
         video,
         language,
         language_code,
-        trim_checked,
         progress_callback=None,
     ):
         if not provider.is_available:
@@ -159,12 +211,12 @@ class LocalizationService:
                 f"{provider.name} is not configured; skipped "
                 f"'{video.video_title}' for '{language}'"
             )
-            return "skipped", "provider_unavailable", False
+            return None, "skipped", "provider_unavailable"
 
         try:
             if not provider.is_language_supported(language_code):
                 print(f"{provider.name} does not support '{language}'; skipped")
-                return "skipped", "unsupported_language", False
+                return None, "skipped", "unsupported_language"
 
             self._emit_stage(progress_callback, video, language, "translating_title")
             translated_title = provider.translate_text(
@@ -186,28 +238,63 @@ class LocalizationService:
                 if isinstance(exc, MonthlyTranslationLimitError)
                 else "translation_error"
             )
-            return "failed", reason, False
+            return None, "failed", reason
 
         print(f"{provider.name} completed '{video.video_title}' → '{language}'")
-        self._emit_stage(progress_callback, video, language, "publishing")
-        trimmed_before = self.youtube_client.videos_trimmed
-        published = self.youtube_client.set_video_localization(
-            video.id,
-            language_code,
-            language,
-            translated_title,
-            translated_description,
-            trim_checked,
-            video.video_title,
+        return (
+            {
+                "language_code": language_code,
+                "language": language,
+                "title": translated_title,
+                "description": translated_description,
+            },
+            None,
+            None,
         )
-        if published is False:
-            if self.youtube_client.error_code:
-                return "failed", "youtube_error", False
-            return "skipped", "text_too_long", False
-        if self.delay:
-            time.sleep(self.delay)
-        was_trimmed = self.youtube_client.videos_trimmed > trimmed_before
-        return "succeeded", None, was_trimmed
+
+    def _publish_video_localizations(
+        self,
+        video,
+        localizations,
+        trim_checked,
+    ):
+        youtube = self.youtube_client
+        if hasattr(youtube, "set_video_localizations"):
+            return youtube.set_video_localizations(
+                video.id,
+                localizations,
+                trim_checked,
+                video.video_title,
+            )
+
+        results = []
+        for localization in localizations:
+            trimmed_before = youtube.videos_trimmed
+            published = youtube.set_video_localization(
+                video.id,
+                localization["language_code"],
+                localization["language"],
+                localization["title"],
+                localization["description"],
+                trim_checked,
+                video.video_title,
+            )
+            if published is False:
+                outcome = "failed" if youtube.error_code else "skipped"
+                reason = "youtube_error" if youtube.error_code else "text_too_long"
+            else:
+                outcome = "succeeded"
+                reason = None
+            results.append(
+                {
+                    "outcome": outcome,
+                    "reason": reason,
+                    "trimmed": youtube.videos_trimmed > trimmed_before,
+                }
+            )
+            if youtube.error_code:
+                break
+        return results
 
     @staticmethod
     def _emit(progress_callback, **event):

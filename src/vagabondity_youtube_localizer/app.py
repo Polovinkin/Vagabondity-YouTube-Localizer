@@ -10,7 +10,12 @@ from .progress import LocalizationProgressTracker
 from .settings import VALID_TRANSLATION_PROVIDERS, load_settings
 from .translators import DeepLTranslator, GoogleCloudTranslator
 from .usage import GoogleUsageTracker
-from .youtube_client import LANGUAGE_FLAGS, YouTubeClient
+from .youtube_client import (
+    LANGUAGE_FLAGS,
+    YOUTUBE_DEFAULT_DAILY_QUOTA,
+    YOUTUBE_LOCALIZATION_BATCH_QUOTA_COST,
+    YouTubeClient,
+)
 
 
 TIER_1_LANGUAGES = {
@@ -100,7 +105,6 @@ def create_app(
         try:
             if request.method == "POST":
                 payload = request.get_json(silent=True) or {}
-                youtube.error_code = ""
 
                 if "per_page" in payload:
                     per_page = int(payload["per_page"])
@@ -119,6 +123,15 @@ def create_app(
                     )
 
                 if "selected_videos" in payload and "selected_languages" in payload:
+                    if youtube.error_code == "quotaExceeded":
+                        return jsonify(
+                            {
+                                "error": (
+                                    "YouTube quota is unavailable until the daily reset."
+                                )
+                            }
+                        ), 429
+                    youtube.error_code = ""
                     translation_provider = payload.get("translation_provider")
                     if translation_provider not in VALID_TRANSLATION_PROVIDERS:
                         return jsonify({"error": "Select a translation provider."}), 400
@@ -130,17 +143,37 @@ def create_app(
                         payload.get("trim_checked", False),
                         selected_video_ids=payload.get("selected_video_ids"),
                     )
-                    youtube.clear_video_cache()
+                    if youtube.error_code != "quotaExceeded":
+                        youtube.clear_video_cache()
                     return jsonify({"status": "ok"})
 
                 return jsonify({"error": "Unsupported request"}), 400
 
             youtube.set_video_filter(request.args.get("video_filter", "all"))
-            page = youtube.set_video_page(request.args.get("page", 1, type=int))
-            populate_localization_language_names(youtube)
+            requested_page = request.args.get("page", 1, type=int)
+            if request.args.get("retry_youtube") == "1":
+                youtube.refresh_video_cache()
+                return redirect(
+                    url_for(
+                        "home",
+                        page=requested_page,
+                        video_filter=youtube.video_filter,
+                    )
+                )
 
-            if youtube.error_code == "quotaExceeded":
-                return render_template("quota-error.html")
+            if youtube.error_code == "quotaExceeded" and not youtube.video_inventory:
+                page = 1
+                youtube.page_videos = []
+                youtube.all_videos_cache = []
+            else:
+                page = youtube.set_video_page(requested_page)
+            populate_localization_language_names(youtube)
+            youtube_quota_exceeded = youtube.error_code == "quotaExceeded"
+            display_num_pages = (
+                2
+                if youtube_quota_exceeded and not youtube.video_inventory
+                else youtube.num_pages + 1
+            )
 
             all_video_titles = (
                 [video.video_title for video in youtube.all_videos_cache]
@@ -164,7 +197,7 @@ def create_app(
                 language_flags=LANGUAGE_FLAGS,
                 channel_thumbnail=youtube.channel_thumbnail,
                 channel_name=youtube.channel_name,
-                num_pages=youtube.num_pages + 1,
+                num_pages=display_num_pages,
                 current_page=page,
                 error_str=youtube.error_code,
                 per_page_index=youtube.per_page_option_index,
@@ -179,10 +212,19 @@ def create_app(
                     "google": localizer.google_translator.is_available,
                     "deepl": localizer.deepl_translator.is_available,
                 },
+                youtube_default_daily_quota=YOUTUBE_DEFAULT_DAILY_QUOTA,
+                youtube_localization_batch_quota_cost=(
+                    YOUTUBE_LOCALIZATION_BATCH_QUOTA_COST
+                ),
+                youtube_quota_exceeded=youtube_quota_exceeded,
+                has_cached_videos=bool(youtube.video_inventory),
             )
         except (googleapiclient.errors.HttpError, IndexError, KeyError) as exc:
             print(f"Error in home route: {exc}")
-            return render_template("quota-error.html")
+            return render_template(
+                "quota-error.html",
+                youtube_default_daily_quota=YOUTUBE_DEFAULT_DAILY_QUOTA,
+            )
 
     @app.route("/error/", methods=["GET"])
     def get_translation_status():
@@ -203,6 +245,10 @@ def create_app(
         selected_languages = payload.get("selected_languages", [])
         if not selected_videos or not selected_languages:
             return jsonify({"error": "Select at least one video and language."}), 400
+        if youtube.error_code == "quotaExceeded":
+            return jsonify(
+                {"error": "YouTube quota is unavailable until the daily reset."}
+            ), 429
 
         provider = payload.get("translation_provider")
         if provider not in VALID_TRANSLATION_PROVIDERS:
@@ -227,7 +273,8 @@ def create_app(
                         job_id, event
                     ),
                 )
-                youtube.clear_video_cache()
+                if youtube.error_code != "quotaExceeded":
+                    youtube.clear_video_cache()
                 progress_tracker.finish(job_id, youtube.error_code)
             except Exception as exc:
                 print(f"Unexpected localization error: {exc}")
@@ -297,7 +344,11 @@ def create_app(
                 )
             ]
             languages_refreshed = False
-            if payload.get("refresh") and selected_videos:
+            if (
+                payload.get("refresh")
+                and selected_videos
+                and youtube.error_code != "quotaExceeded"
+            ):
                 languages_refreshed = youtube.refresh_video_language_metadata(
                     selected_videos
                 )
@@ -344,6 +395,9 @@ def create_app(
                     "language_states": language_states,
                     "selected_count": len(selected_videos),
                     "refreshed": languages_refreshed,
+                    "youtube_quota_exceeded": (
+                        youtube.error_code == "quotaExceeded"
+                    ),
                 }
             )
         except (AttributeError, TypeError, ValueError) as exc:

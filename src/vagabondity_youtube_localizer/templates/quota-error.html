@@ -2,25 +2,98 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Out of quota</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YouTube quota reached · YouTube Localizer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/quota.css') }}">
 </head>
 <body>
-<div>
-    <p class="font-weight-bold">
-        Request failed (503 Service Unavailable):
-    </p>
-    <p class="font-weight-normal">
-        You've reached your <span class="font-weight-bold">daily request quota</span> with the youtube API
-    </p>
-    <p class="font-weight-normal">
-        requests are required to load you videos and as such the entire application is unavailable
-    </p>
-    <p class="font-weight-bold">
-        Try again tomorrow.
-    </p>
-</div>
+    <main class="quota-shell">
+        <section class="quota-card" aria-labelledby="quota-title">
+            <span class="quota-eyebrow">Daily quota reached</span>
+            <span class="quota-clock" aria-hidden="true">◷</span>
+            <h1 id="quota-title">YouTube needs a breather</h1>
+            <p class="quota-intro">
+                The daily YouTube Data API budget is used up. Nothing in your channel was removed,
+                but the app needs YouTube access before it can load or publish metadata again.
+            </p>
+
+            <div class="quota-facts">
+                <div>
+                    <span>Standard daily quota</span>
+                    <strong>{{ "{:,}".format(youtube_default_daily_quota) }} units</strong>
+                </div>
+                <div>
+                    <span>Next reset</span>
+                    <strong id="quotaResetTime">Midnight Pacific Time</strong>
+                </div>
+            </div>
+
+            <p class="quota-note">
+                Your project may have a different allowance. Google Cloud shows the exact quota and usage.
+            </p>
+            <div class="quota-actions">
+                <button type="button" onclick="window.location.reload()">Try again</button>
+                <a href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas"
+                   target="_blank" rel="noopener noreferrer">
+                    Open quota settings <span aria-hidden="true">↗</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function getTimeZoneParts(date, timeZone) {
+            const parts = new Intl.DateTimeFormat('en-US', {
+                timeZone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hourCycle: 'h23'
+            }).formatToParts(date);
+            return Object.fromEntries(
+                parts.filter(part => part.type !== 'literal').map(part => [part.type, part.value])
+            );
+        }
+
+        function getTimeZoneOffset(date, timeZone) {
+            const parts = getTimeZoneParts(date, timeZone);
+            const representedAsUtc = Date.UTC(
+                Number(parts.year),
+                Number(parts.month) - 1,
+                Number(parts.day),
+                Number(parts.hour),
+                Number(parts.minute),
+                Number(parts.second)
+            );
+            return representedAsUtc - Math.floor(date.getTime() / 1000) * 1000;
+        }
+
+        function getNextQuotaReset() {
+            const pacificTimeZone = 'America/Los_Angeles';
+            const pacificNow = getTimeZoneParts(new Date(), pacificTimeZone);
+            const midnightAsUtc = Date.UTC(
+                Number(pacificNow.year),
+                Number(pacificNow.month) - 1,
+                Number(pacificNow.day) + 1
+            );
+            let reset = new Date(midnightAsUtc);
+            for (let attempt = 0; attempt < 2; attempt += 1) {
+                reset = new Date(midnightAsUtc - getTimeZoneOffset(reset, pacificTimeZone));
+            }
+            return reset;
+        }
+
+        document.getElementById('quotaResetTime').innerText = new Intl.DateTimeFormat('en-US', {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZoneName: 'short'
+        }).format(getNextQuotaReset());
+    </script>
 </body>
 </html>

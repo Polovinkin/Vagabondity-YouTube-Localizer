@@ -1,8 +1,180 @@
-body {
-    background-color: #222222;
-    color: whitesmoke;
-    font-size: 32px;
+:root {
+    color-scheme: dark;
+    --bg: #0f0b07;
+    --surface: #25180f;
+    --border: #72451f;
+    --text: #fff8ed;
+    --muted: #cdbba3;
+    --amber: #f59e0b;
+    --amber-bright: #fbbf24;
+    --rose: #f9a8d4;
 }
-p{
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--text);
+    background:
+        radial-gradient(circle at 50% 110%, rgba(245, 158, 11, 0.22), transparent 35rem),
+        radial-gradient(circle at 50% 0%, rgba(190, 24, 93, 0.12), transparent 28rem),
+        var(--bg);
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.quota-shell {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    padding: 28px;
+}
+
+.quota-card {
+    width: min(650px, 100%);
+    padding: clamp(26px, 6vw, 54px);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    background: linear-gradient(145deg, rgba(49, 31, 19, 0.98), rgba(25, 17, 11, 0.98));
+    box-shadow: 0 0 44px rgba(190, 24, 93, 0.1), 0 30px 90px rgba(0, 0, 0, 0.55);
     text-align: center;
+}
+
+.quota-eyebrow {
+    color: var(--rose);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.quota-clock {
+    display: grid;
+    width: 72px;
+    height: 72px;
+    margin: 24px auto 18px;
+    place-items: center;
+    border: 1px solid rgba(249, 168, 212, 0.5);
+    border-radius: 22px;
+    color: #fbcfe8;
+    background: rgba(190, 24, 93, 0.14);
+    box-shadow: 0 0 28px rgba(190, 24, 93, 0.12);
+    font-size: 2.3rem;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(2rem, 7vw, 3.2rem);
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+}
+
+.quota-intro {
+    max-width: 520px;
+    margin: 16px auto 0;
+    color: var(--muted);
+    font-size: 0.98rem;
+    line-height: 1.6;
+}
+
+.quota-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 26px;
+    text-align: left;
+}
+
+.quota-facts div {
+    display: grid;
+    gap: 4px;
+    padding: 14px;
+    border: 1px solid rgba(114, 69, 31, 0.72);
+    border-radius: 14px;
+    background: rgba(51, 36, 22, 0.5);
+}
+
+.quota-facts span {
+    color: var(--muted);
+    font-size: 0.7rem;
+}
+
+.quota-facts strong {
+    font-size: 0.9rem;
+}
+
+.quota-note {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
+.quota-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+.quota-actions button,
+.quota-actions a {
+    min-height: 46px;
+    padding: 11px 18px;
+    border-radius: 13px;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 760;
+    text-decoration: none;
+}
+
+.quota-actions button {
+    border: 1px solid var(--amber-bright);
+    color: #251506;
+    background: linear-gradient(135deg, var(--amber-bright), var(--amber));
+    cursor: pointer;
+}
+
+.quota-actions a {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    color: var(--amber-bright);
+    background: rgba(245, 158, 11, 0.07);
+}
+
+.quota-actions button:hover,
+.quota-actions button:focus-visible,
+.quota-actions a:hover,
+.quota-actions a:focus-visible {
+    filter: brightness(1.08);
+    outline: 2px solid var(--amber-bright);
+    outline-offset: 3px;
+}
+
+@media (max-width: 540px) {
+    .quota-shell {
+        padding: 12px;
+    }
+
+    .quota-card {
+        border-radius: 22px;
+    }
+
+    .quota-facts {
+        grid-template-columns: 1fr;
+    }
+
+    .quota-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .quota-actions a {
+        justify-content: center;
+    }
 }

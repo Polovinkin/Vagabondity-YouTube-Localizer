@@ -16,6 +16,8 @@ api_version = "v3"
 SHORTS_MAX_DURATION_SECONDS = 180
 VIDEO_FILTERS = {"all", "videos", "shorts"}
 THUMBNAIL_QUALITY_ORDER = ("maxres", "standard", "high", "medium", "default")
+YOUTUBE_DEFAULT_DAILY_QUOTA = 10_000
+YOUTUBE_LOCALIZATION_BATCH_QUOTA_COST = 51
 
 LANGUAGE_FLAGS = {
     "Afrikaans": "🇿🇦",
@@ -338,6 +340,36 @@ class YouTubeClient:
         self.page_tokens = {} # Important to reset this as well
         print("In-memory video cache cleared.")
 
+    def refresh_video_cache(self):
+        """Refresh video data without losing the last usable cache on failure."""
+        cached_state = {
+            "page_videos": self.page_videos,
+            "all_videos_cache": self.all_videos_cache,
+            "video_inventory": self.video_inventory,
+            "page_tokens": self.page_tokens,
+            "total_video_count": self.total_video_count,
+        }
+        self.page_videos = []
+        self.all_videos_cache = []
+        self.video_inventory = []
+        self.page_tokens = {}
+        self.error_code = ""
+        if not self.uploads_id:
+            self.set_uploads_id()
+            if not self.error_code:
+                self.get_total_video_count()
+        if not self.error_code:
+            self.load_video_inventory()
+        if not self.error_code:
+            return True
+
+        self.page_videos = cached_state["page_videos"]
+        self.all_videos_cache = cached_state["all_videos_cache"]
+        self.video_inventory = cached_state["video_inventory"]
+        self.page_tokens = cached_state["page_tokens"]
+        self.total_video_count = cached_state["total_video_count"]
+        return False
+
     def set_channel_data(self, channel_response):
         """Extract channel information from API response"""
         if channel_response.get("items"):
@@ -487,6 +519,7 @@ class YouTubeClient:
             return True
         except googleapiclient.errors.HttpError as exc:
             print(f"Error refreshing video languages: {exc}")
+            self.error_code = exc.error_details[0]["reason"]
             return False
 
     def load_page_videos(self, page):
@@ -631,58 +664,137 @@ class YouTubeClient:
     def set_video_localization(self, video_id, language_code, language, title, description, trim_checked,
                                default_title):
         """Add or update localization for a video"""
-        if language_code == '':
-            return False
-            
-        video = {}
-        language = language.strip()
-        print(f"Translating '{default_title}' to '{language}'")
-        
-        title = html.unescape(title.replace('\\n', '\n'))
-        description = html.unescape(description.replace('\\n', '\n'))
+        results = self.set_video_localizations(
+            video_id,
+            [
+                {
+                    "language_code": language_code,
+                    "language": language,
+                    "title": title,
+                    "description": description,
+                }
+            ],
+            trim_checked,
+            default_title,
+        )
+        return bool(results and results[0]["outcome"] == "succeeded")
 
-        title_too_long = len(title) > 100
-        description_too_long = len(description.encode("utf-8")) > 5000
-        if trim_checked:
-            title, title_trimmed = self._shorten_title(title)
-            description, description_trimmed = self._shorten_description(description)
-            if title_trimmed or description_trimmed:
-                self.videos_trimmed += 1
-                print(f"Localization for video '{default_title}' was safely shortened")
-        else:
-            if title_too_long or description_too_long:
-                print(f"Video '{default_title}' skipped for language '{language}' due to length.")
-                return False
-                
+    def set_video_localizations(
+        self,
+        video_id,
+        localizations,
+        trim_checked,
+        default_title,
+    ):
+        """Add or update multiple localizations with one YouTube write."""
+        outcomes = []
+        prepared = []
+        for localization in localizations:
+            language_code = localization["language_code"]
+            language = localization["language"].strip()
+            title = html.unescape(localization["title"].replace('\\n', '\n'))
+            description = html.unescape(
+                localization["description"].replace('\\n', '\n')
+            )
+            trimmed = False
+
+            if not language_code:
+                outcomes.append(
+                    {
+                        "outcome": "skipped",
+                        "reason": "unknown_language",
+                        "trimmed": False,
+                    }
+                )
+                continue
+
+            title_too_long = len(title) > 100
+            description_too_long = len(description.encode("utf-8")) > 5000
+            if trim_checked:
+                title, title_trimmed = self._shorten_title(title)
+                description, description_trimmed = self._shorten_description(
+                    description
+                )
+                trimmed = title_trimmed or description_trimmed
+                if trimmed:
+                    self.videos_trimmed += 1
+                    print(
+                        f"Localization for video '{default_title}' → "
+                        f"'{language}' was safely shortened"
+                    )
+            elif title_too_long or description_too_long:
+                print(
+                    f"Video '{default_title}' skipped for language "
+                    f"'{language}' due to length."
+                )
+                outcomes.append(
+                    {
+                        "outcome": "skipped",
+                        "reason": "text_too_long",
+                        "trimmed": False,
+                    }
+                )
+                continue
+
+            outcome_index = len(outcomes)
+            outcomes.append(None)
+            prepared.append(
+                {
+                    "outcome_index": outcome_index,
+                    "language_code": language_code,
+                    "language": language,
+                    "title": title,
+                    "description": description,
+                    "trimmed": trimmed,
+                }
+            )
+
+        if not prepared:
+            return outcomes
+
+        print(
+            f"Publishing {len(prepared)} localization(s) for "
+            f"'{default_title}' in one YouTube update"
+        )
         try:
             results = self.youtube.videos().list(
                 part='snippet,localizations',
                 id=video_id
             ).execute()
-            
             video = results['items'][0]
-            
+
             if 'defaultLanguage' not in video['snippet']:
                 video['snippet']['defaultLanguage'] = 'en'
-                
+
             if 'localizations' not in video:
                 video['localizations'] = {}
-                
-            video['localizations'][language_code] = {
-                'title': title,
-                'description': description
-            }
-            
+
+            for localization in prepared:
+                video['localizations'][localization["language_code"]] = {
+                    'title': localization["title"],
+                    'description': localization["description"],
+                }
+
             self.youtube.videos().update(
                 part='snippet,localizations',
                 body=video
             ).execute()
-            return True
-
+            for localization in prepared:
+                outcomes[localization["outcome_index"]] = {
+                    "outcome": "succeeded",
+                    "reason": None,
+                    "trimmed": localization["trimmed"],
+                }
         except googleapiclient.errors.HttpError as e:
             self.error_code = e.error_details[0]['reason']
             print(f"Error updating video: {e.error_details}")
-            return False
+            for localization in prepared:
+                outcomes[localization["outcome_index"]] = {
+                    "outcome": "failed",
+                    "reason": "youtube_error",
+                    "trimmed": localization["trimmed"],
+                }
+        return outcomes
 
     def get_video_localizations(self, video_id):
         """Get existing localizations for a video"""

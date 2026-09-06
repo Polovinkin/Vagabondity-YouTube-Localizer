@@ -27,19 +27,73 @@
                 </span>
             </a>
         </div>
-        <div class="local-status"
+        <div class="local-status{% if youtube_quota_exceeded %} is-limited{% endif %}"
              title="The app runs on this computer. Video metadata is sent to the selected translation provider and YouTube.">
             <span class="status-dot" aria-hidden="true"></span>
-            <span>Local app · cloud translation</span>
+            <span>
+                {% if youtube_quota_exceeded %}
+                    Limited mode · YouTube paused
+                {% else %}
+                    Local app · cloud translation
+                {% endif %}
+            </span>
         </div>
     </header>
+
+    {% if youtube_quota_exceeded %}
+    <section class="quota-mode-banner" aria-labelledby="quota-mode-title">
+        <span class="quota-mode-icon" aria-hidden="true">◷</span>
+        <div class="quota-mode-copy">
+            <span class="quota-mode-eyebrow">YouTube daily quota reached</span>
+            <h2 id="quota-mode-title">The app is running in limited mode</h2>
+            <p>
+                {% if has_cached_videos %}
+                    Showing the last loaded channel data. Browsing and translation-provider tools remain available,
+                    but YouTube refresh and publishing are paused.
+                {% else %}
+                    No cached videos are available yet. Translation-provider tools remain available,
+                    but YouTube cannot load or publish channel data until access returns.
+                {% endif %}
+            </p>
+            <div class="quota-reset-row">
+                <small id="quotaBannerReset">Resets at midnight Pacific Time.</small>
+                <button class="quota-reset-help" type="button"
+                        aria-label="Why is this reset time shown?"
+                        aria-describedby="quota-reset-explanation">
+                    i
+                    <span class="quota-reset-tooltip" id="quota-reset-explanation" role="tooltip">
+                        <strong>When the quota resets</strong>
+                        YouTube resets daily API quotas at 12:00 AM Pacific Time. This page converts
+                        that moment to your browser's local time zone and automatically accounts for
+                        daylight saving time. Google does not provide an exact reset timestamp, so
+                        access may resume shortly after the displayed time.
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="quota-mode-actions">
+            <a class="quota-reconnect"
+               href="{{ url_for('home', page=current_page, video_filter=video_filter, retry_youtube=1) }}">
+                Reconnect to YouTube
+            </a>
+            <a href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas"
+               target="_blank" rel="noopener noreferrer">
+                Quota settings <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+    </section>
+    {% endif %}
 
     <div class="workspace-layout">
         <div class="channel-sidebar">
             <aside class="channel-card">
                 <span class="eyebrow">Your channel</span>
-                <img class="channel-thumbnail" src="{{ channel_thumbnail }}" alt="{{ channel_name }} channel thumbnail">
-                <h2>{{ channel_name }}</h2>
+                {% if channel_thumbnail %}
+                    <img class="channel-thumbnail" src="{{ channel_thumbnail }}" alt="{{ channel_name }} channel thumbnail">
+                {% else %}
+                    <span class="channel-thumbnail channel-thumbnail-placeholder" aria-hidden="true">YT</span>
+                {% endif %}
+                <h2>{{ channel_name or 'YouTube channel' }}</h2>
                 <section class="channel-filter-section" aria-labelledby="video-format-heading">
                     <div class="channel-filter-heading">
                         <span id="video-format-heading">Video format</span>
@@ -157,10 +211,10 @@
                             <small id="providerStatus"></small>
                             <div class="provider-actions">
                                 <button id="usageProvidersBtn" class="provider-tool-button" type="button"
-                                        aria-label="Show translation usage and limits"
+                                        aria-label="Show translation usage and YouTube quota"
                                         title="Usage and limits">
                                     <span class="provider-tool-title"><span aria-hidden="true">◔</span> Usage</span>
-                                    <span class="provider-tool-description">See current quota, usage, and limits.</span>
+                                    <span class="provider-tool-description">Translation usage and YouTube quota.</span>
                                 </button>
                                 <button id="testProvidersBtn" class="provider-tool-button" type="button"
                                         aria-label="Test provider connections"
@@ -200,12 +254,14 @@
                     <div class="selection-bar">
                         <label class="selection-option" for="selectAllVideos">
                             <input id="selectAllVideos" type="checkbox" class="form-check-input"
+                                   {% if youtube_quota_exceeded %}disabled{% endif %}
                                    onclick="selectAllPageVideos()"/>
                             <span>Select all on this page</span>
                         </label>
                         {% if all_videos %}
                         <label class="selection-option" id="selectAllChannelSpan" for="selectAllChannel">
                             <input id="selectAllChannel" type="checkbox" class="form-check-input"
+                                   {% if youtube_quota_exceeded %}disabled{% endif %}
                                    onclick="selectAllChannelVideos()"/>
                             <span>Select the entire channel</span>
                         </label>
@@ -221,9 +277,11 @@
                         <div class="video-row-main">
                             <input type="checkbox" class="form-check-input video-selector"
                                    data-video-id="{{ video.id }}"
+                                   {% if youtube_quota_exceeded %}disabled{% endif %}
                                    aria-label="Select {{ video.video_title }}"/>
                             <button class="video-thumbnail-button" type="button"
                                     aria-label="Select {{ video.video_title }}"
+                                    {% if youtube_quota_exceeded %}disabled{% endif %}
                                     aria-pressed="false" onclick="toggleVideoSelection(this)">
                                 <img class="video-thumbnail" src="{{ video.thumbnail_url }}"
                                      alt="" loading="lazy">
@@ -231,6 +289,7 @@
                             <div class="always-vis-container">
                                 <button class="video-text-button" type="button"
                                         aria-label="Select {{ video.video_title }}"
+                                        {% if youtube_quota_exceeded %}disabled{% endif %}
                                         aria-pressed="false" onclick="toggleVideoSelection(this)">
                                     <span class="video-title">{{ video.video_title }}</span>
                                     <span class="video-description">
@@ -272,7 +331,13 @@
                         </div>
                     </li>
                     {% else %}
-                    <li class="empty-state">No videos were found on this page.</li>
+                    <li class="empty-state">
+                        {% if youtube_quota_exceeded %}
+                            No cached videos are available. Reconnect after the daily quota resets.
+                        {% else %}
+                            No videos were found on this page.
+                        {% endif %}
+                    </li>
                     {% endfor %}
                 </ul>
             </section>
@@ -386,6 +451,19 @@
                 <span id="progressCurrentLanguage"></span>
             </div>
             <div class="progress-breakdown" id="progressBreakdown"></div>
+            <section class="progress-quota-notice" id="progressQuotaNotice" hidden
+                     aria-labelledby="progressQuotaTitle">
+                <span class="progress-quota-icon" aria-hidden="true">◷</span>
+                <div>
+                    <strong id="progressQuotaTitle">YouTube’s daily API budget is used up</strong>
+                    <p id="progressQuotaSummary"></p>
+                    <small id="progressQuotaReset"></small>
+                    <a href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas"
+                       target="_blank" rel="noopener noreferrer">
+                        Open YouTube quota settings <span aria-hidden="true">↗</span>
+                    </a>
+                </div>
+            </section>
         </section>
         <div id="errorPopUpContent" aria-live="polite"></div>
         <button class="btn btn-primary" id="progressDoneBtn" onclick="closeProgressWindow()"
@@ -437,7 +515,7 @@
     <div class="modal-content provider-usage-modal-content">
         <div class="modal-header">
             <div>
-                <h2 id="provider-usage-title">Provider usage</h2>
+                <h2 id="provider-usage-title">Usage &amp; quotas</h2>
             </div>
             <button class="provider-usage-close" type="button" aria-label="Close">&times;</button>
         </div>
@@ -477,6 +555,26 @@
                        target="_blank" rel="noopener noreferrer">API keys &amp; limits <span aria-hidden="true">↗</span></a>
                 </div>
             </section>
+            <section class="provider-usage-card provider-usage-card-youtube">
+                <div class="provider-usage-card-heading">
+                    <span class="provider-icon provider-icon-youtube" aria-hidden="true">▶</span>
+                    <strong>YouTube Data API</strong>
+                </div>
+                <strong class="usage-summary">
+                    {{ "{:,}".format(youtube_default_daily_quota) }} default units/day
+                </strong>
+                <small>
+                    Publishing all selected languages costs about
+                    {{ youtube_localization_batch_quota_cost }} units per video.
+                </small>
+                <small id="youtubeQuotaReset"></small>
+                <div class="provider-usage-actions" aria-label="YouTube Data API links">
+                    <a href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas"
+                       target="_blank" rel="noopener noreferrer">Exact usage &amp; quota <span aria-hidden="true">↗</span></a>
+                    <a href="https://developers.google.com/youtube/v3/determine_quota_cost"
+                       target="_blank" rel="noopener noreferrer">Quota costs <span aria-hidden="true">↗</span></a>
+                </div>
+            </section>
         </div>
 
         <section class="provider-limits" aria-labelledby="provider-limits-title">
@@ -489,6 +587,10 @@
                 <div>
                     <dt>DeepL</dt>
                     <dd>Your account's exact used characters and limit are loaded above from the DeepL API.<br>The limit period depends on your subscription.</dd>
+                </div>
+                <div>
+                    <dt>YouTube Data API</dt>
+                    <dd>The standard daily allowance is {{ "{:,}".format(youtube_default_daily_quota) }} units and may differ for your Google Cloud project.<br>Exact project-wide usage is available in Google Cloud.</dd>
                 </div>
             </dl>
         </section>
@@ -564,6 +666,14 @@
             </div>
         </div>
 
+        <div class="youtube-quota-estimate" id="youtubeQuotaEstimate" hidden>
+            <span class="youtube-quota-estimate-icon" aria-hidden="true">◔</span>
+            <span>
+                <strong id="youtubeQuotaEstimateTitle"></strong>
+                <small id="youtubeQuotaEstimateDetail"></small>
+            </span>
+        </div>
+
         <div class="modal-footer">
             <button type="button" class="btn btn-primary" id="translateSelectedBtn"
                     onclick="onClickTranslate()" disabled>Select at least one language</button>
@@ -611,6 +721,9 @@
     const progressCurrentVideo = document.getElementById("progressCurrentVideo");
     const progressCurrentLanguage = document.getElementById("progressCurrentLanguage");
     const progressBreakdown = document.getElementById("progressBreakdown");
+    const progressQuotaNotice = document.getElementById("progressQuotaNotice");
+    const progressQuotaSummary = document.getElementById("progressQuotaSummary");
+    const progressQuotaReset = document.getElementById("progressQuotaReset");
     const addLanguageBtn = document.getElementById("addLanguageBtn");
     const addLanguageButtons = Array.from(document.querySelectorAll(".add-language-btn"));
     const translateSelectedBtn = document.getElementById("translateSelectedBtn");
@@ -618,6 +731,9 @@
     const languageList = document.getElementById("languageList");
     const languageStatesLoading = document.getElementById("languageStatesLoading");
     const languageStatesLoadingText = document.getElementById("languageStatesLoadingText");
+    const youtubeQuotaEstimate = document.getElementById("youtubeQuotaEstimate");
+    const youtubeQuotaEstimateTitle = document.getElementById("youtubeQuotaEstimateTitle");
+    const youtubeQuotaEstimateDetail = document.getElementById("youtubeQuotaEstimateDetail");
     const languageTierSelectButtons = Array.from(
         document.querySelectorAll(".language-tier-select-all")
     );
@@ -644,6 +760,9 @@
     const loadingOverlay = document.getElementById("loading-overlay");
     const loadingOverlayMessage = document.getElementById("loadingOverlayMessage");
     const defaultTranslationProvider = {{ default_translation_provider|tojson }};
+    const youtubeDefaultDailyQuota = {{ youtube_default_daily_quota|tojson }};
+    const youtubeLocalizationBatchQuotaCost = {{ youtube_localization_batch_quota_cost|tojson }};
+    const youtubeQuotaExceeded = {{ youtube_quota_exceeded|tojson }};
 
     // Global variables
     let videoSelectors, languageSelectors, languageLabels, videoTitles;
@@ -664,6 +783,7 @@
         formSelect.selectedIndex = {{ per_page_index }};
         initializeTranslationProvider();
         updateVideoSelectionState();
+        updateYouTubeQuotaResetLabels();
         resumeActiveLocalization();
         
         // Add event listeners
@@ -795,6 +915,96 @@
         return new Intl.NumberFormat('en-US').format(value);
     }
 
+    function getTimeZoneParts(date, timeZone) {
+        const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hourCycle: 'h23'
+        }).formatToParts(date);
+        return Object.fromEntries(
+            parts.filter(part => part.type !== 'literal').map(part => [part.type, part.value])
+        );
+    }
+
+    function getTimeZoneOffset(date, timeZone) {
+        const parts = getTimeZoneParts(date, timeZone);
+        const representedAsUtc = Date.UTC(
+            Number(parts.year),
+            Number(parts.month) - 1,
+            Number(parts.day),
+            Number(parts.hour),
+            Number(parts.minute),
+            Number(parts.second)
+        );
+        return representedAsUtc - Math.floor(date.getTime() / 1000) * 1000;
+    }
+
+    function getNextYouTubeQuotaReset() {
+        const pacificTimeZone = 'America/Los_Angeles';
+        const now = new Date();
+        const pacificNow = getTimeZoneParts(now, pacificTimeZone);
+        const midnightAsUtc = Date.UTC(
+            Number(pacificNow.year),
+            Number(pacificNow.month) - 1,
+            Number(pacificNow.day) + 1
+        );
+        let reset = new Date(midnightAsUtc);
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+            reset = new Date(
+                midnightAsUtc - getTimeZoneOffset(reset, pacificTimeZone)
+            );
+        }
+        return reset;
+    }
+
+    function formatYouTubeQuotaReset() {
+        const localReset = new Intl.DateTimeFormat('en-US', {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZoneName: 'short'
+        }).format(getNextYouTubeQuotaReset());
+        return `Resets ${localReset} (midnight Pacific Time).`;
+    }
+
+    function updateYouTubeQuotaResetLabels() {
+        const resetText = formatYouTubeQuotaReset();
+        document.getElementById('youtubeQuotaReset').innerText = resetText;
+        progressQuotaReset.innerText = resetText;
+        const bannerReset = document.getElementById('quotaBannerReset');
+        if (bannerReset) bannerReset.innerText = resetText;
+    }
+
+    function updateYouTubeQuotaEstimate() {
+        const selectedLanguageCount = languageSelectors.filter(
+            selector => selector.checked && !selector.disabled
+        ).length;
+        const selectedVideoCount = getSelectedVideos().length;
+        if (selectedLanguageCount === 0 || selectedVideoCount === 0) {
+            youtubeQuotaEstimate.hidden = true;
+            return;
+        }
+
+        const estimatedUnits = (
+            selectedVideoCount * youtubeLocalizationBatchQuotaCost
+        );
+        youtubeQuotaEstimateTitle.innerText = (
+            `Up to ${formatCharacterCount(estimatedUnits)} YouTube quota units`
+        );
+        youtubeQuotaEstimateDetail.innerText = (
+            `${selectedVideoCount} video(s) × ${youtubeLocalizationBatchQuotaCost} units per video`
+            + ` after batching · default daily quota ${formatCharacterCount(youtubeDefaultDailyQuota)}`
+        );
+        youtubeQuotaEstimate.hidden = false;
+    }
+
     function setProviderUsage(provider, result) {
         const summary = document.getElementById(provider + 'UsageSummary');
         const detail = document.getElementById(provider + 'UsageDetail');
@@ -891,6 +1101,7 @@
         usageProvidersBtn.setAttribute('aria-busy', 'true');
         setProviderUsage('google', {status: 'loading', message: 'Loading usage…'});
         setProviderUsage('deepl', {status: 'loading', message: 'Loading usage…'});
+        updateYouTubeQuotaResetLabels();
 
         try {
             const results = await postData('/providers/usage');
@@ -956,6 +1167,9 @@
     }
 
     async function onAddLanguageClick() {
+        if (youtubeQuotaExceeded) {
+            return;
+        }
         const selectedCount = videoSelectors.filter(s => s.checked).length;
         if (selectedCount === 0) {
             return;
@@ -995,6 +1209,13 @@
                 refresh: refresh
             });
             if (requestId !== languageStateRequestId) {
+                return;
+            }
+            if (data.youtube_quota_exceeded) {
+                languageStatesLoadingText.innerText = (
+                    'YouTube daily quota reached. Switching to limited mode…'
+                );
+                window.location.reload();
                 return;
             }
             const existingLanguages = data['current_languages'] || [];
@@ -1116,9 +1337,13 @@
     };
 
     const progressErrorLabels = {
-        quotaExceeded: 'YouTube API quota exceeded. Please try again tomorrow.',
         defaultLanguageNotSet: 'One or more videos need a default language on YouTube.'
     };
+
+    function hideProgressQuotaNotice() {
+        progressQuotaNotice.hidden = true;
+        progressQuotaSummary.innerText = '';
+    }
 
     function renderProgressBreakdown(job) {
         const groups = [
@@ -1215,6 +1440,26 @@
         renderLocalizationProgress(job);
         const summary = `${job.processed} of ${job.total} localization operations processed.`;
         if (job.status === 'error' || job.status === 'stopped') {
+            if (job.error === 'quotaExceeded') {
+                const needsAttention = Number(job.failed || 0) + Number(job.remaining || 0);
+                setProgressState(
+                    'quota',
+                    'Daily quota reached',
+                    'YouTube needs a breather',
+                    summary
+                );
+                progressQuotaSummary.innerText = (
+                    `Published work is safe. ${formatCharacterCount(job.succeeded || 0)}`
+                    + ` localization(s) succeeded; ${formatCharacterCount(needsAttention)}`
+                    + ' still need attention.'
+                );
+                updateYouTubeQuotaResetLabels();
+                progressQuotaNotice.hidden = false;
+                errorPopUpContent.innerText = '';
+                return;
+            }
+
+            hideProgressQuotaNotice();
             setProgressState(
                 'error',
                 'Translation stopped',
@@ -1226,6 +1471,7 @@
                 || 'An unexpected error stopped the run.';
             return;
         }
+        hideProgressQuotaNotice();
         if (job.failed > 0 || job.skipped > 0) {
             setProgressState(
                 'warning',
@@ -1261,6 +1507,7 @@
             console.error('Could not update localization progress:', error);
             progressPollFailures += 1;
             if (progressPollFailures >= 3) {
+                hideProgressQuotaNotice();
                 setProgressState(
                     'error',
                     'Connection lost',
@@ -1283,6 +1530,7 @@
             progressPopup.style.display = 'block';
             localizationProgress.style.display = 'block';
             errorPopUpContent.innerText = '';
+            hideProgressQuotaNotice();
             setProgressState(
                 'translating',
                 'Translation in progress',
@@ -1326,6 +1574,10 @@
         const selectedLanguages = getSelectedLanguages();
         const translationProvider = getTranslationProvider();
 
+        if (youtubeQuotaExceeded) {
+            return;
+        }
+
         if (!translationProvider) {
             alert("Configure and select a translation provider first.");
             return;
@@ -1340,6 +1592,7 @@
         progressPopup.style.display = "block";
         progressPollFailures = 0;
         errorPopUpContent.innerHTML = '';
+        hideProgressQuotaNotice();
         localizationProgress.style.display = 'block';
         setProgressState(
             'translating',
@@ -1388,6 +1641,7 @@
             await pollLocalizationProgress(result.job_id);
         } catch (error) {
             console.error('Translation error:', error);
+            hideProgressQuotaNotice();
             setProgressState(
                 'error',
                 'Translation stopped',
@@ -1447,6 +1701,9 @@
     }
 
     function selectAllPageVideos() {
+        if (youtubeQuotaExceeded) {
+            return;
+        }
         allPageVideosSelected = selectAllVideosCheck.checked;
         videoSelectors.forEach(s => s.checked = allPageVideosSelected);
         if (selectAllChannelSpan) {
@@ -1461,6 +1718,9 @@
     }
 
     function selectAllChannelVideos() {
+        if (youtubeQuotaExceeded) {
+            return;
+        }
         allChannelVideosSelected = !allChannelVideosSelected;
     }
 
@@ -1472,9 +1732,13 @@
         );
 
         addLanguageButtons.forEach(button => {
-            button.disabled = !hasSelection;
+            button.disabled = youtubeQuotaExceeded || !hasSelection;
         });
-        if (hasSelection) {
+        if (youtubeQuotaExceeded) {
+            selectionHints.forEach(hint => {
+                hint.innerText = 'YouTube publishing is paused until the daily reset.';
+            });
+        } else if (hasSelection) {
             const videoWord = selectedCount === 1 ? 'video' : 'videos';
             selectionHints.forEach(hint => {
                 hint.innerText = (
@@ -1556,6 +1820,7 @@
         translateSelectedBtn.innerText = hasSelectedLanguage
             ? 'Translate selected'
             : 'Select at least one language';
+        updateYouTubeQuotaEstimate();
         updateTierSelectAllButtons();
     }
 
@@ -1579,6 +1844,7 @@
         resetLanguageSelectors();
         overwriteCheck.checked = false;
         trimCheck.checked = false;
+        youtubeQuotaEstimate.hidden = true;
     }
 
     function clearVideoSelection() {
@@ -1590,6 +1856,9 @@
 
     function toggleVideoSelection(selectionButton) {
         const selector = selectionButton.closest('.video-row-main').querySelector('.video-selector');
+        if (youtubeQuotaExceeded || selector.disabled) {
+            return;
+        }
         selector.checked = !selector.checked;
         selector.dispatchEvent(new Event('change', { bubbles: true }));
     }
