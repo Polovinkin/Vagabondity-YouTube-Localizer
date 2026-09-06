@@ -74,7 +74,7 @@ class DeepLTranslator:
             }
 
         try:
-            self.translate_text("Connection test", "de")
+            self.translate_text("hi", "de")
             return {
                 "ok": True,
                 "status": "connected",

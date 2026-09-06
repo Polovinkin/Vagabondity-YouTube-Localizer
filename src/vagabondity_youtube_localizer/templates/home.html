@@ -531,31 +531,37 @@
             </div>
         </div>
 
-        <div class="language-list">
-            {% for tier in language_tiers %}
-                <details class="language-tier" id="{{ tier.id }}"{% if tier.expanded %} open{% endif %}>
-                    <summary>
-                        <span>{{ tier.label }}</span>
-                        <button class="language-tier-select-all" type="button"
-                                data-tier-label="{{ tier.label }}"
-                                aria-label="Select all in {{ tier.label }}"
-                                aria-pressed="false"
-                                onclick="toggleLanguageTierSelection(event, this)">Select all</button>
-                        <span class="language-tier-count">{{ tier.languages|length }}</span>
-                    </summary>
-                    <div class="language-tier-options">
-                        {% for language in tier.languages %}
-                            <label class="language-option">
-                                <input type="checkbox" class="form-check-input language-selector"/>
-                                <span class="language-label" data-lang="{{ language }}">
-                                    <span class="language-name">{{ language }}</span>{% if language_flags.get(language) %} <span class="language-flag">{{ language_flags[language] }}</span>{% endif %}
-                                    <span class="language-status" aria-live="polite"></span>
-                                </span>
-                            </label>
-                        {% endfor %}
-                    </div>
-                </details>
-            {% endfor %}
+        <div id="languageListShell" class="language-list-shell" aria-busy="false">
+            <div id="languageList" class="language-list">
+                {% for tier in language_tiers %}
+                    <details class="language-tier" id="{{ tier.id }}"{% if tier.expanded %} open{% endif %}>
+                        <summary>
+                            <span>{{ tier.label }}</span>
+                            <button class="language-tier-select-all" type="button"
+                                    data-tier-label="{{ tier.label }}"
+                                    aria-label="Select all in {{ tier.label }}"
+                                    aria-pressed="false"
+                                    onclick="toggleLanguageTierSelection(event, this)">Select all</button>
+                            <span class="language-tier-count">{{ tier.languages|length }}</span>
+                        </summary>
+                        <div class="language-tier-options">
+                            {% for language in tier.languages %}
+                                <label class="language-option">
+                                    <input type="checkbox" class="form-check-input language-selector"/>
+                                    <span class="language-label" data-lang="{{ language }}">
+                                        <span class="language-name">{{ language }}</span>{% if language_flags.get(language) %} <span class="language-flag">{{ language_flags[language] }}</span>{% endif %}
+                                        <span class="language-status" aria-live="polite"></span>
+                                    </span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </details>
+                {% endfor %}
+            </div>
+            <div id="languageStatesLoading" class="language-states-loading" role="status" aria-live="polite" hidden>
+                <span class="language-states-spinner" aria-hidden="true"></span>
+                <span id="languageStatesLoadingText">Loading existing localizations…</span>
+            </div>
         </div>
 
         <div class="modal-footer">
@@ -608,6 +614,10 @@
     const addLanguageBtn = document.getElementById("addLanguageBtn");
     const addLanguageButtons = Array.from(document.querySelectorAll(".add-language-btn"));
     const translateSelectedBtn = document.getElementById("translateSelectedBtn");
+    const languageListShell = document.getElementById("languageListShell");
+    const languageList = document.getElementById("languageList");
+    const languageStatesLoading = document.getElementById("languageStatesLoading");
+    const languageStatesLoadingText = document.getElementById("languageStatesLoadingText");
     const languageTierSelectButtons = Array.from(
         document.querySelectorAll(".language-tier-select-all")
     );
@@ -641,6 +651,7 @@
     let allChannelVideosSelected = false;
     let progressPollFailures = 0;
     let languagePopupTrigger = addLanguageBtn;
+    let languageStateRequestId = 0;
 
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize selectors
@@ -842,6 +853,37 @@
         }
     }
 
+    function setLanguageStatesLoading(state) {
+        const isReady = state === 'ready';
+        const isError = state === 'error';
+
+        languageListShell.classList.toggle('is-loading', !isReady);
+        languageListShell.classList.toggle('has-error', isError);
+        languageListShell.setAttribute('aria-busy', String(state === 'loading'));
+        languageStatesLoading.hidden = isReady;
+        languageList.toggleAttribute('inert', !isReady);
+        languageStatesLoadingText.innerText = isError
+            ? 'Could not load existing localizations. Close and try again.'
+            : 'Loading existing localizations…';
+
+        if (!isReady) {
+            languageSelectors.forEach(selector => {
+                selector.disabled = true;
+                selector.checked = false;
+            });
+            languageTierSelectButtons.forEach(button => {
+                button.disabled = true;
+            });
+            translateSelectedBtn.disabled = true;
+            translateSelectedBtn.innerText = 'Loading localizations…';
+            overwriteCheck.disabled = true;
+            return;
+        }
+
+        overwriteCheck.disabled = false;
+        updateTranslateButtonState();
+    }
+
     async function showProviderUsage() {
         document.getElementById('googleUsageProtectionError').innerText = '';
         providerUsagePopup.style.display = 'block';
@@ -873,6 +915,7 @@
     }
 
     function closeLanguagePopup() {
+        languageStateRequestId += 1;
         addLanguagePopup.style.display = 'none';
         document.body.classList.remove('language-modal-open');
         languagePopupTrigger.focus();
@@ -912,10 +955,11 @@
             return;
         }
 
+        resetLanguageDialog();
+        setLanguageStatesLoading('loading');
         document.body.classList.add('language-modal-open');
         addLanguagePopup.style.display = "block";
-        resetLanguageDialog();
-        
+
         await updateLanguageStates(true);
     }
     
@@ -930,11 +974,13 @@
     }
 
     async function updateLanguageStates(refresh = false) {
+        const requestId = ++languageStateRequestId;
         const numSelected = videoSelectors.filter(s => s.checked).length;
         const selectedVideos = getSelectedVideos();
         const selectedVideoIds = getSelectedVideoIds();
         const overwrite = overwriteCheck.checked;
 
+        setLanguageStatesLoading('loading');
         try {
             const data = await postData('/languages', {
                 num: numSelected,
@@ -942,6 +988,9 @@
                 videoIds: selectedVideoIds,
                 refresh: refresh
             });
+            if (requestId !== languageStateRequestId) {
+                return;
+            }
             const existingLanguages = data['current_languages'] || [];
             const languageStates = data['language_states'] || {};
             const selectedCount = data['selected_count'] || numSelected;
@@ -998,9 +1047,13 @@
                 );
             }
             updateTranslateButtonState();
+            setLanguageStatesLoading('ready');
         } catch (error) {
+            if (requestId !== languageStateRequestId) {
+                return;
+            }
             console.error('Error getting current languages:', error);
-            alert('Could not fetch existing language data. Please try again.');
+            setLanguageStatesLoading('error');
         }
     }
 

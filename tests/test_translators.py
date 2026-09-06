@@ -48,7 +48,7 @@ class TranslatorTests(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(result["status"], "connected")
         translator._client.translate.assert_called_once_with(
-            "Connection test",
+            "hi",
             format_="text",
             source_language="en",
             target_language="de",
@@ -67,7 +67,7 @@ class TranslatorTests(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(result["status"], "connected")
         translator._client.translate_text.assert_called_once_with(
-            "Connection test",
+            "hi",
             source_lang="EN",
             target_lang="de",
         )

@@ -153,7 +153,7 @@ Stop the application with Ctrl+C at any time.
 ### Test translation provider connections
 
 The app lets you verify that Google Cloud Translation and DeepL keys work fine before localizing any videos.
-In order to do so, click **Test** in **Translation provider** window. The check does not read or update YouTube metadata, it only verifies the actual credentials, API access, and translation request (not just whether a key file) exists - by sending the short phrase `Connection test` to each provider (uses only a few characters of translation quota).
+In order to do so, click **Test** in **Translation provider** window. The check does not read or update YouTube metadata, it only verifies the actual credentials, API access, and translation request (not just whether a key file) exists - by asking each provider to translate the short phrase `hi` into German (uses only a few characters of translation quota).
 
 ## Give it a try! How to test the app
 
