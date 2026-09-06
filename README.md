@@ -1,36 +1,37 @@
 # Vagabondity YouTube Localizer
 
-A local web app for translating YouTube video titles and descriptions
-into multiple languages.
+A local web app which you can use to translate YouTube video metadata (titles and descriptions)
+into multiple languages by your choice - free of charge! All you need is `uv` package and project manager which is installed by a single command,
+and you need to create dev profile in a translator provider of choice (DeepL or Google) - I explain how down below.
 
-Review existing localizations, choose videos and target languages,
+Review existing localizations, and then choose videos and target languages in the app,
 and publish translations directly to YouTube — without changing the
 original title or description.
 
-Created by the authors of [Vagabondity Walks](https://www.youtube.com/@vagabondity) channel.
+Created by the authors of [Vagabondity Walks](https://www.youtube.com/@vagabondity) YouTube city walks channel.
 
 > **Status:** Actively developed. Expect occasional changes and rough edges.
 
 ## Features
 
 - Translate multiple videos and languages in one run.
-- See existing localizations before selecting target languages.
-- Translate one video, a page of videos, or the entire channel.
+- See which localizations videos already have before selecting target languages.
+- Translate one video, a page of videos, or the entire channel by a single button.
 - Choose explicitly between DeepL and Google Cloud Translation.
-- Track live progress, including published, skipped, and failed localizations.
-- Optionally replace existing localizations.
+- Track live progress or translations, including published, skipped, and failed localizations.
+- Optionally replace and re-translate existing localizations.
 - Keep the original video, thumbnail, title, and description unchanged.
-- Keep local provider settings together in the `config/` directory.
+- Keep local provider settings together in the `config/` directory safely on your PC.
 - Run the interface locally on `127.0.0.1`.
 
 ## Requirements
 
 - A Google account that manages a YouTube channel.
-- [`uv`](https://docs.astral.sh/uv/getting-started/installation/).
-- YouTube Data API v3 OAuth credentials.
+- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) package manager.
+- YouTube Data API v3 OAuth credentials (configured in Google Cloud).
 - At least one translation provider: DeepL API or Google Cloud Translation.
 
-You do not need to install Python separately. Python package and project manager `uv` downloads and manages the needed Python version automatically!
+You do not need to install Python separately - Python package and project manager `uv` downloads and manages the needed Python version automatically!
 
 ### Install uv
 
@@ -51,17 +52,16 @@ For Linux and other installation methods, see the
 
 ## Local configuration in config/settings.toml
 
-`config/settings.toml` is the central configuration file for both translation
-providers and YouTube access. Create your private settings file by renaming `config/settings.example.toml` to `config/settings.toml` or by running this command in Terminal:
+`config/settings.toml` is the central configuration file for both translation providers and YouTube access.
+They are excluded from Git by `.gitignore` file, they are not shared and completely private.
+Create your private settings file by renaming `config/settings.example.toml` to `config/settings.toml` or by running this command in Terminal in the repository root:
 
 ```bash
 cp config/settings.example.toml config/settings.toml
 ```
 
-The two Google credentials are in JSON files because they are downloaded from
-Google in that format. The settings file keeps their paths and the DeepL key in
-one place. `config/settings.toml` and credential JSON files are excluded from
-Git by `.gitignore` file, they are not shared and completely private.
+The two Google credentials are in JSON files because they are downloaded from Google in that format. 
+The settings file keeps their paths and the DeepL key in one place.
 
 ## Google setup
 
@@ -98,7 +98,22 @@ config/account_client_secrets_main.json
 The first run opens a Google authorization page. The resulting local OAuth
 token is saved as `token.pickle` and is excluded from Git.
 
-### 2. Google Cloud Translation (optional, if you choose DeepL)
+## Translation provider setup (required, pick one!)
+
+### DeepL
+
+_Recommended_ - it's higher quality and you don't need to create a billing account or connect your bank card (which you need to do in order to use Google Cloud Translation).
+
+In order to use DeepL, you need to register in DeepL API, Free tier is, well, free - you don't need to add any billing info.
+Open `config/settings.toml` and paste the key from
+**DeepL → Account → API Keys & Limits**:
+
+```toml
+[deepl]
+api_key = "your-deepl-api-key"
+```
+
+### Google Cloud Translation
 
 This is required only if you want to use Google Cloud Translation.
 
@@ -111,31 +126,19 @@ This is required only if you want to use Google Cloud Translation.
 config/translate_key.json
 ```
 
-## DeepL setup (optional, if you choose Google Translate)
-
-In order to use DeepL, you need to register in DeepL API, Free tier is, well, free - you don't need to add any billing info.
-Open `config/settings.toml` and paste the key from
-**DeepL → Account → API Keys & Limits**:
-
-```toml
-[deepl]
-api_key = "your-deepl-api-key"
-```
-
 Do not commit or share `config/settings.toml`, credential JSON files, or
 `token.pickle`. All credential JSON files and API keys are excluded from Git by `.gitignore` file, they are completely private and don't leave your device - apart from using them to access translation services.
 
 ## Run
 
-Running the app is extremely simple! You just need to run this command from the repository directory, and that's it:
+Running the app is designed to be extremely simple! You just need to run this command from the repository directory, and that's it:
 
 ```bash
 uv run vagabondity-youtube-localizer
 ```
 
-On the first run, `uv` creates `.venv`, installs the exact locked dependencies,
-and downloads Python 3.12 if needed. Open <http://127.0.0.1:5050> if the browser
-does not open automatically.
+On the first run this `uv` command creates `.venv`, installs the exact locked dependencies and required packages
+and downloads Python 3.12 if needed. Open <http://127.0.0.1:5050> if the browser does not open automatically.
 
 ### First Google authorization
 
@@ -160,13 +163,13 @@ actual credentials, API access, and translation request — not just whether a k
 The check does not read or update YouTube metadata. It uses only a few
 characters of translation quota for each configured provider.
 
-## Safe first test
+## Give it a try! How to test the app
 
 1. Start by selecting one public or unlisted video.
-2. Select either **DeepL** or **Google** in the translation-provider switch.
-3. Choose one language that has not been localized yet.
-4. Run the translation and look for `DeepL completed` in the terminal (if you used DeepL)
-5. Confirm the localized title and description in YouTube Studio.
+2. Select either **DeepL** or **Google** in the translation-provider switch (depends on which configs did you add).
+3. Choose one language that has not been localized yet (all localized version will be shown in the UI).
+4. Run the translation and follow the progress of the translation in the window.
+5. After it's done - confirm the localized title and description in YouTube Studio.
 6. Test **retranslate existing languages** on that same localization only if
    you intentionally want to replace it.
 7. If everything works fine - feel free to translate more videos!
@@ -182,7 +185,7 @@ Application code lives in the `src/vagabondity_youtube_localizer` package:
 - `translators/` contains the independent DeepL and Google Cloud providers.
 - `templates/` and `static/` contain the local web interface.
 
-## Development checks
+## Development info and details
 
 Verify the locked environment and Python syntax:
 
@@ -198,7 +201,7 @@ uv run python -m compileall -q src
 
 The long URLs in `uv.lock` point to package files hosted by the official Python Package Index (`pypi.org` and `files.pythonhosted.org`). The file records package versions, platform-specific builds, and SHA-256 hashes so that `uv` can install reproducible dependencies and verify downloaded files. Only the build appropriate for the current operating system and processor is downloaded.
 
-## Security notes
+### Security notes
 
 - The application runs locally and listens on `127.0.0.1`, not on the public
   network.
