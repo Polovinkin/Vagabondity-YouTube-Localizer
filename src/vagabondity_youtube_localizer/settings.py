@@ -36,10 +36,12 @@ def load_settings(settings_path=None):
     translation = data.get("translation", {})
 
     default_provider = str(
-        translation.get("default_provider", "google")
+        translation.get("default_provider", "deepl")
     ).strip().lower()
     if default_provider not in VALID_TRANSLATION_PROVIDERS:
-        default_provider = "google"
+        raise ValueError(
+            "translation.default_provider must be 'deepl' or 'google'"
+        )
 
     deepl_api_key = str(deepl.get("api_key", "")).strip()
 

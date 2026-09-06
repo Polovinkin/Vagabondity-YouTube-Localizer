@@ -7,7 +7,7 @@ from flask import Flask, jsonify, redirect, render_template, request, url_for
 
 from .localization import LocalizationService
 from .progress import LocalizationProgressTracker
-from .settings import load_settings
+from .settings import VALID_TRANSLATION_PROVIDERS, load_settings
 from .translators import DeepLTranslator, GoogleCloudTranslator
 from .usage import GoogleUsageTracker
 from .youtube_client import LANGUAGE_FLAGS, YouTubeClient
@@ -120,10 +120,8 @@ def create_app(
 
                 if "selected_videos" in payload and "selected_languages" in payload:
                     translation_provider = payload.get("translation_provider")
-                    if translation_provider is None:
-                        translation_provider = (
-                            "deepl" if payload.get("use_deepL") else "google"
-                        )
+                    if translation_provider not in VALID_TRANSLATION_PROVIDERS:
+                        return jsonify({"error": "Select a translation provider."}), 400
                     localizer.localize_videos(
                         payload["selected_videos"],
                         payload["selected_languages"],
@@ -207,6 +205,8 @@ def create_app(
             return jsonify({"error": "Select at least one video and language."}), 400
 
         provider = payload.get("translation_provider")
+        if provider not in VALID_TRANSLATION_PROVIDERS:
+            return jsonify({"error": "Select a translation provider."}), 400
         job_id, job = progress_tracker.start(
             len(selected_videos), len(selected_languages), provider
         )

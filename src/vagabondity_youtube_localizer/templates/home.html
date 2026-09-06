@@ -136,21 +136,21 @@
                                 <div class="provider-control-label" id="provider-panel-title">Translation providers</div>
                             </div>
                             <div class="provider-switch" role="radiogroup"
-                                 aria-label="Translation provider">
-                                <label class="provider-option">
-                                    <input type="radio" name="translationProvider" value="google"
-                                           {% if not provider_availability.google %}disabled{% endif %}>
-                                    <span class="provider-option-content">
-                                        <span class="provider-icon provider-icon-google" aria-hidden="true">G</span>
-                                        Google
-                                    </span>
-                                </label>
+                                aria-label="Translation provider">
                                 <label class="provider-option">
                                     <input type="radio" name="translationProvider" value="deepl"
                                            {% if not provider_availability.deepl %}disabled{% endif %}>
                                     <span class="provider-option-content">
                                         <span class="provider-icon provider-icon-deepl" aria-hidden="true">D</span>
                                         DeepL
+                                    </span>
+                                </label>
+                                <label class="provider-option">
+                                    <input type="radio" name="translationProvider" value="google"
+                                           {% if not provider_availability.google %}disabled{% endif %}>
+                                    <span class="provider-option-content">
+                                        <span class="provider-icon provider-icon-google" aria-hidden="true">G</span>
+                                        Google
                                     </span>
                                 </label>
                             </div>
@@ -734,12 +734,9 @@
     function initializeTranslationProvider() {
         const savedProvider = localStorage.getItem('translationProvider');
         const preferredProvider = savedProvider || defaultTranslationProvider;
-        let selectedInput = providerInputs.find(
+        const selectedInput = providerInputs.find(
             input => input.value === preferredProvider && !input.disabled
         );
-        if (!selectedInput) {
-            selectedInput = providerInputs.find(input => !input.disabled);
-        }
         if (selectedInput) {
             selectedInput.checked = true;
             localStorage.setItem('translationProvider', selectedInput.value);
