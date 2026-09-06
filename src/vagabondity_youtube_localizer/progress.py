@@ -39,7 +39,9 @@ class LocalizationProgressTracker:
                 "percent": 0,
                 "current": None,
                 "skip_reasons": {},
+                "skip_details": {},
                 "failure_reasons": {},
+                "failure_details": {},
                 "error": "",
                 "started_at": self._now(),
                 "finished_at": None,
@@ -81,6 +83,17 @@ class LocalizationProgressTracker:
                 reasons = Counter(job[key])
                 reasons[reason] += 1
                 job[key] = dict(reasons)
+
+                details_key = (
+                    "skip_details" if outcome == "skipped" else "failure_details"
+                )
+                details = job[details_key].setdefault(reason, [])
+                details.append(
+                    {
+                        "video": event.get("video", ""),
+                        "language": event.get("language", ""),
+                    }
+                )
 
             job["remaining"] = max(0, job["total"] - job["processed"])
             job["percent"] = self._percent(job)

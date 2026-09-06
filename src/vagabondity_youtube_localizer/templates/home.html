@@ -1122,22 +1122,68 @@
 
     function renderProgressBreakdown(job) {
         const groups = [
-            ['Skipped', job.skip_reasons || {}],
-            ['Failed', job.failure_reasons || {}]
+            ['Skipped', job.skip_reasons || {}, job.skip_details || {}],
+            ['Failed', job.failure_reasons || {}, job.failure_details || {}]
         ];
-        const entries = [];
-        groups.forEach(([group, reasons]) => {
+        const showDetails = job.status && job.status !== 'running';
+        progressBreakdown.replaceChildren();
+
+        groups.forEach(([group, reasons, detailsByReason]) => {
             Object.entries(reasons).forEach(([reason, count]) => {
-                entries.push(
-                    `<span><strong>${group} ${count}</strong> · ${progressReasonLabels[reason] || reason}</span>`
-                );
+                const reasonLabel = progressReasonLabels[reason] || reason;
+                const details = Array.isArray(detailsByReason[reason])
+                    ? detailsByReason[reason]
+                    : [];
+
+                if (!showDetails || details.length === 0) {
+                    const row = document.createElement('span');
+                    const heading = document.createElement('strong');
+                    heading.textContent = `${group} ${count}`;
+                    row.append(heading, document.createTextNode(` · ${reasonLabel}`));
+                    progressBreakdown.append(row);
+                    return;
+                }
+
+                const disclosure = document.createElement('details');
+                disclosure.className = 'progress-breakdown-group';
+                const summary = document.createElement('summary');
+                const heading = document.createElement('strong');
+                heading.textContent = `${group} ${count}`;
+                summary.append(heading, document.createTextNode(` · ${reasonLabel}`));
+                disclosure.append(summary);
+
+                const itemList = document.createElement('div');
+                itemList.className = 'progress-breakdown-items';
+                details.forEach((detail) => {
+                    const item = document.createElement('div');
+                    item.className = 'progress-breakdown-item';
+                    const video = document.createElement('span');
+                    video.className = 'progress-breakdown-video';
+                    video.textContent = detail.video || 'Untitled video';
+                    video.title = detail.video || '';
+                    const language = document.createElement('span');
+                    language.className = 'progress-breakdown-language';
+                    language.textContent = `\u2192 ${detail.language || 'Unknown language'}`;
+                    item.append(video, language);
+                    itemList.append(item);
+                });
+                disclosure.append(itemList);
+                progressBreakdown.append(disclosure);
             });
         });
         if (Number(job.trimmed || 0) > 0) {
-            entries.push(`<span><strong>Shortened ${job.trimmed}</strong> · safely fitted to YouTube limits</span>`);
+            const row = document.createElement('span');
+            const heading = document.createElement('strong');
+            heading.textContent = `Shortened ${job.trimmed}`;
+            row.append(
+                heading,
+                document.createTextNode(' · safely fitted to YouTube limits')
+            );
+            progressBreakdown.append(row);
         }
-        progressBreakdown.innerHTML = entries.join('');
-        progressBreakdown.style.display = entries.length ? 'grid' : 'none';
+        progressBreakdown.style.display = progressBreakdown.childElementCount
+            ? 'grid'
+            : 'none';
     }
 
     function renderLocalizationProgress(job) {

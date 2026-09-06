@@ -2055,6 +2055,7 @@ a.top-page-btn:focus-visible {
 .progress-modal-content {
     position: relative;
     width: min(520px, 100%);
+    overflow-y: auto;
     align-items: center;
     text-align: center;
     isolation: isolate;
@@ -2252,13 +2253,92 @@ a.top-page-btn:focus-visible {
     margin-top: 9px;
 }
 
-.progress-breakdown span {
+.progress-breakdown > span,
+.progress-breakdown summary {
     color: var(--muted);
     font-size: 0.65rem;
 }
 
-.progress-breakdown strong {
+.progress-breakdown > span strong,
+.progress-breakdown summary strong {
     color: var(--muted-strong);
+}
+
+.progress-breakdown-group {
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: 9px;
+}
+
+.progress-breakdown-group[open] {
+    border-color: var(--border);
+    background: rgba(22, 15, 9, 0.34);
+}
+
+.progress-breakdown summary {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 5px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.progress-breakdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.progress-breakdown summary::before {
+    color: var(--amber-bright);
+    content: "\203A";
+    font-size: 0.95rem;
+    line-height: 1;
+    transform: rotate(0deg);
+    transition: transform 150ms ease;
+}
+
+.progress-breakdown-group[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.progress-breakdown summary:hover,
+.progress-breakdown summary:focus-visible {
+    color: var(--text);
+    background: var(--surface-soft);
+    outline: none;
+}
+
+.progress-breakdown-items {
+    display: grid;
+    max-height: 180px;
+    overflow-y: auto;
+    border-top: 1px solid var(--border);
+}
+
+.progress-breakdown-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 7px 9px;
+    color: var(--muted-strong);
+    font-size: 0.64rem;
+}
+
+.progress-breakdown-item + .progress-breakdown-item {
+    border-top: 1px solid rgba(106, 74, 39, 0.35);
+}
+
+.progress-breakdown-video {
+    overflow: hidden;
+    color: var(--text);
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.progress-breakdown-language {
+    color: var(--muted-strong);
+    white-space: nowrap;
 }
 
 .progress-modal-content[data-state="success"] .localization-progress-track span {
