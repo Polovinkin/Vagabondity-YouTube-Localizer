@@ -259,6 +259,17 @@ def create_app(
             }
         )
 
+    @app.route("/providers/google/protection", methods=["POST"])
+    def set_google_protection():
+        payload = request.get_json(silent=True)
+        if not isinstance(payload, dict) or type(payload.get("enabled")) is not bool:
+            return jsonify({"error": "Protection must be true or false"}), 400
+        try:
+            usage_tracker.set_safety_limit_enabled(payload["enabled"])
+        except (OSError, ValueError):
+            return jsonify({"error": "Could not save protection settings. Check the local usage file."}), 500
+        return jsonify({"google": usage_tracker.get_google_usage()})
+
     @app.route("/languages", methods=["POST"])
     def get_common_localization_languages():
         """Return localization and source-language state for selected videos."""

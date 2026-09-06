@@ -4,7 +4,8 @@ from google.auth.exceptions import DefaultCredentialsError
 from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
 
-from .base import TranslationError
+from .base import MonthlyTranslationLimitError, TranslationError
+from ..usage import GoogleUsageLimitError, GoogleUsageTracker
 
 
 class GoogleCloudTranslator:
@@ -14,7 +15,7 @@ class GoogleCloudTranslator:
 
     def __init__(self, credentials_path="config/translate_key.json", usage_tracker=None):
         self._credentials_path = credentials_path
-        self._usage_tracker = usage_tracker
+        self._usage_tracker = usage_tracker if usage_tracker is not None else GoogleUsageTracker()
         self._client = None
         self._supported_language_codes = set()
 
@@ -110,6 +111,7 @@ class GoogleCloudTranslator:
             text = text.decode("utf-8")
 
         try:
+            self._usage_tracker.record_google_characters(len(text))
             result = self._client.translate(
                 text,
                 format_="text",
@@ -122,11 +124,10 @@ class GoogleCloudTranslator:
                     "Google Cloud returned no translated text"
                 )
 
-            usage_tracker = getattr(self, "_usage_tracker", None)
-            if usage_tracker is not None:
-                usage_tracker.record_google_characters(len(text))
             print(f"Google Cloud completed translation to '{target_language}'")
             return translated_text
+        except GoogleUsageLimitError as exc:
+            raise MonthlyTranslationLimitError(str(exc)) from exc
         except TranslationError:
             raise
         except Exception as exc:

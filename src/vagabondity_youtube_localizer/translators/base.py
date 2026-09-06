@@ -5,6 +5,10 @@ class TranslationError(RuntimeError):
     """Raised when a translation provider cannot complete a request."""
 
 
+class MonthlyTranslationLimitError(TranslationError):
+    """Raised before sending a request that exceeds the local monthly limit."""
+
+
 class TranslationProvider(Protocol):
     """Interface shared by translation providers."""
 

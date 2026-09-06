@@ -1,6 +1,7 @@
 import time
 
 from .translators import TranslationError
+from .translators.base import MonthlyTranslationLimitError
 
 
 class LocalizationService:
@@ -180,7 +181,12 @@ class LocalizationService:
                 f"{provider.name} error for '{video.video_title}' "
                 f"→ '{language}': {exc}; skipped"
             )
-            return "failed", "translation_error", False
+            reason = (
+                "google_monthly_limit"
+                if isinstance(exc, MonthlyTranslationLimitError)
+                else "translation_error"
+            )
+            return "failed", reason, False
 
         print(f"{provider.name} completed '{video.video_title}' → '{language}'")
         self._emit_stage(progress_callback, video, language, "publishing")

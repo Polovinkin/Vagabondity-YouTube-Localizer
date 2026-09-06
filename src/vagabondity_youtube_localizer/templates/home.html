@@ -453,6 +453,12 @@
                 </div>
                 <strong class="usage-summary" id="googleUsageSummary">Loading usage…</strong>
                 <small id="googleUsageDetail"></small>
+                <div class="provider-usage-actions" aria-label="Google Cloud Translation links">
+                    <a href="https://console.cloud.google.com/apis/api/translate.googleapis.com/overview"
+                       target="_blank" rel="noopener noreferrer">Settings <span aria-hidden="true">↗</span></a>
+                    <a href="https://console.cloud.google.com/iam-admin/quotas?service=translate.googleapis.com"
+                       target="_blank" rel="noopener noreferrer">Quotas &amp; limits <span aria-hidden="true">↗</span></a>
+                </div>
             </section>
             <section class="provider-usage-card">
                 <div class="provider-usage-card-heading">
@@ -464,6 +470,12 @@
                 </div>
                 <strong class="usage-summary" id="deeplUsageSummary">Loading usage…</strong>
                 <small id="deeplUsageDetail"></small>
+                <div class="provider-usage-actions" aria-label="DeepL links">
+                    <a href="https://www.deepl.com/your-account"
+                       target="_blank" rel="noopener noreferrer">Settings <span aria-hidden="true">↗</span></a>
+                    <a href="https://www.deepl.com/your-account/keys"
+                       target="_blank" rel="noopener noreferrer">API keys &amp; limits <span aria-hidden="true">↗</span></a>
+                </div>
             </section>
         </div>
 
@@ -472,19 +484,27 @@
             <dl>
                 <div>
                     <dt>Google Cloud Translation</dt>
-                    <dd>500,000 free characters/month ($10 credit); daily characters are unlimited by default; 6,000,000 characters/minute by default.</dd>
+                    <dd>500,000 free characters/month.<br>Protection stops requests above 490,000 characters/month when enabled. With protection off, additional usage is billed by Google.</dd>
                 </div>
                 <div>
                     <dt>DeepL</dt>
-                    <dd>Your account's exact used characters and limit are loaded above from the DeepL API. The limit period depends on your subscription.</dd>
+                    <dd>Your account's exact used characters and limit are loaded above from the DeepL API.<br>The limit period depends on your subscription.</dd>
                 </div>
             </dl>
         </section>
 
         <div class="provider-usage-note">
             Google is an app-only meter for the current calendar month; it does not include other apps using the same Google Cloud project.
-            <a href="https://console.cloud.google.com/iam-admin/quotas?service=translate.googleapis.com"
-               target="_blank" rel="noopener noreferrer">Open Cloud Translation quotas ↗</a>
+            Requests are counted before sending, including failed attempts. Keep the local usage file to preserve this protection.
+        </div>
+        <div class="google-usage-protection">
+            <label for="googleUsageProtection">
+                <input id="googleUsageProtection" type="checkbox" checked disabled
+                       aria-describedby="googleUsageProtectionNote">
+                Stop at 490,000 characters/month
+            </label>
+            <small id="googleUsageProtectionNote">Turn off to allow paid translations beyond the free allowance.</small>
+            <small id="googleUsageProtectionError" role="alert"></small>
         </div>
 
         <div class="modal-footer provider-usage-footer">
@@ -660,6 +680,7 @@
         });
         testProvidersBtn.addEventListener('click', testProviderConnections);
         usageProvidersBtn.addEventListener('click', showProviderUsage);
+        document.getElementById('googleUsageProtection').addEventListener('change', saveGoogleProtection);
         providerTestClose.addEventListener('click', closeProviderTestPopup);
         providerTestDone.addEventListener('click', closeProviderTestPopup);
         providerUsageClose.addEventListener('click', closeProviderUsagePopup);
@@ -771,6 +792,14 @@
         const detail = document.getElementById(provider + 'UsageDetail');
         const bar = document.getElementById(provider + 'UsageBar');
 
+        if (provider === 'google') {
+            const protection = document.getElementById('googleUsageProtection');
+            protection.disabled = result.status !== 'ready';
+            if (result.status === 'ready') {
+                protection.checked = result.safety_limit_enabled !== false;
+            }
+        }
+
         if (result.status !== 'ready') {
             summary.innerText = result.message || 'Usage is unavailable';
             detail.innerText = '';
@@ -787,12 +816,37 @@
         );
         detail.innerText = (
             formatCharacterCount(result.remaining) + ' remaining'
-            + (provider === 'google' ? ' · this app · current calendar month' : '')
+            + (provider === 'google'
+                ? (result.safety_limit_enabled === false
+                    ? ' free · protection off · this app · current calendar month'
+                    : ' · protection on · this app · current calendar month')
+                : '')
         );
         bar.style.width = percent + '%';
     }
 
+    async function saveGoogleProtection(event) {
+        const checkbox = event.target;
+        const enabled = checkbox.checked;
+        const errorLabel = document.getElementById('googleUsageProtectionError');
+        checkbox.disabled = true;
+        errorLabel.innerText = '';
+        try {
+            const result = await postData('/providers/google/protection', {enabled});
+            if (result.error || !result.google || result.google.status !== 'ready') {
+                throw new Error(result.error || 'Could not load the saved protection setting. Reopen Usage to check it.');
+            }
+            setProviderUsage('google', result.google);
+        } catch (error) {
+            checkbox.checked = !enabled;
+            errorLabel.innerText = error.message || 'Could not save protection settings. Reopen Usage to check them.';
+        } finally {
+            checkbox.disabled = false;
+        }
+    }
+
     async function showProviderUsage() {
+        document.getElementById('googleUsageProtectionError').innerText = '';
         providerUsagePopup.style.display = 'block';
         usageProvidersBtn.disabled = true;
         usageProvidersBtn.setAttribute('aria-busy', 'true');
@@ -1001,6 +1055,7 @@
         unknown_provider: 'unknown provider',
         video_not_found: 'video not found',
         translation_error: 'translation provider error',
+        google_monthly_limit: 'Google monthly safety limit (490,000 characters); choose DeepL, wait until next month, or turn off protection in Usage for paid translations',
         youtube_error: 'YouTube API error'
     };
 
@@ -1153,6 +1208,12 @@
         // We handle the redirect URL manually after the request.
         if (response.redirected) {
             return { redirected: true, url: response.url };
+        }
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            throw new Error(
+                `The app returned an unexpected response (${response.status}). Restart the app and try again.`
+            );
         }
         return response.json();
     }
