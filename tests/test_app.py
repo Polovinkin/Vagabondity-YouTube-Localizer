@@ -412,23 +412,26 @@ class AppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json(), {"job": None})
 
-    def test_provider_connections_are_checked_without_youtube_update(self):
-        response = self.client.post("/providers/test", json={})
+    def test_provider_connections_are_checked_independently_without_youtube_update(self):
+        google_response = self.client.post("/providers/google/test", json={})
+        deepl_response = self.client.post("/providers/deepl/test", json={})
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(google_response.status_code, 200)
         self.assertEqual(
-            response.get_json(),
+            google_response.get_json(),
             {
-                "google": {
-                    "ok": True,
-                    "status": "connected",
-                    "message": "Google connected",
-                },
-                "deepl": {
-                    "ok": True,
-                    "status": "connected",
-                    "message": "DeepL connected",
-                },
+                "ok": True,
+                "status": "connected",
+                "message": "Google connected",
+            },
+        )
+        self.assertEqual(deepl_response.status_code, 200)
+        self.assertEqual(
+            deepl_response.get_json(),
+            {
+                "ok": True,
+                "status": "connected",
+                "message": "DeepL connected",
             },
         )
         self.assertFalse(hasattr(self.localizer, "last_request"))

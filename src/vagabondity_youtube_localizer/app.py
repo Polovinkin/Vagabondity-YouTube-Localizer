@@ -350,17 +350,19 @@ def create_app(
             print(f"Error reading selected languages: {exc}")
             return jsonify({"current_languages": []}), 400
 
-    @app.route("/providers/test", methods=["POST"])
-    def test_provider_connections():
-        """Run a tiny real translation through each configured provider."""
+    @app.route("/providers/<provider_name>/test", methods=["POST"])
+    def test_provider_connection(provider_name):
+        """Run a tiny real translation through one configured provider."""
         if not request.is_json:
             return jsonify({"error": "JSON request required"}), 415
-        return jsonify(
-            {
-                "google": localizer.google_translator.test_connection(),
-                "deepl": localizer.deepl_translator.test_connection(),
-            }
-        )
+        providers = {
+            "google": localizer.google_translator,
+            "deepl": localizer.deepl_translator,
+        }
+        provider = providers.get(provider_name)
+        if provider is None:
+            return jsonify({"error": "Unknown translation provider"}), 404
+        return jsonify(provider.test_connection())
 
     return app
 

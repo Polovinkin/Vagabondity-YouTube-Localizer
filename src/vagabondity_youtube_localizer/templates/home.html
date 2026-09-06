@@ -921,6 +921,22 @@
         languagePopupTrigger.focus();
     }
 
+    async function testProviderConnection(provider) {
+        try {
+            const result = await postData('/providers/' + provider + '/test');
+            setProviderTestResult(provider, result || {
+                status: 'error',
+                message: 'No response from provider'
+            });
+        } catch (error) {
+            console.error('Provider connection test failed:', error);
+            setProviderTestResult(provider, {
+                status: 'error',
+                message: 'Could not run the connection check'
+            });
+        }
+    }
+
     async function testProviderConnections() {
         providerTestPopup.style.display = 'block';
         testProvidersBtn.disabled = true;
@@ -929,20 +945,10 @@
         setProviderTestResult('deepl', {status: 'testing', message: 'Testing…'});
 
         try {
-            const results = await postData('/providers/test');
-            setProviderTestResult('google', results.google || {
-                status: 'error',
-                message: 'No response from Google Cloud'
-            });
-            setProviderTestResult('deepl', results.deepl || {
-                status: 'error',
-                message: 'No response from DeepL'
-            });
-        } catch (error) {
-            console.error('Provider connection test failed:', error);
-            const failure = {status: 'error', message: 'Could not run the connection check'};
-            setProviderTestResult('google', failure);
-            setProviderTestResult('deepl', failure);
+            await Promise.all([
+                testProviderConnection('google'),
+                testProviderConnection('deepl')
+            ]);
         } finally {
             testProvidersBtn.disabled = false;
             testProvidersBtn.removeAttribute('aria-busy');
