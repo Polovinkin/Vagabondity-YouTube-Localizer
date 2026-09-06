@@ -342,6 +342,7 @@ class YouTubeClient:
 
     def refresh_video_cache(self):
         """Refresh video data without losing the last usable cache on failure."""
+        previous_error_code = self.error_code
         cached_state = {
             "page_videos": self.page_videos,
             "all_videos_cache": self.all_videos_cache,
@@ -354,13 +355,19 @@ class YouTubeClient:
         self.video_inventory = []
         self.page_tokens = {}
         self.error_code = ""
-        if not self.uploads_id:
-            self.set_uploads_id()
+        transport_failed = False
+        try:
+            if not self.uploads_id:
+                self.set_uploads_id()
+                if not self.error_code:
+                    self.get_total_video_count()
             if not self.error_code:
-                self.get_total_video_count()
-        if not self.error_code:
-            self.load_video_inventory()
-        if not self.error_code:
+                self.load_video_inventory()
+        except OSError as exc:
+            print(f"Could not refresh YouTube video cache: {exc}")
+            self.error_code = previous_error_code
+            transport_failed = True
+        if not self.error_code and not transport_failed:
             return True
 
         self.page_videos = cached_state["page_videos"]
@@ -439,7 +446,7 @@ class YouTubeClient:
                     part="snippet",
                     maxResults=50,
                     pageToken=page_token,
-                ).execute()
+                ).execute(num_retries=1)
                 playlist_items.extend(response.get("items", []))
                 page_token = response.get("nextPageToken")
                 if not page_token:
@@ -454,7 +461,7 @@ class YouTubeClient:
                     part="snippet,contentDetails,localizations",
                     id=",".join(video_ids),
                     maxResults=50,
-                ).execute()
+                ).execute(num_retries=1)
                 details_by_id = {
                     item["id"]: item for item in details_response.get("items", [])
                 }
