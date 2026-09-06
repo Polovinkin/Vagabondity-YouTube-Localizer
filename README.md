@@ -68,12 +68,11 @@ The settings file keeps their paths and the DeepL key in one place.
 ### 1. YouTube access (required)
 
 1. Create or select a project in the
-   [Google Cloud Console](https://console.cloud.google.com/).
-2. Enable **YouTube Data API v3**. You can search for it in search bar and click "Enable" there.
-
+   [Google Cloud Console](https://console.cloud.google.com).
+2. Enable **YouTube Data API v3** ([link](https://console.cloud.google.com/marketplace/product/google/youtube.googleapis.com)).
 #### 1.1 Configure Google Auth Platform
 
-1. Open **Google Auth Platform** for the same Google Cloud project (also find it in search).
+1. Open **Google Auth Platform** ([link](https://console.cloud.google.com/auth/overview)) for the same Google Cloud project.
 2. If Google Auth Platform has not been initialized for this project yet, click
    **Get started** and fill in the required app name, support email, and
    developer contact fields. You do not need to add a logo, homepage, or privacy
@@ -87,7 +86,7 @@ able to log in to your Google account when app starts.
 
 #### 1.2 Create the OAuth client
 
-1. Open **Google Auth Platform → Clients**.
+1. Open **Google Auth Platform → Clients** ([link](https://console.cloud.google.com/auth/clients)).
 2. Create an OAuth 2.0 Client ID of type **Desktop app**.
 3. Download the resulting client JSON, rename it, and save it to the repository as:
 
@@ -102,23 +101,21 @@ token is saved as `token.pickle` and is excluded from Git.
 
 ### DeepL
 
-_Recommended_ - it's higher quality and you don't need to create a billing account or connect your bank card (which you need to do in order to use Google Cloud Translation).
+_Recommended_ - it's usually higher quality than Google and you don't need to create a billing account or connect your bank card (which you need to do in order to use Google Cloud Translation).
 
-In order to use DeepL, you need to register in DeepL API, Free tier is, well, free - you don't need to add any billing info.
-Open `config/settings.toml` and paste the key from
-**DeepL → Account → API Keys & Limits**:
+In order to use DeepL, you need to start a Developer plan in [DeepL API](https://www.deepl.com/en/pro#api). Developer is a free tier there which includes the one-time credit of 1 million characters (it's enough to make literally hundreds of localization to various languages). You don't need to add any billing info for that, you just have to register there for that, it's not hard to do.
+Open `config/settings.toml` and paste the key from **DeepL → Account → API Keys & Limits**:
 
 ```toml
 [deepl]
-api_key = "your-deepl-api-key"
+api_key = "paste_your_deepl_api_key_here"
 ```
 
 ### Google Cloud Translation
 
 This is required only if you want to use Google Cloud Translation.
 
-1. Enable **Cloud Translation API** and billing in the same Google Cloud
-   project.
+1. Enable **Cloud Translation API** and billing in the same Google Cloud project.
 2. Create a service account with the **Cloud Translation API User** role.
 3. Inside this service account, click on Keys tab and create a JSON key for that service account by pressing "Add key -> Create new key", save it, rename and put to config folder as:
 
@@ -153,15 +150,10 @@ The token is saved locally in `token.pickle`.
 
 Stop the application with Ctrl+C at any time.
 
-### Test translation-provider connections
+### Test translation provider connections
 
 The app lets you verify that Google Cloud Translation and DeepL keys work fine before localizing any videos.
-In order to do so, click **Test** in **Translation provider** window. The check sends the short
-phrase `Connection test` through each configured provider, so it verifies the
-actual credentials, API access, and translation request — not just whether a key file exists.
-
-The check does not read or update YouTube metadata. It uses only a few
-characters of translation quota for each configured provider.
+In order to do so, click **Test** in **Translation provider** window. The check does not read or update YouTube metadata, it only verifies the actual credentials, API access, and translation request (not just whether a key file) exists - by sending the short phrase `Connection test` to each provider (uses only a few characters of translation quota).
 
 ## Give it a try! How to test the app
 
@@ -170,11 +162,10 @@ characters of translation quota for each configured provider.
 3. Choose one language that has not been localized yet (all localized version will be shown in the UI).
 4. Run the translation and follow the progress of the translation in the window.
 5. After it's done - confirm the localized title and description in YouTube Studio.
-6. Test **retranslate existing languages** on that same localization only if
-   you intentionally want to replace it.
+6. Test **retranslate existing languages** on that same localization only if you intentionally want to replace it.
 7. If everything works fine - feel free to translate more videos!
 
-## Project structure
+## Project structure and development details
 
 Application code lives in the `src/vagabondity_youtube_localizer` package:
 
@@ -185,7 +176,11 @@ Application code lives in the `src/vagabondity_youtube_localizer` package:
 - `translators/` contains the independent DeepL and Google Cloud providers.
 - `templates/` and `static/` contain the local web interface.
 
-## Development info and details
+### About `uv.lock`
+
+`pyproject.toml` contains the human-readable list of the application's direct dependencies. `uv.lock` is an automatically generated dependency lock file and should not be edited manually.
+
+The long URLs in `uv.lock` point to package files hosted by the official Python Package Index (`pypi.org` and `files.pythonhosted.org`). The file records package versions, platform-specific builds, and SHA-256 hashes so that `uv` can install reproducible dependencies and verify downloaded files. Only the build appropriate for the current operating system and processor is downloaded.
 
 Verify the locked environment and Python syntax:
 
@@ -195,29 +190,19 @@ uv run python -m unittest discover -s tests -v
 uv run python -m compileall -q src
 ```
 
-### About `uv.lock`
-
-`pyproject.toml` contains the human-readable list of the application's direct dependencies. `uv.lock` is an automatically generated dependency lock file and should not be edited manually.
-
-The long URLs in `uv.lock` point to package files hosted by the official Python Package Index (`pypi.org` and `files.pythonhosted.org`). The file records package versions, platform-specific builds, and SHA-256 hashes so that `uv` can install reproducible dependencies and verify downloaded files. Only the build appropriate for the current operating system and processor is downloaded.
-
 ### Security notes
 
-- The application runs locally and listens on `127.0.0.1`, not on the public
-  network.
+- The application runs locally and listens on `127.0.0.1`, not on the public network.
 - Video titles and descriptions are sent to the selected translation provider.
-- YouTube OAuth credentials can update channel metadata. Review selected videos
-  and languages before starting a batch.
-- Never publish `config/settings.toml`, Google credential JSON files, or
-  `token.pickle`.
+- YouTube OAuth credentials can update channel metadata. Review selected videos and languages before starting a batch.
+- Never publish `config/settings.toml`, Google credential JSON files, or `token.pickle`.
 - Revoke access at any time from your Google Account's third-party access page.
 
 ## License
 
 This is proprietary software. All rights are reserved.
 
-The project contains portions derived from
-[YouTube-Video-Metadata-Translator](https://github.com/jordicor/YouTube-Video-Metadata-Translator)
-by Jordi Cor. Those portions are licensed under the MIT License.
+The project contains portions derived from [YouTube-Video-Metadata-Translator](https://github.com/jordicor/YouTube-Video-Metadata-Translator) by Jordi Cor.
+Those portions are licensed under the MIT License.
 
 See `LICENSE` and `THIRD_PARTY_NOTICES.md`.
