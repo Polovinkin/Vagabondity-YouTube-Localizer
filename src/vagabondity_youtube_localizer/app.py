@@ -52,7 +52,22 @@ APP_BANNER_LINES = (
 )
 
 YOUTUBE_RED = "\033[1;38;2;255;0;0m"
+SUCCESS_GREEN = "\033[1;38;2;34;197;94m"
+NOTICE_YELLOW = "\033[1;38;2;250;204;21m"
 ANSI_RESET = "\033[0m"
+
+RUSSIA_FLAG = ((255, 255, 255), (0, 57, 166), (213, 43, 30))
+ITALY_FLAG = ((0, 146, 70), (255, 255, 255), (206, 43, 55))
+GERMANY_FLAG = ((45, 45, 45), (221, 0, 0), (255, 206, 0))
+FRANCE_FLAG = ((0, 85, 164), (255, 255, 255), (239, 65, 53))
+
+
+def _colored_flag_row(colors):
+    return "".join(
+        f"\033[38;2;{red};{green};{blue}m██"
+        for red, green, blue in colors
+    ) + ANSI_RESET
+
 
 # showing branded banner when starting the app
 def _print_startup_banner():
@@ -61,17 +76,38 @@ def _print_startup_banner():
         and os.getenv("TERM") != "dumb"
         and "NO_COLOR" not in os.environ
     )
-    print()
-    for youtube_part, localizer_part in APP_BANNER_LINES:
-        if use_color:
-            print(f"{YOUTUBE_RED}{youtube_part}{ANSI_RESET}{localizer_part}")
-        else:
-            print(f"{youtube_part}{localizer_part}")
     banner_width = max(
         len(youtube_part) + len(localizer_part)
         for youtube_part, localizer_part in APP_BANNER_LINES
     )
-    print("by Vagabondity Walks".rjust(banner_width))
+    print()
+    if use_color:
+        for line_index, (youtube_part, localizer_part) in enumerate(
+            APP_BANNER_LINES
+        ):
+            if line_index == 2:
+                left_flag = _colored_flag_row(RUSSIA_FLAG)
+                right_flag = _colored_flag_row(GERMANY_FLAG)
+            elif line_index == 4:
+                left_flag = _colored_flag_row(ITALY_FLAG)
+                right_flag = _colored_flag_row(FRANCE_FLAG)
+            else:
+                left_flag = right_flag = " " * 6
+
+            line_width = len(youtube_part) + len(localizer_part)
+            print(
+                f"{left_flag}  {YOUTUBE_RED}{youtube_part}{ANSI_RESET}"
+                f"{localizer_part}{' ' * (banner_width - line_width)}  "
+                f"{right_flag}"
+            )
+    else:
+        for youtube_part, localizer_part in APP_BANNER_LINES:
+            print(f"{youtube_part}{localizer_part}")
+    signature_indent = " " * 8 if use_color else ""
+    print(
+        f"{signature_indent}"
+        f"{'by 🐸 Vagabondity Walks'.rjust(banner_width)}"
+    )
     print("\nStarting application…\n")
 
 
@@ -81,7 +117,7 @@ def _terminal_link(label, url):
         return label
     return f"\033]8;;{url}\033\\\033[1;36m{label}\033[0m\033]8;;\033\\"
 
-
+# button with a link to the app
 def _print_application_link(url):
     label = f"▶  OPEN YT LOCALIZER: {url}"
     border = "═" * (len(label) + 2)
@@ -89,6 +125,40 @@ def _print_application_link(url):
     print(f"║ {_terminal_link(label, url)} ║")
     print(f"╚{border}╝")
     print("Click the link above or copy the address into your browser.\n")
+
+
+def _print_technical_info_notice():
+    title = "🛠️  TECHNICAL SERVER INFORMATION"
+    messages = (
+        "Everything below is application and server activity.",
+        "No action is required — keep this terminal open and use the app.",
+        "If something goes wrong, include these logs in your issue report.",
+    )
+    stop_message = "Press CTRL+C to stop the application."
+    content_width = max(
+        len(title), len(stop_message), *(len(message) for message in messages)
+    )
+    width = content_width + 2
+    use_color = (
+        sys.stdout.isatty()
+        and os.getenv("TERM") != "dumb"
+        and "NO_COLOR" not in os.environ
+    )
+    print(f"┌{'─' * width}┐")
+    print(f"│ {title.center(content_width)}  │")
+    print(f"├{'─' * width}┤")
+    for message in messages:
+        print(f"│ {message.ljust(content_width)} │")
+    print(f"├{'─' * width}┤")
+    if use_color:
+        print(
+            f"│ {NOTICE_YELLOW}{stop_message.center(content_width)}"
+            f"{ANSI_RESET} │"
+        )
+    else:
+        print(f"│ {stop_message.center(content_width)} │")
+    print(f"└{'─' * width}┘")
+
 
 # show info about the app when it starts
 def _print_startup_summary(app, url, startup_duration):
@@ -145,27 +215,74 @@ def _print_startup_summary(app, url, startup_duration):
     print(f"  Default provider: {default_provider}")
     print(f"  Google usage protection: {usage_status}")
     print(f"  Startup time: {startup_duration:.1f}s")
+    ready_message = "✓ Application is ready to use"
+    if (
+        sys.stdout.isatty()
+        and os.getenv("TERM") != "dumb"
+        and "NO_COLOR" not in os.environ
+    ):
+        print(f"\n{SUCCESS_GREEN}{ready_message}{ANSI_RESET}")
+    else:
+        print(f"\n{ready_message}")
     _print_application_link(url)
 
 
-class _SuccessfulLocalizationPollFilter(logging.Filter):
-    """Hide successful progress polling while preserving request errors."""
+class _RequestLogFilter(logging.Filter):
+    """Hide successful polling and compact Werkzeug request messages."""
 
     _poll_request = re.compile(
         r'"GET /localizations/[0-9a-f]{32} HTTP/[^"]+" (?:200|304) '
     )
+    _request_log = re.compile(
+        r"^\S+ - - \["
+        r"(?P<day>\d{2})/(?P<month>[A-Z][a-z]{2})/(?P<year>\d{4}) "
+        r"(?P<time>\d{2}:\d{2}:\d{2})\] (?P<request>.*)$"
+    )
+    _request_details = re.compile(
+        r'^"(?P<request>.*) HTTP/[0-9.]+'
+        r'(?P<reset>\x1b\[[0-9;]*m)?" '
+        r'(?P<status>\d{3})(?: (?:\d+|-))?$'
+    )
+    _months = {
+        "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
+        "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
+        "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12",
+    }
+    _ansi_codes = re.compile(r"\x1b\[[0-9;]*m")
 
     def filter(self, record):
-        return not self._poll_request.search(record.getMessage())
+        message = record.getMessage()
+        if self._ansi_codes.sub("", message).strip() == "Press CTRL+C to quit":
+            return False
+        if self._poll_request.search(message):
+            return False
+
+        match = self._request_log.match(message)
+        if match and match["month"] in self._months:
+            short_year = match["year"][-2:]
+            request_details = match["request"]
+            details_match = self._request_details.match(request_details)
+            if details_match:
+                ansi_reset = details_match["reset"] or ""
+                request_details = (
+                    f"{details_match['request']}{ansi_reset} "
+                    f"{details_match['status']}"
+                )
+            record.msg = (
+                f"[{match['day']}.{self._months[match['month']]}.{short_year} "
+                f"{match['time']}] {request_details}"
+            )
+            record.args = ()
+        return True
 
 
 def _configure_request_logging():
     werkzeug_logger = logging.getLogger("werkzeug")
     if not any(
-        isinstance(log_filter, _SuccessfulLocalizationPollFilter)
+        isinstance(log_filter, _RequestLogFilter)
         for log_filter in werkzeug_logger.filters
     ):
-        werkzeug_logger.addFilter(_SuccessfulLocalizationPollFilter())
+        werkzeug_logger.addFilter(_RequestLogFilter())
 
 
 def build_language_tiers(language_names):
@@ -627,6 +744,7 @@ def main():
     started_at = time.monotonic()
     app = create_app()
     _print_startup_summary(app, url, time.monotonic() - started_at)
+    _print_technical_info_notice()
     app.run(debug=debug, host=host, port=args.port)
 
 
