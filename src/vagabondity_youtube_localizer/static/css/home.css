@@ -1449,6 +1449,30 @@ a.top-page-btn:focus-visible {
     justify-self: end;
 }
 
+.source-code-link {
+    display: inline-flex;
+    grid-column: 1;
+    align-items: center;
+    justify-self: start;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 650;
+    text-decoration: none;
+    transition: color 160ms ease;
+}
+
+.source-code-link svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+
+.source-code-link:hover,
+.source-code-link:focus-visible {
+    color: var(--amber-bright);
+}
+
 .pagination {
     display: flex;
     flex-wrap: wrap;
@@ -2985,9 +3009,14 @@ a.top-page-btn:focus-visible {
     }
 
     .pagination-wrap,
+    .source-code-link,
     .pagination-controls .page-size-control {
         grid-column: 1;
         justify-self: stretch;
+    }
+
+    .source-code-link {
+        justify-self: start;
     }
 
     .page-size-control {
