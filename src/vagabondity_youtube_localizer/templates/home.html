@@ -339,55 +339,55 @@
                     {% endfor %}
                 </ul>
             </section>
-        </main>
-    </div>
 
-    <div class="pagination-controls">
-        {% if num_pages > 1 %}
-        <nav class="pagination-wrap" aria-label="Video pages">
-            <ul class="pagination">
-            {% if current_page > 1 %}
-                <li class="page-item">
-                    <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page - 1, video_filter=video_filter, _anchor='videos-library') }}" aria-label="Previous page">&lt;</a>
-                </li>
-            {% endif %}
+            <div class="pagination-controls">
+                {% if num_pages > 1 %}
+                <nav class="pagination-wrap" aria-label="Video pages">
+                    <ul class="pagination">
+                    {% if current_page > 1 %}
+                        <li class="page-item">
+                            <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page - 1, video_filter=video_filter, _anchor='videos-library') }}" aria-label="Previous page">&lt;</a>
+                        </li>
+                    {% endif %}
 
-            {% for n in range(1, num_pages) %}
-                {% if n == current_page %}
-                    <li class="page-item active">
-                        <span class="page-link">{{ n }}</span>
-                    </li>
-                {% elif n <= 3 or n >= num_pages - 2 or (n >= current_page - 2 and n <= current_page + 2) %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('home', page=n, video_filter=video_filter, _anchor='videos-library') }}">{{ n }}</a>
-                    </li>
-                {% elif n == 4 and current_page > 6 %}
-                    <li class="page-item disabled"><span class="page-link">…</span></li>
-                {% elif n == num_pages - 3 and current_page < num_pages - 5 %}
-                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% for n in range(1, num_pages) %}
+                        {% if n == current_page %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ n }}</span>
+                            </li>
+                        {% elif n <= 3 or n >= num_pages - 2 or (n >= current_page - 2 and n <= current_page + 2) %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('home', page=n, video_filter=video_filter, _anchor='videos-library') }}">{{ n }}</a>
+                            </li>
+                        {% elif n == 4 and current_page > 6 %}
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        {% elif n == num_pages - 3 and current_page < num_pages - 5 %}
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if current_page < num_pages - 1 %}
+                        <li class="page-item">
+                            <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page + 1, video_filter=video_filter, _anchor='videos-library') }}" aria-label="Next page">&gt;</a>
+                        </li>
+                    {% endif %}
+                    </ul>
+                </nav>
+                {% else %}
+                <span></span>
                 {% endif %}
-            {% endfor %}
 
-            {% if current_page < num_pages - 1 %}
-                <li class="page-item">
-                    <a class="page-link pagination-arrow" href="{{ url_for('home', page=current_page + 1, video_filter=video_filter, _anchor='videos-library') }}" aria-label="Next page">&gt;</a>
-                </li>
-            {% endif %}
-            </ul>
-        </nav>
-        {% else %}
-        <span></span>
-        {% endif %}
-
-        <label class="page-size-control" for="form-select">
-            <span>Videos per page</span>
-            <select id="form-select" class="form-control">
-                <option class="per-page" value="10">10</option>
-                <option class="per-page" value="25">25</option>
-                <option class="per-page" value="50">50</option>
-                <option class="per-page" value="{{ total_videos }}">All</option>
-            </select>
-        </label>
+                <label class="page-size-control" for="form-select">
+                    <span>Videos per page</span>
+                    <select id="form-select" class="form-control">
+                        <option class="per-page" value="10">10</option>
+                        <option class="per-page" value="25">25</option>
+                        <option class="per-page" value="50">50</option>
+                        <option class="per-page" value="{{ total_videos }}">All</option>
+                    </select>
+                </label>
+            </div>
+        </main>
     </div>
 </div>
 

@@ -1425,7 +1425,7 @@ a.top-page-btn:focus-visible {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
     gap: 16px;
-    margin: 24px 0 0 252px;
+    margin: 24px 0 0;
 }
 
 .pagination-wrap {
