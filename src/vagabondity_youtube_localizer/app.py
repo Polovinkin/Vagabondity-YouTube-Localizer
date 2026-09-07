@@ -1,6 +1,9 @@
 import argparse
+import logging
 import os
+import re
 import threading
+import time
 
 import googleapiclient.errors
 from flask import Flask, jsonify, redirect, render_template, request, url_for
@@ -36,6 +39,26 @@ TIER_2_LANGUAGES = {
     "Arabic",
     "Hindi",
 }
+
+
+class _SuccessfulLocalizationPollFilter(logging.Filter):
+    """Hide successful progress polling while preserving request errors."""
+
+    _poll_request = re.compile(
+        r'"GET /localizations/[0-9a-f]{32} HTTP/[^"]+" (?:200|304) '
+    )
+
+    def filter(self, record):
+        return not self._poll_request.search(record.getMessage())
+
+
+def _configure_request_logging():
+    werkzeug_logger = logging.getLogger("werkzeug")
+    if not any(
+        isinstance(log_filter, _SuccessfulLocalizationPollFilter)
+        for log_filter in werkzeug_logger.filters
+    ):
+        werkzeug_logger.addFilter(_SuccessfulLocalizationPollFilter())
 
 
 def build_language_tiers(language_names):
@@ -78,6 +101,7 @@ def create_app(
 
     app = Flask(__name__)
     app.config["TEMPLATES_AUTO_RELOAD"] = True
+    _configure_request_logging()
 
     youtube = youtube_client or YouTubeClient(
         oauth_client_file=settings.youtube_oauth_client_file,
@@ -257,6 +281,18 @@ def create_app(
         if job_id is None:
             return jsonify({"error": "A localization run is already active.", "job": job}), 409
 
+        run_label = job_id[:8]
+        started_at = time.monotonic()
+        provider_label = {
+            "deepl": "DeepL",
+            "google": "Google Cloud Translation",
+        }[provider]
+        print(
+            f"\nLocalization [{run_label}] started: {provider_label}, "
+            f"{job['video_count']} video(s) × {job['language_count']} language(s) "
+            f"= {job['total']} localization(s)"
+        )
+
         def run_localization():
             try:
                 youtube.error_code = ""
@@ -272,9 +308,24 @@ def create_app(
                     ),
                 )
                 progress_tracker.finish(job_id, youtube.error_code)
+                finished_job = progress_tracker.get(job_id)
+                duration = time.monotonic() - started_at
+                status = "stopped" if youtube.error_code else "completed"
+                print(
+                    f"Localization [{run_label}] {status} in {duration:.1f}s: "
+                    f"{finished_job['processed']}/{finished_job['total']} processed, "
+                    f"{finished_job['succeeded']} succeeded, "
+                    f"{finished_job['skipped']} skipped, "
+                    f"{finished_job['failed']} failed"
+                    + (f"; reason: {youtube.error_code}" if youtube.error_code else "")
+                    + "\n"
+                )
             except Exception as exc:
-                print(f"Unexpected localization error: {exc}")
                 progress_tracker.fail(job_id, exc)
+                duration = time.monotonic() - started_at
+                print(
+                    f"Localization [{run_label}] failed after {duration:.1f}s: {exc}\n"
+                )
 
         threading.Thread(target=run_localization, daemon=True).start()
         return jsonify({"job_id": job_id, "job": job}), 202
