@@ -1,4 +1,8 @@
-# Vagabondity YouTube Localizer
+<p align="center">
+  <img src="docs/images/yt-localizer-banner.svg" alt="YT Localizer by Vagabondity Walks" width="100%">
+</p>
+
+---
 
 This is a local app for translating YouTube video titles and descriptions into multiple languages and publishing those translations directly to your channel. You can choose videos which metadata you want to translate, review existing localizations and choose target languages and publish translations directly to YouTube — without changing the original title or description.
 
