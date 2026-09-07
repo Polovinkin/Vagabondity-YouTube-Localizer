@@ -143,8 +143,6 @@ def create_app(
                         payload.get("trim_checked", False),
                         selected_video_ids=payload.get("selected_video_ids"),
                     )
-                    if youtube.error_code != "quotaExceeded":
-                        youtube.clear_video_cache()
                     return jsonify({"status": "ok"})
 
                 return jsonify({"error": "Unsupported request"}), 400
@@ -273,8 +271,6 @@ def create_app(
                         job_id, event
                     ),
                 )
-                if youtube.error_code != "quotaExceeded":
-                    youtube.clear_video_cache()
                 progress_tracker.finish(job_id, youtube.error_code)
             except Exception as exc:
                 print(f"Unexpected localization error: {exc}")

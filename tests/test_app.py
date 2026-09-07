@@ -390,19 +390,15 @@ class AppTests(unittest.TestCase):
         self.assertIn(b'id="progressSkipped"', response.data)
         self.assertIn(b'id="progressFailed"', response.data)
         self.assertIn(b'id="loadingOverlayMessage"', response.data)
-        self.assertIn(
-            b'Refreshing videos and published translations from YouTube',
-            response.data,
-        )
+        self.assertIn(b'Updating video library', response.data)
 
-    def test_done_refreshes_the_current_video_page(self):
-        self.youtube.num_pages = 4
-
+    def test_done_reloads_the_current_video_page(self):
         response = self.client.get("/?page=4&video_filter=videos")
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            b'location.href = "/?page=4&amp;video_filter=videos#videos-library";',
+            b"loadingOverlay.style.display = 'flex';\n"
+            b"        window.location.reload();",
             response.data,
         )
 

@@ -1623,9 +1623,9 @@
 
     function closeProgressWindow() {
         progressPopup.style.display = 'none';
-        loadingOverlayMessage.innerText = 'Refreshing videos and published translations from YouTube…';
+        loadingOverlayMessage.innerText = 'Updating video library…';
         loadingOverlay.style.display = 'flex';
-        location.href = "{{ url_for('home', page=current_page, video_filter=video_filter, _anchor='videos-library') }}";
+        window.location.reload();
     }
 
     function getSelectedVideos() {
