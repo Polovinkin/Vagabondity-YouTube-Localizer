@@ -1,10 +1,13 @@
-# Credentials and local configuration
+# Credentials and local configs
 config/*.json
 config/settings.toml
 .env
 token.pickle
 
-# Python virtual environments and cache
+# macOS
+.DS_Store
+
+# Python venv's and cache
 .venv/
 venv/
 __pycache__/
@@ -17,6 +20,3 @@ dist/
 .pytest_cache/
 .coverage
 htmlcov/
-
-# macOS
-.DS_Store
