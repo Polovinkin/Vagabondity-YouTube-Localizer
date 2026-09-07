@@ -726,13 +726,11 @@ class YouTubeClient:
                 if trimmed:
                     self.videos_trimmed += 1
                     print(
-                        f"Localization for video '{default_title}' → "
-                        f"'{language}' was safely shortened"
+                        f"│  ! {language}: localization was safely shortened"
                     )
             elif title_too_long or description_too_long:
                 print(
-                    f"Video '{default_title}' skipped for language "
-                    f"'{language}' due to length."
+                    f"│  – {language}: localization is too long; skipped"
                 )
                 outcomes.append(
                     {
@@ -760,8 +758,8 @@ class YouTubeClient:
             return outcomes
 
         print(
-            f"Publishing {len(prepared)} localization(s) for "
-            f"'{default_title}' in one YouTube update"
+            f"│  Publishing {len(prepared)} localization(s) "
+            "in one YouTube update…"
         )
         try:
             results = self.youtube.videos().list(
@@ -794,7 +792,7 @@ class YouTubeClient:
                 }
         except googleapiclient.errors.HttpError as e:
             self.error_code = e.error_details[0]['reason']
-            print(f"Error updating video: {e.error_details}")
+            print(f"│  ✗ YouTube update failed: {e.error_details}")
             for localization in prepared:
                 outcomes[localization["outcome_index"]] = {
                     "outcome": "failed",

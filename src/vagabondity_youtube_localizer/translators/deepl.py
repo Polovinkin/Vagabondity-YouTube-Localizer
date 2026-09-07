@@ -31,7 +31,6 @@ class DeepLTranslator:
 
         try:
             self._client = DeepLClient(api_key)
-            print("DeepL client initialized")
         except Exception as exc:
             print(f"Error initializing DeepL: {exc}")
 

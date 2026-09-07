@@ -54,6 +54,10 @@ class LocalizationService:
 
         selected_video_ids = selected_video_ids or []
         for index, video_title in enumerate(selected_videos):
+            display_title = " ".join(str(video_title).split())
+            print(f"\n┌─ Video {index + 1}/{len(selected_videos)}")
+            print(f"│ {display_title}")
+            print("│")
             video_id = (
                 selected_video_ids[index]
                 if index < len(selected_video_ids)
@@ -64,7 +68,7 @@ class LocalizationService:
                 target_video = self._find_video(videos_to_search, video_title)
             if target_video is None:
                 youtube.videos_skipped += len(selected_languages)
-                print(f"Video '{video_title}' was not found; skipped")
+                print("│  Video was not found; skipped")
                 for language in selected_languages:
                     self._emit_finished(
                         progress_callback,
@@ -73,6 +77,10 @@ class LocalizationService:
                         "skipped",
                         "video_not_found",
                     )
+                print(
+                    f"└─ Finished — 0/{len(selected_languages)} "
+                    "localizations published"
+                )
                 continue
 
             pending_localizations = []
@@ -92,6 +100,7 @@ class LocalizationService:
                         getattr(target_video, "default_language_code", None)
                     )
                 if language == default_language:
+                    print(f"│  – {language}: source language; skipped")
                     self._emit_finished(
                         progress_callback,
                         target_video.video_title,
@@ -102,6 +111,7 @@ class LocalizationService:
                     continue
 
                 if language in target_video.language_names and not overwrite:
+                    print(f"│  – {language}: already localized; skipped")
                     self._emit_finished(
                         progress_callback,
                         target_video.video_title,
@@ -114,7 +124,7 @@ class LocalizationService:
                 language_code = youtube.name_to_code.get(language.strip())
                 if not language_code:
                     youtube.videos_skipped += 1
-                    print(f"Unknown YouTube language '{language}'; skipped")
+                    print(f"│  – {language}: unknown YouTube language; skipped")
                     self._emit_finished(
                         progress_callback,
                         target_video.video_title,
@@ -146,6 +156,10 @@ class LocalizationService:
                 )
 
             if not pending_localizations:
+                print(
+                    f"└─ Finished — 0/{len(selected_languages)} "
+                    "localizations published"
+                )
                 continue
 
             publishing_language = (
@@ -193,6 +207,14 @@ class LocalizationService:
                     result.get("trimmed", False),
                 )
 
+            published_count = sum(
+                result["outcome"] == "succeeded" for result in publish_results
+            )
+            print(
+                f"└─ Finished — {published_count}/{len(selected_languages)} "
+                "localizations published"
+            )
+
             if published_any and self.delay:
                 time.sleep(self.delay)
             if youtube.error_code:
@@ -208,14 +230,13 @@ class LocalizationService:
     ):
         if not provider.is_available:
             print(
-                f"{provider.name} is not configured; skipped "
-                f"'{video.video_title}' for '{language}'"
+                f"│  – {language}: {provider.name} is not configured; skipped"
             )
             return None, "skipped", "provider_unavailable"
 
         try:
             if not provider.is_language_supported(language_code):
-                print(f"{provider.name} does not support '{language}'; skipped")
+                print(f"│  – {language}: not supported by {provider.name}; skipped")
                 return None, "skipped", "unsupported_language"
 
             self._emit_stage(progress_callback, video, language, "translating_title")
@@ -230,8 +251,7 @@ class LocalizationService:
             )
         except TranslationError as exc:
             print(
-                f"{provider.name} error for '{video.video_title}' "
-                f"→ '{language}': {exc}; skipped"
+                f"│  ✗ {language}: {provider.name} error — {exc}; skipped"
             )
             reason = (
                 "google_monthly_limit"
@@ -240,7 +260,7 @@ class LocalizationService:
             )
             return None, "failed", reason
 
-        print(f"{provider.name} completed '{video.video_title}' → '{language}'")
+        print(f"│  ✓ {language}: translated with {provider.name}")
         return (
             {
                 "language_code": language_code,

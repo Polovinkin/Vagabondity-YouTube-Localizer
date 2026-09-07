@@ -36,7 +36,6 @@ class GoogleCloudTranslator:
                     self._credentials_path
                 )
                 self._client = translate.Client(credentials=credentials)
-                print("Google Cloud Translation API initialized successfully")
                 return
 
             print(
@@ -61,14 +60,14 @@ class GoogleCloudTranslator:
                 for language in languages
                 if language.get("language")
             }
-            print(
-                "Loaded "
-                f"{len(self._supported_language_codes)} supported languages from "
-                "Google Cloud Translation"
-            )
         except Exception as exc:
             print(f"Error loading Google Cloud Translation languages: {exc}")
             self._supported_language_codes = set()
+
+    @property
+    def supported_language_count(self):
+        """Return the number of target languages loaded from Google Cloud."""
+        return len(self._supported_language_codes)
 
     def is_language_supported(self, language_code):
         """Return whether Google Cloud supports a target language code."""
@@ -124,7 +123,6 @@ class GoogleCloudTranslator:
                     "Google Cloud returned no translated text"
                 )
 
-            print(f"Google Cloud completed translation to '{target_language}'")
             return translated_text
         except GoogleUsageLimitError as exc:
             raise MonthlyTranslationLimitError(str(exc)) from exc

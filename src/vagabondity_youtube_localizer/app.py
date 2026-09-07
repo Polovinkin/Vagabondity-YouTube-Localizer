@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import re
+import sys
 import threading
 import time
 
@@ -21,6 +22,7 @@ from .youtube_client import (
 )
 
 
+# languages categories to use in Translation window
 TIER_1_LANGUAGES = {
     "English",
     "Russian",
@@ -39,6 +41,111 @@ TIER_2_LANGUAGES = {
     "Arabic",
     "Hindi",
 }
+
+
+APP_BANNER_LINES = (
+    ("__   _______.", "  _                    _ _"),
+    (r"\ \ / /_   _|", r" | |    ___   ___ __ _| (_)_______ _ __"),
+    (r" \ V /  | |", r"   | |   / _ \ / __/ _` | | |_  / _ \ '__|"),
+    ("  | |   | |", "   | |__| (_) | (_| (_| | | |/ /  __/ |"),
+    ("  |_|   |_|", r"   |_____\___/ \___\__,_|_|_/___\___|_|"),
+)
+
+YOUTUBE_RED = "\033[1;38;2;255;0;0m"
+ANSI_RESET = "\033[0m"
+
+# showing branded banner when starting the app
+def _print_startup_banner():
+    use_color = (
+        sys.stdout.isatty()
+        and os.getenv("TERM") != "dumb"
+        and "NO_COLOR" not in os.environ
+    )
+    print()
+    for youtube_part, localizer_part in APP_BANNER_LINES:
+        if use_color:
+            print(f"{YOUTUBE_RED}{youtube_part}{ANSI_RESET}{localizer_part}")
+        else:
+            print(f"{youtube_part}{localizer_part}")
+    banner_width = max(
+        len(youtube_part) + len(localizer_part)
+        for youtube_part, localizer_part in APP_BANNER_LINES
+    )
+    print("by Vagabondity Walks".rjust(banner_width))
+    print("\nStarting application…\n")
+
+
+def _terminal_link(label, url):
+    """Return an OSC 8 hyperlink when output is an interactive terminal."""
+    if not sys.stdout.isatty() or os.getenv("TERM") == "dumb":
+        return label
+    return f"\033]8;;{url}\033\\\033[1;36m{label}\033[0m\033]8;;\033\\"
+
+
+def _print_application_link(url):
+    label = f"▶  OPEN YT LOCALIZER: {url}"
+    border = "═" * (len(label) + 2)
+    print(f"\n╔{border}╗")
+    print(f"║ {_terminal_link(label, url)} ║")
+    print(f"╚{border}╝")
+    print("Click the link above or copy the address into your browser.\n")
+
+# show info about the app when it starts
+def _print_startup_summary(app, url, startup_duration):
+    youtube = app.extensions["youtube_client"]
+    localizer = app.extensions["localization_service"]
+    usage_tracker = app.extensions["google_usage_tracker"]
+
+    if youtube.error_code:
+        youtube_status = (
+            "limited — daily quota exceeded"
+            if youtube.error_code == "quotaExceeded"
+            else f"unavailable — {youtube.error_code}"
+        )
+    else:
+        channel_name = " ".join(youtube.channel_name.split()) or "channel connected"
+        youtube_status = f"ready — {channel_name}, {youtube.total_video_count:,} videos"
+
+    google = localizer.google_translator
+    if not google.is_available:
+        google_status = "not configured"
+    elif google.supported_language_count:
+        google_status = (
+            f"ready ({google.supported_language_count} supported languages)"
+        )
+    else:
+        google_status = "configured (supported languages unavailable)"
+
+    deepl_status = (
+        "configured (connection not checked)"
+        if localizer.deepl_translator.is_available
+        else "not configured"
+    )
+
+    usage = usage_tracker.get_google_usage()
+    if usage["status"] == "ready":
+        protection = "enabled" if usage["safety_limit_enabled"] else "disabled"
+        usage_status = (
+            f"{protection} ({usage['used']:,} / {usage['limit']:,} characters)"
+        )
+    else:
+        usage_status = f"unavailable — {usage['message']}"
+
+    default_provider = {
+        "deepl": "DeepL",
+        "google": "Google Cloud",
+    }[app.config["DEFAULT_TRANSLATION_PROVIDER"]]
+
+    print("Startup status:")
+    print("  Configuration: loaded")
+    print(f"  YouTube: {youtube_status}")
+    print("  Translation providers:")
+    print(f"    Google Cloud: {google_status}")
+    print(f"    DeepL: {deepl_status}")
+    print(f"  Default provider: {default_provider}")
+    print(f"  Google usage protection: {usage_status}")
+    print(f"  Startup time: {startup_duration:.1f}s")
+    _print_application_link(url)
 
 
 class _SuccessfulLocalizationPollFilter(logging.Filter):
@@ -101,6 +208,7 @@ def create_app(
 
     app = Flask(__name__)
     app.config["TEMPLATES_AUTO_RELOAD"] = True
+    app.config["DEFAULT_TRANSLATION_PROVIDER"] = settings.default_translation_provider
     _configure_request_logging()
 
     youtube = youtube_client or YouTubeClient(
@@ -513,7 +621,13 @@ def main():
         "true",
         "yes",
     }
-    create_app().run(debug=debug, host="127.0.0.1", port=args.port)
+    host = "127.0.0.1"
+    url = f"http://{host}:{args.port}"
+    _print_startup_banner()
+    started_at = time.monotonic()
+    app = create_app()
+    _print_startup_summary(app, url, time.monotonic() - started_at)
+    app.run(debug=debug, host=host, port=args.port)
 
 
 if __name__ == "__main__":
