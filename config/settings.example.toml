@@ -1,15 +1,16 @@
 [translation]
 # Used only until you choose a provider in the interface.
+# DeepL is chosen by default, because it doesn't require creating a billing account like Google and quality is better.
 default_provider = "deepl"
 
 [youtube]
-# Original JSON name is something like "client_secret_1234567...googleusercontent.com.json"
+# Original JSON name is named like "client_secret_1234567...googleusercontent.com.json"
 # Put it to config folder and rename it like that:
 oauth_client_file = "config/account_client_secrets_main.json"
 token_file = "token.pickle"
 
 [google]
-# Original JSON name is similar to "channel-name-c12c1d123456.json"
+# Original JSON name is named like "channel-name-c12c1d123456.json"
 # Put it to config folder and rename it like that:
 credentials_file = "config/translate_key.json"
 
