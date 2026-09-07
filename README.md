@@ -138,16 +138,16 @@ To stop the app, return to Terminal and press `Ctrl+C`.
 
 ## Features
 
-- **Batch localization:** Translate and publish metadata for a single video, a page of videos, or the entire channel in one run.
-- **Localization-aware selection:** Review each video's source language and existing localizations before choosing target languages. Existing translations are skipped by default, with an option to replace and retranslate them.
-- **Flexible video library:** Filter full-length videos and Shorts, browse by page, and select individual videos, the current page, or the entire channel.
-- **Multiple translation providers:** Choose explicitly between DeepL and Google Cloud Translation for each localization run.
-- **Live progress tracking:** Follow every video-and-language pair as it is processed, including published, skipped, and failed localizations with their reasons.
-- **Usage and quota visibility:** View DeepL usage, locally tracked Google Cloud Translation usage, and YouTube API quota information from the **USAGE** window.
-- **Provider connection checks:** Test both configured translation providers from the **TEST** window before starting a localization run. The check uses a tiny translation request and does not modify YouTube metadata.
-- **YouTube quota recovery:** When the daily YouTube API quota is exhausted, the app enters limited mode, keeps cached channel data available, shows the expected reset time, and lets you reconnect when access is restored.
-- **Local-first operation:** The interface runs only on `127.0.0.1`. Credentials and provider settings are stored locally and are used only to authenticate requests to the configured services.
-- **Original content protection:** The original video, thumbnail, title, and description remain unchanged; only additional language localizations are published.
+- 🚀 **Batch localization:** Translate and publish metadata for a single video, a page of videos, or the entire channel in one run.
+- 🌍 **Localization-aware selection:** Review each video's source language and existing localizations before choosing target languages. Existing translations are skipped by default, with an option to replace and retranslate them.
+- 🎬 **Flexible video library:** Filter full-length videos and Shorts, browse by page, and select individual videos, the current page, or the entire channel.
+- 🔄 **Multiple translation providers:** Choose explicitly between DeepL and Google Cloud Translation for each localization run.
+- 📊 **Live progress tracking:** Follow every video-and-language pair as it is processed, including published, skipped, and failed localizations with their reasons.
+- 📈 **Usage and quota visibility:** View DeepL usage, locally tracked Google Cloud Translation usage, and YouTube API quota information from the **USAGE** window.
+- ✅ **Provider connection checks:** Test both configured translation providers from the **TEST** window before starting a localization run. The check uses a tiny translation request and does not modify YouTube metadata.
+- 🔋 **YouTube quota recovery:** When the daily YouTube API quota is exhausted, the app enters limited mode, keeps cached channel data available, shows the expected reset time, and lets you reconnect when access is restored.
+- 💻 **Local-first operation:** The interface runs only on `127.0.0.1`. Credentials and provider settings are stored locally and are used only to authenticate requests to the configured services.
+- 🛡️ **Original content protection:** The original video, thumbnail, title, and description remain unchanged; only additional language localizations are published.
 
 ## Requirements
 
