@@ -299,9 +299,17 @@ def create_app(
     @app.route("/providers/usage", methods=["POST"])
     def get_provider_usage():
         """Return provider usage without exposing configured credentials."""
+        google_usage = (
+            usage_tracker.get_google_usage()
+            if localizer.google_translator.is_available
+            else {
+                "status": "not_configured",
+                "message": "Not configured",
+            }
+        )
         return jsonify(
             {
-                "google": usage_tracker.get_google_usage(),
+                "google": google_usage,
                 "deepl": localizer.deepl_translator.get_usage(),
             }
         )

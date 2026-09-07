@@ -91,7 +91,7 @@
                 {% if channel_thumbnail %}
                     <img class="channel-thumbnail" src="{{ channel_thumbnail }}" alt="{{ channel_name }} channel thumbnail">
                 {% else %}
-                    <span class="channel-thumbnail channel-thumbnail-placeholder" aria-hidden="true">YT</span>
+                    <span class="channel-thumbnail channel-thumbnail-placeholder" aria-hidden="true">Channel photo</span>
                 {% endif %}
                 <h2>{{ channel_name or 'YouTube channel' }}</h2>
                 <section class="channel-filter-section" aria-labelledby="video-format-heading">
@@ -100,7 +100,7 @@
                         <button class="filter-help" type="button"
                                 aria-label="How Shorts are detected"
                                 aria-describedby="shorts-filter-help">
-                            ?
+                            i
                             <span class="filter-help-tooltip" id="shorts-filter-help" role="tooltip">
                                 Shorts are determined by duration only. Videos up to and including
                                 3 minutes are treated as Shorts because the YouTube Data API does
@@ -211,15 +211,13 @@
                             <small id="providerStatus"></small>
                             <div class="provider-actions">
                                 <button id="usageProvidersBtn" class="provider-tool-button" type="button"
-                                        aria-label="Show translation usage and YouTube quota"
-                                        title="Usage and limits">
-                                    <span class="provider-tool-title"><span aria-hidden="true">◔</span> Usage</span>
+                                        aria-label="Show translation usage and YouTube quota">
+                                    <span class="provider-tool-title"><span aria-hidden="true">◔</span> USAGE</span>
                                     <span class="provider-tool-description">Translation usage and YouTube quota.</span>
                                 </button>
                                 <button id="testProvidersBtn" class="provider-tool-button" type="button"
-                                        aria-label="Test provider connections"
-                                        title="Test provider connections">
-                                    <span class="provider-tool-title"><span aria-hidden="true">✓</span> Test</span>
+                                        aria-label="Test provider connections">
+                                    <span class="provider-tool-title"><span aria-hidden="true">✓</span> TEST</span>
                                     <span class="provider-tool-description">Check both configured provider connections.</span>
                                 </button>
                             </div>
@@ -503,9 +501,6 @@
             Does not change anything on YouTube · Uses a few translation-quota characters.
         </div>
 
-        <div class="modal-footer provider-test-footer">
-            <button type="button" class="btn btn-primary provider-test-done">Done</button>
-        </div>
     </div>
 </div>
 
@@ -521,38 +516,56 @@
         </div>
 
         <div class="provider-usage-results" aria-live="polite">
-            <section class="provider-usage-card">
+            <section class="provider-usage-card provider-usage-card-deepl">
+                <div class="provider-usage-card-heading">
+                    <span class="provider-icon provider-icon-deepl" aria-hidden="true">D</span>
+                    <strong>DeepL</strong>
+                    <span class="provider-usage-inline">
+                        <strong class="usage-summary" id="deeplUsageSummary">Loading usage…</strong>
+                    </span>
+                </div>
+                <div class="usage-meter" aria-label="DeepL usage">
+                    <span id="deeplUsageBar"></span>
+                </div>
+                <div class="provider-usage-actions" aria-label="DeepL actions">
+                    <a href="https://www.deepl.com/your-account"
+                       target="_blank" rel="noopener noreferrer">Settings <span aria-hidden="true">↗</span></a>
+                    <a href="https://www.deepl.com/your-account/keys"
+                       target="_blank" rel="noopener noreferrer">API keys &amp; limits <span aria-hidden="true">↗</span></a>
+                </div>
+                <div class="provider-usage-info-content">
+                    <p>Your account's exact used characters and limit are loaded above from the DeepL API. The limit period depends on your subscription.</p>
+                </div>
+            </section>
+            <section class="provider-usage-card provider-usage-card-google">
                 <div class="provider-usage-card-heading">
                     <span class="provider-icon provider-icon-google" aria-hidden="true">G</span>
                     <strong>Google Cloud Translation</strong>
+                    <span class="provider-usage-inline">
+                        <strong class="usage-summary" id="googleUsageSummary">Loading usage…</strong>
+                    </span>
                 </div>
                 <div class="usage-meter" aria-label="Google usage">
                     <span id="googleUsageBar"></span>
                 </div>
-                <strong class="usage-summary" id="googleUsageSummary">Loading usage…</strong>
-                <small id="googleUsageDetail"></small>
-                <div class="provider-usage-actions" aria-label="Google Cloud Translation links">
+                <div class="provider-usage-actions" aria-label="Google Cloud Translation actions">
                     <a href="https://console.cloud.google.com/apis/api/translate.googleapis.com/overview"
                        target="_blank" rel="noopener noreferrer">Settings <span aria-hidden="true">↗</span></a>
                     <a href="https://console.cloud.google.com/iam-admin/quotas?service=translate.googleapis.com"
                        target="_blank" rel="noopener noreferrer">Quotas &amp; limits <span aria-hidden="true">↗</span></a>
                 </div>
-            </section>
-            <section class="provider-usage-card">
-                <div class="provider-usage-card-heading">
-                    <span class="provider-icon provider-icon-deepl" aria-hidden="true">D</span>
-                    <strong>DeepL</strong>
-                </div>
-                <div class="usage-meter" aria-label="DeepL usage">
-                    <span id="deeplUsageBar"></span>
-                </div>
-                <strong class="usage-summary" id="deeplUsageSummary">Loading usage…</strong>
-                <small id="deeplUsageDetail"></small>
-                <div class="provider-usage-actions" aria-label="DeepL links">
-                    <a href="https://www.deepl.com/your-account"
-                       target="_blank" rel="noopener noreferrer">Settings <span aria-hidden="true">↗</span></a>
-                    <a href="https://www.deepl.com/your-account/keys"
-                       target="_blank" rel="noopener noreferrer">API keys &amp; limits <span aria-hidden="true">↗</span></a>
+                <div class="provider-usage-info-content">
+                    <p>500,000 free characters/month. Protection stops requests above 490,000 characters/month when enabled.</p>
+                    <p>Google is an app-only meter for the current calendar month; it does not include other apps using the same Google Cloud project. Requests are counted before sending, including failed attempts. Keep the local usage file to preserve this protection.</p>
+                    <div class="google-usage-protection">
+                        <label for="googleUsageProtection">
+                            <input id="googleUsageProtection" type="checkbox" checked disabled
+                                   aria-describedby="googleUsageProtectionNote">
+                            Stop at 490,000 characters/month
+                        </label>
+                        <small id="googleUsageProtectionNote">Turn off to allow paid translations beyond the free allowance.</small>
+                        <small id="googleUsageProtectionError" role="alert"></small>
+                    </div>
                 </div>
             </section>
             <section class="provider-usage-card provider-usage-card-youtube">
@@ -568,50 +581,18 @@
                     {{ youtube_localization_batch_quota_cost }} units per video.
                 </small>
                 <small id="youtubeQuotaReset"></small>
-                <div class="provider-usage-actions" aria-label="YouTube Data API links">
+                <div class="provider-usage-actions" aria-label="YouTube Data API actions">
                     <a href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas"
                        target="_blank" rel="noopener noreferrer">Exact usage &amp; quota <span aria-hidden="true">↗</span></a>
                     <a href="https://developers.google.com/youtube/v3/determine_quota_cost"
                        target="_blank" rel="noopener noreferrer">Quota costs <span aria-hidden="true">↗</span></a>
                 </div>
+                <div class="provider-usage-info-content">
+                    <p>The standard daily allowance is {{ "{:,}".format(youtube_default_daily_quota) }} units and may differ for your Google Cloud project. Exact project-wide usage is available in Google Cloud.</p>
+                </div>
             </section>
         </div>
 
-        <section class="provider-limits" aria-labelledby="provider-limits-title">
-            <h3 id="provider-limits-title">Limits</h3>
-            <dl>
-                <div>
-                    <dt>Google Cloud Translation</dt>
-                    <dd>500,000 free characters/month.<br>Protection stops requests above 490,000 characters/month when enabled. With protection off, additional usage is billed by Google.</dd>
-                </div>
-                <div>
-                    <dt>DeepL</dt>
-                    <dd>Your account's exact used characters and limit are loaded above from the DeepL API.<br>The limit period depends on your subscription.</dd>
-                </div>
-                <div>
-                    <dt>YouTube Data API</dt>
-                    <dd>The standard daily allowance is {{ "{:,}".format(youtube_default_daily_quota) }} units and may differ for your Google Cloud project.<br>Exact project-wide usage is available in Google Cloud.</dd>
-                </div>
-            </dl>
-        </section>
-
-        <div class="provider-usage-note">
-            Google is an app-only meter for the current calendar month; it does not include other apps using the same Google Cloud project.
-            Requests are counted before sending, including failed attempts. Keep the local usage file to preserve this protection.
-        </div>
-        <div class="google-usage-protection">
-            <label for="googleUsageProtection">
-                <input id="googleUsageProtection" type="checkbox" checked disabled
-                       aria-describedby="googleUsageProtectionNote">
-                Stop at 490,000 characters/month
-            </label>
-            <small id="googleUsageProtectionNote">Turn off to allow paid translations beyond the free allowance.</small>
-            <small id="googleUsageProtectionError" role="alert"></small>
-        </div>
-
-        <div class="modal-footer provider-usage-footer">
-            <button type="button" class="btn btn-primary provider-usage-done">Done</button>
-        </div>
     </div>
 </div>
 
@@ -753,10 +734,8 @@
     const usageProvidersBtn = document.getElementById("usageProvidersBtn");
     const providerTestPopup = document.getElementById("providerTestPopup");
     const providerTestClose = document.querySelector(".provider-test-close");
-    const providerTestDone = document.querySelector(".provider-test-done");
     const providerUsagePopup = document.getElementById("providerUsagePopup");
     const providerUsageClose = document.querySelector(".provider-usage-close");
-    const providerUsageDone = document.querySelector(".provider-usage-done");
     const loadingOverlay = document.getElementById("loading-overlay");
     const loadingOverlayMessage = document.getElementById("loadingOverlayMessage");
     const defaultTranslationProvider = {{ default_translation_provider|tojson }};
@@ -813,9 +792,7 @@
         usageProvidersBtn.addEventListener('click', showProviderUsage);
         document.getElementById('googleUsageProtection').addEventListener('change', saveGoogleProtection);
         providerTestClose.addEventListener('click', closeProviderTestPopup);
-        providerTestDone.addEventListener('click', closeProviderTestPopup);
         providerUsageClose.addEventListener('click', closeProviderUsagePopup);
-        providerUsageDone.addEventListener('click', closeProviderUsagePopup);
         closeModalSpan.addEventListener('click', closeLanguagePopup);
         window.addEventListener('click', (event) => {
             if (event.target === addLanguagePopup) {
@@ -832,7 +809,7 @@
             if (event.key !== 'Escape') {
                 return;
             }
-            if (providerUsagePopup.style.display === 'block') {
+            if (providerUsagePopup.style.display === 'grid') {
                 closeProviderUsagePopup();
             } else if (providerTestPopup.style.display === 'block') {
                 closeProviderTestPopup();
@@ -908,6 +885,7 @@
 
     function closeProviderUsagePopup() {
         providerUsagePopup.style.display = 'none';
+        document.body.classList.remove('provider-usage-modal-open');
         usageProvidersBtn.focus();
     }
 
@@ -971,7 +949,7 @@
             minute: '2-digit',
             timeZoneName: 'short'
         }).format(getNextYouTubeQuotaReset());
-        return `Resets ${localReset} (midnight Pacific Time).`;
+        return `Next reset: ${localReset} (midnight Pacific Time).`;
     }
 
     function updateYouTubeQuotaResetLabels() {
@@ -1007,7 +985,6 @@
 
     function setProviderUsage(provider, result) {
         const summary = document.getElementById(provider + 'UsageSummary');
-        const detail = document.getElementById(provider + 'UsageDetail');
         const bar = document.getElementById(provider + 'UsageBar');
 
         if (provider === 'google') {
@@ -1020,7 +997,6 @@
 
         if (result.status !== 'ready') {
             summary.innerText = result.message || 'Usage is unavailable';
-            detail.innerText = '';
             bar.style.width = '0%';
             return;
         }
@@ -1031,14 +1007,6 @@
         summary.innerText = (
             formatCharacterCount(used) + ' of ' + formatCharacterCount(limit)
             + ' characters'
-        );
-        detail.innerText = (
-            formatCharacterCount(result.remaining) + ' remaining'
-            + (provider === 'google'
-                ? (result.safety_limit_enabled === false
-                    ? ' free · protection off · this app · current calendar month'
-                    : ' · protection on · this app · current calendar month')
-                : '')
         );
         bar.style.width = percent + '%';
     }
@@ -1096,7 +1064,8 @@
 
     async function showProviderUsage() {
         document.getElementById('googleUsageProtectionError').innerText = '';
-        providerUsagePopup.style.display = 'block';
+        document.body.classList.add('provider-usage-modal-open');
+        providerUsagePopup.style.display = 'grid';
         usageProvidersBtn.disabled = true;
         usageProvidersBtn.setAttribute('aria-busy', 'true');
         setProviderUsage('google', {status: 'loading', message: 'Loading usage…'});
