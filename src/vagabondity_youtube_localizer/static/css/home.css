@@ -1217,7 +1217,11 @@ a.top-page-btn:focus-visible {
     background: rgba(47, 33, 20, 0.92);
 }
 
-.video-card:active {
+.video-card:has(
+    .video-selector:active,
+    .video-thumbnail-button:not(:disabled):active,
+    .video-text-button:not(:disabled):active
+) {
     transform: translateY(2px) scale(0.997);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
