@@ -1,15 +1,12 @@
 # Vagabondity YouTube Localizer
 
-A local app for translating YouTube video titles and descriptions into multiple
-languages and publishing those translations directly to your channel.
+This is a local app for translating YouTube video titles and descriptions into multiple languages and publishing those translations directly to your channel. You can choose videos which metadata you want to translate, review existing localizations and choose target languages and publish translations directly to YouTube — without changing the original title or description.
 
-Review existing localizations, and then choose videos and target languages in the app,
-and publish translations directly to YouTube — without changing the
-original title or description.
+It's a small app with the simple goal - to make it easy for for YouTube creators to localize their videos metadata for different markets for better SEO and discoverability! Instead of paying money to some obscure online services like ReTranslate (do you really need another subscription in your life?) where you don't even know who's the author - you can use this app to do the same thing without paying a cent to make literally hundreds of localizations (!) - and where you can freely give feedback, which I'm listening to.
 
-Created by the authors of [Vagabondity Walks](https://www.youtube.com/@vagabondity) YouTube city walks channel.
+Created by the author of 🐸 [Vagabondity Walks](https://www.youtube.com/@vagabondity) YouTube city walks channel, feel free to check this channel out!
 
-> **Status:** Actively developed. Expect occasional changes and rough edges.
+> **Status:** Actively developed.
 
 ## Preview
 
@@ -344,3 +341,9 @@ The project contains portions derived from [YouTube-Video-Metadata-Translator](h
 Those portions are licensed under the MIT License.
 
 See `LICENSE` and `THIRD_PARTY_NOTICES.md`.
+
+## Problems or bugs?
+
+If you run into a problem, find a bug, or need help with the app, please
+[create a GitHub Issue](https://github.com/Polovinkin/Vagabondity-YouTube-Localizer/issues/new)
+and describe what happened. If possible, include the full error message shown in Terminal and all the steps that led to the problem. More details - the better!
