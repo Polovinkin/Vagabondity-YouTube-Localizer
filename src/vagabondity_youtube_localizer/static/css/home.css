@@ -1,3 +1,11 @@
+@font-face {
+    font-family: "Nunito Sans";
+    src: url("../fonts/NunitoSans-Variable.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 200 1000;
+    font-display: swap;
+}
+
 :root {
     color-scheme: dark;
     --bg: #160f09;
@@ -34,7 +42,7 @@ body {
         radial-gradient(circle at 12% -10%, rgba(245, 158, 11, 0.14), transparent 34rem),
         radial-gradient(circle at 90% 8%, rgba(180, 83, 9, 0.10), transparent 32rem),
         linear-gradient(180deg, var(--bg-deep), var(--bg));
-    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
     line-height: 1.5;
 }
 
@@ -1782,7 +1790,7 @@ a.top-page-btn:focus-visible {
 
 .provider-usage-card-heading .provider-usage-inline .usage-summary {
     margin-top: 0;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     line-height: 1.4;
 }
 
@@ -1812,13 +1820,13 @@ a.top-page-btn:focus-visible {
 .usage-summary {
     margin-top: 10px;
     color: var(--text);
-    font-size: 0.72rem;
+    font-size: 0.76rem;
 }
 
 .provider-usage-card small {
     margin-top: 3px;
     color: var(--muted);
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     line-height: 1.4;
 }
 
@@ -1836,7 +1844,7 @@ a.top-page-btn:focus-visible {
     border-radius: 9px;
     background: rgba(22, 15, 9, 0.42);
     color: var(--muted);
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     line-height: 1.45;
 }
 
@@ -1859,7 +1867,7 @@ a.top-page-btn:focus-visible {
     align-items: flex-start;
     gap: 7px;
     color: var(--text);
-    font-size: 0.67rem;
+    font-size: 0.72rem;
     line-height: 1.4;
     cursor: pointer;
 }
@@ -1881,7 +1889,7 @@ a.top-page-btn:focus-visible {
     display: block;
     margin-top: 3px;
     color: var(--muted);
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     line-height: 1.4;
 }
 
@@ -1901,7 +1909,7 @@ a.top-page-btn:focus-visible {
         inset 0 1px 0 rgba(255, 255, 255, 0.06),
         0 4px 12px rgba(0, 0, 0, 0.2);
     color: var(--amber-bright);
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 700;
     line-height: 1.4;
     text-decoration: none;
