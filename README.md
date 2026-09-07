@@ -4,7 +4,8 @@ This is a local app for translating YouTube video titles and descriptions into m
 
 It's a small app with the simple goal - to make it easy for for YouTube creators to localize their videos metadata for different markets for better SEO and discoverability! Instead of paying money to some obscure online services like ReTranslate (do you really need another subscription in your life?) where you don't even know who's the author - you can use this app to do the same thing without paying a cent to make literally hundreds of localizations (!) - and where you can freely give feedback, which I'm listening to.
 
-Created by the author of 🐸 [Vagabondity Walks](https://www.youtube.com/@vagabondity) YouTube city walks channel, feel free to check this channel out!
+Originally built and improved for localizing videos on my own 🐸 [Vagabondity Walks](https://www.youtube.com/@vagabondity) city walks channel. 
+I’m sharing it so other creators can use it too - feel free to check out the channel it was made for!
 
 > **Status:** Actively developed.
 
