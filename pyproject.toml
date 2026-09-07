@@ -1,7 +1,7 @@
 [project]
 name = "vagabondity-youtube-localizer"
-version = "0.1.0"
-description = "Bulk-translate and publish localized YouTube titles and descriptions."
+version = "0.2.0"
+description = "Translate and publish YouTube metadata with a clean, intuitive interface — free by default, easy to set up, and designed to run locally."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
