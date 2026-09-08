@@ -34,11 +34,11 @@ TIER_1_LANGUAGES = {
     "Russian",
     "Arabic",
     "Hindi",
-    "Chinese (Traditional)",
-    "Chinese (Simplified)",
 }
 TIER_2_LANGUAGES = {
     "Bengali",
+    "Chinese (Simplified)",
+    "Chinese (Traditional)",
     "Czech",
     "Dutch",
     "Filipino",

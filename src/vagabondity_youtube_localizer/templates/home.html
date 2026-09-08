@@ -737,6 +737,7 @@
     const providerInputs = Array.from(
         document.querySelectorAll('input[name="translationProvider"]')
     );
+    const translationProviderStorageKey = 'vagabondityTranslationProvider';
     const providerStatus = document.getElementById("providerStatus");
     const modalProviderName = document.getElementById("modalProviderName");
     const testProvidersBtn = document.getElementById("testProvidersBtn");
@@ -792,7 +793,7 @@
         providerInputs.forEach(input => {
             input.addEventListener('change', () => {
                 if (input.checked) {
-                    localStorage.setItem('translationProvider', input.value);
+                    localStorage.setItem(translationProviderStorageKey, input.value);
                     updateProviderStatus();
                 }
             });
@@ -849,14 +850,14 @@
     window.addEventListener('pageshow', clearVideoSelection);
 
     function initializeTranslationProvider() {
-        const savedProvider = localStorage.getItem('translationProvider');
+        const savedProvider = localStorage.getItem(translationProviderStorageKey);
         const preferredProvider = savedProvider || defaultTranslationProvider;
         const selectedInput = providerInputs.find(
             input => input.value === preferredProvider && !input.disabled
         );
         if (selectedInput) {
             selectedInput.checked = true;
-            localStorage.setItem('translationProvider', selectedInput.value);
+            localStorage.setItem(translationProviderStorageKey, selectedInput.value);
         }
         updateProviderStatus();
     }
