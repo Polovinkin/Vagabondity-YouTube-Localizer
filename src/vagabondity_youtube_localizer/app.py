@@ -92,9 +92,6 @@ TIER_3_LANGUAGES = {
     "Uzbek",
 }
 
-LANGUAGE_PROVIDER_SUPPORT = {}
-
-
 APP_BANNER_LINES = (
     ("__   _______.", "  _                    _ _"),
     (r"\ \ / /_   _|", r" | |    ___   ___ __ _| (_)_______ _ __"),
@@ -452,6 +449,109 @@ def _source_language_validation_error(youtube, payload):
     return None
 
 
+def _provider_language_capabilities(localizer, youtube, source_language_code):
+    """Return provider support for one source and every displayed target."""
+    providers = {
+        "google": localizer.google_translator,
+        "deepl": localizer.deepl_translator,
+    }
+    configured_providers = [
+        provider_id
+        for provider_id, provider in providers.items()
+        if provider.is_available
+    ]
+    source_support = {}
+    capability_errors = []
+    language_provider_support = {
+        language_name: []
+        for language_name in youtube.language_names_in_display_order
+    }
+
+    for provider_id in configured_providers:
+        provider = providers[provider_id]
+        source_supported = provider.is_source_language_supported(
+            source_language_code
+        )
+        source_support[provider_id] = source_supported
+        if source_supported is None:
+            capability_errors.append(provider_id)
+            continue
+        if not source_supported:
+            continue
+
+        for language_name, target_code in youtube.name_to_code.items():
+            supported = provider.supports_translation(
+                source_language_code,
+                target_code,
+            )
+            if supported is None:
+                if provider_id not in capability_errors:
+                    capability_errors.append(provider_id)
+                continue
+            if supported:
+                language_provider_support.setdefault(language_name, []).append(
+                    provider_id
+                )
+
+    return {
+        "configured_providers": configured_providers,
+        "provider_source_support": source_support,
+        "provider_capability_errors": capability_errors,
+        "language_provider_support": language_provider_support,
+    }
+
+
+def _translation_capability_validation_error(localizer, youtube, payload):
+    """Reject a localization request the chosen provider cannot perform."""
+    selected_videos = _selected_videos_from_payload(youtube, payload)
+    if not selected_videos:
+        return None
+    source_language_code = getattr(
+        selected_videos[0], "default_language_code", None
+    )
+    provider_id = payload.get("translation_provider")
+    provider = {
+        "google": localizer.google_translator,
+        "deepl": localizer.deepl_translator,
+    }.get(provider_id)
+    if provider is None or not provider.is_available:
+        return "The selected translation provider is not configured."
+
+    source_supported = provider.is_source_language_supported(
+        source_language_code
+    )
+    if source_supported is None:
+        return f"Could not verify {provider.name} language support. Try again."
+    if not source_supported:
+        source_name = youtube.code_to_name.get(
+            source_language_code, source_language_code
+        )
+        return f"{provider.name} cannot translate from {source_name}."
+
+    unsupported_targets = []
+    for language_name in payload.get("selected_languages", []):
+        target_code = youtube.name_to_code.get(str(language_name).strip())
+        if not target_code:
+            unsupported_targets.append(str(language_name))
+            continue
+        supported = provider.supports_translation(
+            source_language_code,
+            target_code,
+        )
+        if supported is None:
+            return f"Could not verify {provider.name} language support. Try again."
+        if not supported:
+            unsupported_targets.append(str(language_name))
+
+    if unsupported_targets:
+        return (
+            f"{provider.name} cannot translate to: "
+            + ", ".join(unsupported_targets)
+            + "."
+        )
+    return None
+
+
 def create_app(
     youtube_client=None,
     localization_service=None,
@@ -526,6 +626,11 @@ def create_app(
                     source_error = _source_language_validation_error(youtube, payload)
                     if source_error:
                         return jsonify({"error": source_error}), 400
+                    capability_error = _translation_capability_validation_error(
+                        localizer, youtube, payload
+                    )
+                    if capability_error:
+                        return jsonify({"error": capability_error}), 400
                     localizer.localize_videos(
                         payload["selected_videos"],
                         payload["selected_languages"],
@@ -584,7 +689,6 @@ def create_app(
                     youtube.language_names_in_display_order
                 ),
                 language_flags=LANGUAGE_FLAGS,
-                language_provider_support=LANGUAGE_PROVIDER_SUPPORT,
                 channel_thumbnail=youtube.channel_thumbnail,
                 channel_name=youtube.channel_name,
                 num_pages=display_num_pages,
@@ -646,6 +750,11 @@ def create_app(
         provider = payload.get("translation_provider")
         if provider not in VALID_TRANSLATION_PROVIDERS:
             return jsonify({"error": "Select a translation provider."}), 400
+        capability_error = _translation_capability_validation_error(
+            localizer, youtube, payload
+        )
+        if capability_error:
+            return jsonify({"error": capability_error}), 400
         job_id, job = progress_tracker.start(
             len(selected_videos), len(selected_languages), provider
         )
@@ -807,12 +916,28 @@ def create_app(
                 if state["localized_count"] == len(selected_videos)
             ]
             source_state = _source_language_state(youtube, selected_videos)
+            capability_state = {
+                "configured_providers": [],
+                "provider_source_support": {},
+                "provider_capability_errors": [],
+                "language_provider_support": {},
+            }
+            if (
+                len(source_state["source_languages"]) == 1
+                and not source_state["missing_source_language_count"]
+            ):
+                capability_state = _provider_language_capabilities(
+                    localizer,
+                    youtube,
+                    source_state["source_languages"][0]["code"],
+                )
             return jsonify(
                 {
                     "current_languages": common_languages,
                     "language_states": language_states,
                     "selected_count": len(selected_videos),
                     **source_state,
+                    **capability_state,
                     "refreshed": languages_refreshed,
                     "youtube_quota_exceeded": (
                         youtube.error_code == "quotaExceeded"

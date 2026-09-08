@@ -626,6 +626,11 @@
             </div>
         </div>
 
+        <div id="sourceCapabilitySummary" class="source-capability-summary" hidden>
+            <strong id="sourceCapabilityTitle"></strong>
+            <span id="sourceCapabilityDetail"></span>
+        </div>
+
         <div id="languageListShell" class="language-list-shell" aria-busy="false">
             <div id="languageList" class="language-list">
                 {% for tier in language_tiers %}
@@ -644,8 +649,7 @@
                             {% for language in tier.languages %}
                                 <label class="language-option">
                                     <input type="checkbox" class="form-check-input language-selector"/>
-                                    <span class="language-label" data-lang="{{ language }}"
-                                          data-supported-providers="{{ language_provider_support.get(language, ())|join(',') }}">
+                                    <span class="language-label" data-lang="{{ language }}">
                                         <span class="language-name">{{ language }}</span>{% if language_flags.get(language) %} <span class="language-flag">{{ language_flags[language] }}</span>{% endif %}
                                         <span class="language-status" aria-live="polite"></span>
                                     </span>
@@ -724,6 +728,9 @@
     const addLanguageBtn = document.getElementById("addLanguageBtn");
     const addLanguageButtons = Array.from(document.querySelectorAll(".add-language-btn"));
     const translateSelectedBtn = document.getElementById("translateSelectedBtn");
+    const sourceCapabilitySummary = document.getElementById("sourceCapabilitySummary");
+    const sourceCapabilityTitle = document.getElementById("sourceCapabilityTitle");
+    const sourceCapabilityDetail = document.getElementById("sourceCapabilityDetail");
     const languageListShell = document.getElementById("languageListShell");
     const languageList = document.getElementById("languageList");
     const languageStatesLoading = document.getElementById("languageStatesLoading");
@@ -1243,6 +1250,41 @@
             const existingLanguages = data['current_languages'] || [];
             const languageStates = data['language_states'] || {};
             const selectedCount = data['selected_count'] || numSelected;
+            const configuredProviders = data.configured_providers || [];
+            const providerSourceSupport = data.provider_source_support || {};
+            const capabilityErrors = data.provider_capability_errors || [];
+            const languageProviderSupport = data.language_provider_support || {};
+            const selectedProvider = getTranslationProvider();
+            const providerNames = {
+                google: 'Google Cloud',
+                deepl: 'DeepL'
+            };
+            const selectedProviderName = providerNames[selectedProvider] || 'The selected provider';
+            const sourceLanguage = (data.source_languages || [])[0];
+            const selectedSourceSupport = providerSourceSupport[selectedProvider];
+            const alternativeProviders = configuredProviders.filter(
+                provider => provider !== selectedProvider && providerSourceSupport[provider] === true
+            );
+
+            sourceCapabilitySummary.hidden = !sourceLanguage;
+            sourceCapabilitySummary.classList.toggle(
+                'has-warning',
+                selectedSourceSupport !== true
+            );
+            sourceCapabilityTitle.innerText = sourceLanguage
+                ? `Source language: ${sourceLanguage.name}`
+                : '';
+            if (selectedSourceSupport === false) {
+                sourceCapabilityDetail.innerText = alternativeProviders.length
+                    ? `${selectedProviderName} cannot translate from this language. Use ${alternativeProviders.map(provider => providerNames[provider]).join(' or ')}.`
+                    : `${selectedProviderName} cannot translate from this language.`;
+            } else if (selectedSourceSupport == null) {
+                sourceCapabilityDetail.innerText = selectedProvider
+                    ? `Could not verify ${selectedProviderName} language support.`
+                    : 'Configure and select a translation provider.';
+            } else {
+                sourceCapabilityDetail.innerText = `${selectedProviderName} supports this source language.`;
+            }
 
             for (let i = 0; i < languageLabels.length; i++) {
                 const langName = languageLabels[i].getAttribute('data-lang') || languageLabels[i].innerText.trim();
@@ -1258,19 +1300,32 @@
                 const localizedForAll = localizedCount === selectedCount && selectedCount > 0;
                 const defaultForAll = defaultCount === selectedCount && selectedCount > 0;
                 const unavailableCount = defaultCount + (overwrite ? 0 : localizedCount);
-                const supportedProviders = languageLabels[i].dataset.supportedProviders
-                    .split(',')
-                    .filter(Boolean);
-                const selectedProvider = getTranslationProvider();
+                const supportedProviders = languageProviderSupport[langName] || [];
+                const providerSupportUnknown = capabilityErrors.includes(selectedProvider);
                 const providerUnavailable = (
-                    supportedProviders.length > 0
-                    && !supportedProviders.includes(selectedProvider)
+                    providerSupportUnknown
+                    || !supportedProviders.includes(selectedProvider)
                 );
                 const hasEligibleVideos = unavailableCount < selectedCount && !providerUnavailable;
                 const statuses = [];
 
-                if (supportedProviders.length > 0) {
-                    statuses.push('Google Cloud only');
+                if (providerSupportUnknown) {
+                    statuses.push(`${selectedProviderName} support unavailable`);
+                } else if (supportedProviders.length === 0) {
+                    statuses.push(
+                        configuredProviders.length
+                            ? 'Not supported by configured providers'
+                            : 'No provider configured'
+                    );
+                } else if (supportedProviders.length < configuredProviders.length) {
+                    const supportedNames = supportedProviders.map(
+                        provider => providerNames[provider]
+                    ).join(' and ');
+                    statuses.push(
+                        capabilityErrors.length
+                            ? `${supportedNames} available`
+                            : `${supportedNames} only`
+                    );
                 }
 
                 if (defaultCount > 0) {
@@ -1971,6 +2026,10 @@
 
     function resetLanguageDialog() {
         resetLanguageSelectors();
+        sourceCapabilitySummary.hidden = true;
+        sourceCapabilitySummary.classList.remove('has-warning');
+        sourceCapabilityTitle.innerText = '';
+        sourceCapabilityDetail.innerText = '';
         overwriteCheck.checked = false;
         trimCheck.checked = false;
         youtubeQuotaEstimate.hidden = true;

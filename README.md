@@ -30,6 +30,7 @@ Refer to [Quick Start](#quick-start) for a guide to set this app up and start lo
 
 - 🚀 **Batch localization:** Translate and publish metadata for a single video, a page of videos, or the entire channel in one run.
 - 🌍 **Localization-aware selection:** Review each video's source language and existing localizations before choosing target languages. Existing translations are skipped by default, with an option to replace and retranslate them.
+- 🧭 **Language compatibility checks:** Before translation starts, the app verifies the video's source language and every target language against the capabilities reported by DeepL and Google Cloud Translation. Provider-only targets are clearly labelled, unsupported combinations are disabled, and videos with different source languages cannot be mixed in one batch.
 - 🎬 **Flexible video library:** Filter full-length videos and Shorts, browse by page, and select individual videos, the current page, or the entire channel.
 - 🔄 **Multiple translation providers:** Choose explicitly between DeepL and Google Cloud Translation for each localization run.
 - 📊 **Live progress tracking:** Follow every video-and-language pair as it is processed, including published, skipped, and failed localizations with their reasons.

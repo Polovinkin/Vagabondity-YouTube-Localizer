@@ -87,6 +87,16 @@ class FakeProvider:
 
     def __init__(self, message):
         self.message = message
+        self.name = message
+
+    def is_source_language_supported(self, language_code):
+        return True
+
+    def is_target_language_supported(self, language_code):
+        return True
+
+    def supports_translation(self, source_language, target_language):
+        return True
 
     def test_connection(self):
         return {

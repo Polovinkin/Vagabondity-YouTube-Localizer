@@ -76,11 +76,43 @@ class GoogleCloudTranslator:
 
     def is_language_supported(self, language_code):
         """Return whether Google Cloud supports a target language code."""
+        return self.is_target_language_supported(language_code) is True
+
+    def is_source_language_supported(self, language_code):
+        """Return source support from Google's any-to-any language list."""
+        if not self.is_available:
+            return False
+        if not self._supported_language_codes:
+            self._load_supported_languages()
+            if not self._supported_language_codes:
+                return None
         language_code = language_code.lower()
         provider_code = self._normalize_language_code(language_code)
         return bool(
             {language_code, provider_code} & self._supported_language_codes
         )
+
+    def is_target_language_supported(self, language_code):
+        """Return target support from Google's any-to-any language list."""
+        if not self.is_available:
+            return False
+        if not self._supported_language_codes:
+            self._load_supported_languages()
+            if not self._supported_language_codes:
+                return None
+        language_code = language_code.lower()
+        provider_code = self._normalize_language_code(language_code)
+        return bool(
+            {language_code, provider_code} & self._supported_language_codes
+        )
+
+    def supports_translation(self, source_language, target_language):
+        """Return whether both languages belong to Google's NMT list."""
+        source_supported = self.is_source_language_supported(source_language)
+        target_supported = self.is_target_language_supported(target_language)
+        if source_supported is None or target_supported is None:
+            return None
+        return source_supported and target_supported
 
     @staticmethod
     def _normalize_language_code(language_code):

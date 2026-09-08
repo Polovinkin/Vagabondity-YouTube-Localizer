@@ -8,6 +8,7 @@ from .base import TranslationError
 # more specific form. Portuguese defaults to Brazilian Portuguese because it is
 # the largest Portuguese-speaking YouTube market.
 DEEPL_TARGET_LANGUAGE_CODES = {
+    "en": "en-us",
     "fil": "tl",
     "iw": "he",
     "ku": "kmr",
@@ -32,6 +33,9 @@ class DeepLTranslator:
 
     def __init__(self, api_key=None):
         self._client = None
+        self._source_language_codes = None
+        self._target_language_codes = None
+        self._language_capability_error = None
 
         if not api_key:
             print("DeepL is not configured")
@@ -59,8 +63,56 @@ class DeepLTranslator:
         ).upper()
 
     def is_language_supported(self, language_code):
-        """Accept configured languages and let the translation endpoint validate them."""
-        return bool(self._normalize_language_code(language_code))
+        """Return whether DeepL advertises the language as a target."""
+        return self.is_target_language_supported(language_code) is True
+
+    def _load_supported_languages(self):
+        """Load source and target capabilities without translating text."""
+        if (
+            self._source_language_codes is not None
+            and not self._language_capability_error
+        ):
+            return
+        try:
+            self._source_language_codes = {
+                language.code.upper()
+                for language in self._client.get_source_languages()
+            }
+            self._target_language_codes = {
+                language.code.lower()
+                for language in self._client.get_target_languages()
+            }
+            self._language_capability_error = None
+        except Exception as exc:
+            self._source_language_codes = set()
+            self._target_language_codes = set()
+            self._language_capability_error = str(exc)
+            print(f"Error loading DeepL supported languages: {exc}")
+
+    def is_source_language_supported(self, language_code):
+        if not self.is_available:
+            return False
+        self._load_supported_languages()
+        if self._language_capability_error:
+            return None
+        source_language = self._normalize_source_language_code(language_code)
+        return source_language in self._source_language_codes
+
+    def is_target_language_supported(self, language_code):
+        if not self.is_available:
+            return False
+        self._load_supported_languages()
+        if self._language_capability_error:
+            return None
+        target_language = self._normalize_language_code(language_code)
+        return target_language in self._target_language_codes
+
+    def supports_translation(self, source_language, target_language):
+        source_supported = self.is_source_language_supported(source_language)
+        target_supported = self.is_target_language_supported(target_language)
+        if source_supported is None or target_supported is None:
+            return None
+        return source_supported and target_supported
 
     def test_connection(self):
         """Verify the API key with a tiny real translation request."""

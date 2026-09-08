@@ -10,6 +10,7 @@ from vagabondity_youtube_localizer.translators.google_cloud import (
 
 class TranslatorTests(unittest.TestCase):
     def test_deepl_normalizes_youtube_language_codes(self):
+        self.assertEqual(DeepLTranslator._normalize_language_code("en"), "en-us")
         self.assertEqual(DeepLTranslator._normalize_language_code("fil"), "tl")
         self.assertEqual(DeepLTranslator._normalize_language_code("ku"), "kmr")
         self.assertEqual(DeepLTranslator._normalize_language_code("pt"), "pt-br")
