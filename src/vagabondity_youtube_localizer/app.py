@@ -25,22 +25,74 @@ from .youtube_client import (
 # languages categories to use in Translation window
 TIER_1_LANGUAGES = {
     "English",
-    "Russian",
     "Spanish",
     "Portuguese",
-    "Japanese",
-    "German",
     "French",
+    "German",
+    "Japanese",
     "Korean",
-}
-TIER_2_LANGUAGES = {
-    "Italian",
-    "Polish",
-    "Turkish",
-    "Indonesian",
     "Arabic",
     "Hindi",
+    "Indonesian",
+    "Russian",
+    "Chinese (Traditional)",
+    "Chinese (Simplified)",
 }
+TIER_2_LANGUAGES = {
+    "Bengali",
+    "Czech",
+    "Dutch",
+    "Filipino",
+    "Greek",
+    "Hebrew",
+    "Italian",
+    "Malay",
+    "Persian",
+    "Polish",
+    "Romanian",
+    "Swedish",
+    "Thai",
+    "Turkish",
+    "Ukrainian",
+    "Urdu",
+    "Vietnamese",
+}
+TIER_3_LANGUAGES = {
+    "Afrikaans",
+    "Armenian",
+    "Azerbaijani",
+    "Bulgarian",
+    "Burmese",
+    "Catalan",
+    "Croatian",
+    "Danish",
+    "Estonian",
+    "Finnish",
+    "Georgian",
+    "Gujarati",
+    "Hausa",
+    "Hungarian",
+    "Kazakh",
+    "Kurdish",
+    "Latvian",
+    "Lithuanian",
+    "Malayalam",
+    "Marathi",
+    "Mongolian",
+    "Nepali",
+    "Norwegian",
+    "Pashto",
+    "Punjabi",
+    "Serbian",
+    "Slovak",
+    "Slovenian",
+    "Swahili",
+    "Tamil",
+    "Telugu",
+    "Uzbek",
+}
+
+LANGUAGE_PROVIDER_SUPPORT = {}
 
 
 APP_BANNER_LINES = (
@@ -288,24 +340,37 @@ def _configure_request_logging():
 def build_language_tiers(language_names):
     """Group display languages without changing their configured order."""
     tier_definitions = (
-        ("tier-1", "Tier 1 · Priority languages", TIER_1_LANGUAGES, True),
-        ("tier-2", "Tier 2 · Additional languages", TIER_2_LANGUAGES, False),
-        ("tier-3", "Tier 3 · Other languages", None, False),
+        (
+            "tier-1",
+            "🌍 Global",
+            "Largest global audiences",
+            TIER_1_LANGUAGES,
+            True,
+        ),
+        (
+            "tier-2",
+            "⭐ Major",
+            "Major national & online audiences",
+            TIER_2_LANGUAGES,
+            False,
+        ),
+        (
+            "tier-3",
+            "📍 Regional",
+            "Significant regional audiences",
+            TIER_3_LANGUAGES,
+            False,
+        ),
     )
-    prioritized_languages = TIER_1_LANGUAGES | TIER_2_LANGUAGES
     tiers = []
-    for tier_id, label, included_languages, expanded in tier_definitions:
-        if included_languages is None:
-            languages = [
-                name for name in language_names if name not in prioritized_languages
-            ]
-        else:
-            languages = [name for name in language_names if name in included_languages]
+    for tier_id, label, description, included_languages, expanded in tier_definitions:
+        languages = [name for name in language_names if name in included_languages]
         if languages:
             tiers.append(
                 {
                     "id": tier_id,
                     "label": label,
+                    "description": description,
                     "languages": languages,
                     "expanded": expanded,
                 }
@@ -442,6 +507,7 @@ def create_app(
                     youtube.language_names_in_display_order
                 ),
                 language_flags=LANGUAGE_FLAGS,
+                language_provider_support=LANGUAGE_PROVIDER_SUPPORT,
                 channel_thumbnail=youtube.channel_thumbnail,
                 channel_name=youtube.channel_name,
                 num_pages=display_num_pages,

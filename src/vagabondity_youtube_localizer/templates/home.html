@@ -15,7 +15,7 @@
 <div class="app-shell">
     <header class="app-header">
         <div class="brand-lockup">
-            <h1>YouTube Localizer</h1>
+            <h1><a class="brand-home" href="{{ url_for('home') }}">YouTube Localizer</a></h1>
             <a class="brand-byline" href="https://www.youtube.com/@vagabondity"
                target="_blank" rel="noopener noreferrer">
                 <span>by</span>
@@ -626,7 +626,8 @@
                 {% for tier in language_tiers %}
                     <details class="language-tier" id="{{ tier.id }}"{% if tier.expanded %} open{% endif %}>
                         <summary>
-                            <span>{{ tier.label }}</span>
+                            <span class="language-tier-title">{{ tier.label }}</span>
+                            <em class="language-tier-description">{{ tier.description }}</em>
                             <button class="language-tier-select-all" type="button"
                                     data-tier-label="{{ tier.label }}"
                                     aria-label="Select all in {{ tier.label }}"
@@ -638,7 +639,8 @@
                             {% for language in tier.languages %}
                                 <label class="language-option">
                                     <input type="checkbox" class="form-check-input language-selector"/>
-                                    <span class="language-label" data-lang="{{ language }}">
+                                    <span class="language-label" data-lang="{{ language }}"
+                                          data-supported-providers="{{ language_provider_support.get(language, ())|join(',') }}">
                                         <span class="language-name">{{ language }}</span>{% if language_flags.get(language) %} <span class="language-flag">{{ language_flags[language] }}</span>{% endif %}
                                         <span class="language-status" aria-live="polite"></span>
                                     </span>
@@ -1212,8 +1214,20 @@
                 const localizedForAll = localizedCount === selectedCount && selectedCount > 0;
                 const defaultForAll = defaultCount === selectedCount && selectedCount > 0;
                 const unavailableCount = defaultCount + (overwrite ? 0 : localizedCount);
-                const hasEligibleVideos = unavailableCount < selectedCount;
+                const supportedProviders = languageLabels[i].dataset.supportedProviders
+                    .split(',')
+                    .filter(Boolean);
+                const selectedProvider = getTranslationProvider();
+                const providerUnavailable = (
+                    supportedProviders.length > 0
+                    && !supportedProviders.includes(selectedProvider)
+                );
+                const hasEligibleVideos = unavailableCount < selectedCount && !providerUnavailable;
                 const statuses = [];
+
+                if (supportedProviders.length > 0) {
+                    statuses.push('Google Cloud only');
+                }
 
                 if (defaultCount > 0) {
                     statuses.push(
@@ -1243,6 +1257,7 @@
                 languageOption.classList.toggle('is-existing', localizedCount > 0);
                 languageOption.classList.toggle('is-retranslating', overwrite && localizedCount > 0);
                 languageOption.classList.toggle('is-source', defaultCount > 0);
+                languageOption.classList.toggle('is-provider-unavailable', providerUnavailable);
                 languageOption.classList.toggle(
                     'is-partial',
                     (localizedCount > 0 && !localizedForAll)
@@ -1809,7 +1824,8 @@
             l.querySelector('.language-name').style.textDecoration = 'none';
             l.title = '';
             l.closest('.language-option').classList.remove(
-                'has-status', 'is-existing', 'is-retranslating', 'is-source', 'is-partial'
+                'has-status', 'is-existing', 'is-retranslating', 'is-source', 'is-partial',
+                'is-provider-unavailable'
             );
             l.querySelector('.language-status').textContent = '';
         });

@@ -8,7 +8,9 @@ from .base import TranslationError
 # more specific form. Portuguese defaults to Brazilian Portuguese because it is
 # the largest Portuguese-speaking YouTube market.
 DEEPL_TARGET_LANGUAGE_CODES = {
+    "fil": "tl",
     "iw": "he",
+    "ku": "kmr",
     "no": "nb",
     "pt": "pt-br",
     "zh-CN": "zh-hans",
@@ -23,7 +25,6 @@ class DeepLTranslator:
 
     def __init__(self, api_key=None):
         self._client = None
-        self._supported_language_codes = None
 
         if not api_key:
             print("DeepL is not configured")
@@ -44,24 +45,9 @@ class DeepLTranslator:
             language_code, language_code
         ).lower()
 
-    def _load_supported_languages(self):
-        if not self.is_available:
-            raise TranslationError("DeepL is not configured")
-
-        try:
-            self._supported_language_codes = {
-                language.code.lower()
-                for language in self._client.get_target_languages()
-            }
-        except Exception as exc:
-            raise TranslationError(
-                f"DeepL could not load its supported languages: {exc}"
-            ) from exc
-
     def is_language_supported(self, language_code):
-        if self._supported_language_codes is None:
-            self._load_supported_languages()
-        return self._normalize_language_code(language_code) in self._supported_language_codes
+        """Accept configured languages and let the translation endpoint validate them."""
+        return bool(self._normalize_language_code(language_code))
 
     def test_connection(self):
         """Verify the API key with a tiny real translation request."""

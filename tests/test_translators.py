@@ -10,6 +10,8 @@ from vagabondity_youtube_localizer.translators.google_cloud import (
 
 class TranslatorTests(unittest.TestCase):
     def test_deepl_normalizes_youtube_language_codes(self):
+        self.assertEqual(DeepLTranslator._normalize_language_code("fil"), "tl")
+        self.assertEqual(DeepLTranslator._normalize_language_code("ku"), "kmr")
         self.assertEqual(DeepLTranslator._normalize_language_code("pt"), "pt-br")
         self.assertEqual(
             DeepLTranslator._normalize_language_code("zh-TW"), "zh-hant"
@@ -57,7 +59,6 @@ class TranslatorTests(unittest.TestCase):
     def test_deepl_connection_test_uses_real_translation_path(self):
         translator = DeepLTranslator.__new__(DeepLTranslator)
         translator._client = Mock()
-        translator._supported_language_codes = None
         translator._client.translate_text.return_value = Mock(
             text="Verbindungstest"
         )
@@ -75,7 +76,6 @@ class TranslatorTests(unittest.TestCase):
     def test_deepl_usage_is_returned_from_the_client(self):
         translator = DeepLTranslator.__new__(DeepLTranslator)
         translator._client = Mock()
-        translator._supported_language_codes = None
         translator._client.get_usage.return_value.character = Mock(
             valid=True,
             count=12,
@@ -96,7 +96,6 @@ class TranslatorTests(unittest.TestCase):
     def test_connection_test_reports_unconfigured_provider(self):
         translator = DeepLTranslator.__new__(DeepLTranslator)
         translator._client = None
-        translator._supported_language_codes = None
 
         self.assertEqual(
             translator.test_connection(),

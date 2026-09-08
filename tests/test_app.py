@@ -232,20 +232,23 @@ class AppTests(unittest.TestCase):
             "Italian",
             "Hindi",
             "Vietnamese",
-            "Zulu",
+            "Hungarian",
         ]
 
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'id="tier-1" open', response.data)
-        self.assertIn(b"Tier 1 \xc2\xb7 Priority languages", response.data)
+        self.assertIn(b"\xf0\x9f\x8c\x8d Global", response.data)
+        self.assertIn(b"Largest global audiences", response.data)
         self.assertIn(b'id="tier-2"', response.data)
         self.assertNotIn(b'id="tier-2" open', response.data)
-        self.assertIn(b"Tier 2 \xc2\xb7 Additional languages", response.data)
+        self.assertIn(b"\xe2\xad\x90 Major", response.data)
+        self.assertIn(b"Major national &amp; online audiences", response.data)
         self.assertIn(b'id="tier-3"', response.data)
         self.assertNotIn(b'id="tier-3" open', response.data)
-        self.assertIn(b"Tier 3 \xc2\xb7 Other languages", response.data)
+        self.assertIn(b"\xf0\x9f\x93\x8d Regional", response.data)
+        self.assertIn(b"Significant regional audiences", response.data)
         self.assertEqual(
             response.data.count(b'class="language-tier-select-all"'),
             3,

@@ -91,6 +91,16 @@ a {
     letter-spacing: -0.045em;
 }
 
+.brand-home,
+.brand-home:hover,
+.brand-home:focus,
+.brand-home:focus-visible,
+.brand-home:active,
+.brand-home:visited {
+    color: inherit;
+    text-decoration: none;
+}
+
 .brand-byline {
     display: inline-flex;
     align-items: center;
@@ -2009,7 +2019,7 @@ a.top-page-btn:focus-visible {
     display: flex;
     min-height: 0;
     flex: 1 1 auto;
-    max-height: min(48vh, 480px);
+    max-height: min(58vh, 560px);
 }
 
 .language-list {
@@ -2109,6 +2119,20 @@ a.top-page-btn:focus-visible {
 
 .language-tier[open] summary::before {
     transform: rotate(90deg);
+}
+
+.language-tier-title {
+    white-space: nowrap;
+}
+
+.language-tier-description {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 0.66rem;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .language-tier summary:hover,
@@ -2246,6 +2270,17 @@ a.top-page-btn:focus-visible {
 .language-option.is-existing.is-retranslating .language-status {
     color: #251506;
     background: var(--amber);
+}
+
+.language-option.is-provider-unavailable {
+    border-color: rgba(248, 113, 113, 0.34);
+    background: rgba(127, 29, 29, 0.1);
+}
+
+.language-option.is-provider-unavailable .language-status {
+    border-color: rgba(248, 113, 113, 0.45);
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.18);
 }
 
 .modal-footer {
