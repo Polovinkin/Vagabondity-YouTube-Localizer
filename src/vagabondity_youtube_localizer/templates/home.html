@@ -1498,16 +1498,45 @@
             return;
         }
         hideProgressQuotaNotice();
-        if (job.failed > 0 || job.skipped > 0) {
+        const succeeded = Number(job.succeeded || 0);
+        const failed = Number(job.failed || 0);
+        const skipReasons = job.skip_reasons || {};
+        const positiveSkipReasons = Object.entries(skipReasons).filter(
+            ([, count]) => Number(count || 0) > 0
+        );
+        const hasTranslationIssues = failed > 0 || Object.entries(skipReasons).some(
+            ([reason, count]) => (
+                !['already_localized', 'source_language'].includes(reason)
+                && Number(count || 0) > 0
+            )
+        );
+
+        if (succeeded === 0) {
             setProgressState(
                 'warning',
-                'Translation complete',
+                'Nothing new was published',
                 '',
-                ''
+                failed === 0
+                    && positiveSkipReasons.length === 1
+                    && positiveSkipReasons[0][0] === 'already_localized'
+                    ? 'All selected localizations were already published.'
+                    : 'Review the skipped and failed items below.'
             );
             errorPopUpContent.innerText = '';
             return;
         }
+
+        if (hasTranslationIssues) {
+            setProgressState(
+                'partial',
+                'Translation partially complete',
+                '',
+                'Not all localizations were published.\nReview the skipped or failed items below.'
+            );
+            errorPopUpContent.innerText = '';
+            return;
+        }
+
         setProgressState(
             'success',
             'Translation complete',
