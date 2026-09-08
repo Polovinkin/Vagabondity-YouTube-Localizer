@@ -597,11 +597,14 @@ def create_app(
                     progress_callback=lambda event: progress_tracker.update(
                         job_id, event
                     ),
+                    cancellation_requested=lambda: progress_tracker.is_cancel_requested(
+                        job_id
+                    ),
                 )
                 progress_tracker.finish(job_id, youtube.error_code)
                 finished_job = progress_tracker.get(job_id)
                 duration = time.monotonic() - started_at
-                status = "stopped" if youtube.error_code else "completed"
+                status = finished_job["status"]
                 print(
                     f"Localization [{run_label}] {status} in {duration:.1f}s: "
                     f"{finished_job['processed']}/{finished_job['total']} processed, "
@@ -628,6 +631,14 @@ def create_app(
         if job is None:
             return jsonify({"error": "Localization run not found."}), 404
         return jsonify(job)
+
+    @app.route("/localizations/<job_id>/cancel", methods=["POST"])
+    def cancel_localization(job_id):
+        """Ask a localization run to stop after its current operation."""
+        job = progress_tracker.request_cancel(job_id)
+        if job is None:
+            return jsonify({"error": "Localization run not found."}), 404
+        return jsonify({"job": job}), 202 if job["status"] == "running" else 200
 
     @app.route("/localizations/active", methods=["GET"])
     def get_active_localization():

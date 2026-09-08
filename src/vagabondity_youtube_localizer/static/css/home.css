@@ -2496,6 +2496,10 @@ a.top-page-btn:focus-visible {
     color: #f0bdc9;
 }
 
+.progress-modal-content[data-state="cancelled"] .eyebrow {
+    color: var(--amber-bright);
+}
+
 .progress-modal-content[data-state="quota"] {
     border-color: rgba(244, 114, 182, 0.45);
     box-shadow: 0 0 36px rgba(190, 24, 93, 0.12), 0 30px 90px rgba(0, 0, 0, 0.55);
@@ -2805,8 +2809,42 @@ a.top-page-btn:focus-visible {
     box-shadow: 0 0 14px rgba(219, 39, 119, 0.3);
 }
 
+.progress-actions {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.progress-cancel-button {
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1px solid rgba(240, 189, 201, 0.58);
+    border-radius: 13px;
+    color: #f4c7d1;
+    background: rgba(112, 39, 57, 0.18);
+    font-size: 0.76rem;
+    font-weight: 740;
+    transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.progress-cancel-button:hover,
+.progress-cancel-button:focus-visible {
+    border-color: #f0bdc9;
+    color: #ffe4ea;
+    background: rgba(139, 49, 70, 0.3);
+    outline: none;
+}
+
+.progress-cancel-button:disabled {
+    border-color: var(--border);
+    color: var(--muted);
+    background: rgba(51, 36, 22, 0.5);
+    cursor: wait;
+}
+
 #progressDoneBtn {
-    margin: 20px auto 0;
+    margin: 0;
 }
 
 @keyframes progress-success-flash {

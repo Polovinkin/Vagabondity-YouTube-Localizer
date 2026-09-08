@@ -26,6 +26,7 @@ class LocalizationProgressTracker:
             job = {
                 "id": job_id,
                 "status": "running",
+                "cancel_requested": False,
                 "provider": provider,
                 "video_count": video_count,
                 "language_count": language_count,
@@ -103,12 +104,31 @@ class LocalizationProgressTracker:
                 "stage": outcome,
             }
 
+    def request_cancel(self, job_id):
+        with self._lock:
+            job = self._jobs.get(job_id)
+            if not job:
+                return None
+            if job["status"] == "running":
+                job["cancel_requested"] = True
+            return copy.deepcopy(job)
+
+    def is_cancel_requested(self, job_id):
+        with self._lock:
+            job = self._jobs.get(job_id)
+            return bool(job and job["cancel_requested"])
+
     def finish(self, job_id, error=""):
         with self._lock:
             job = self._jobs.get(job_id)
             if not job:
                 return
-            job["status"] = "stopped" if error else "completed"
+            if error:
+                job["status"] = "stopped"
+            elif job["cancel_requested"]:
+                job["status"] = "cancelled"
+            else:
+                job["status"] = "completed"
             job["error"] = error
             job["finished_at"] = self._now()
             job["percent"] = self._percent(job)

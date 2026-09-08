@@ -22,6 +22,7 @@ class LocalizationService:
         trim_checked,
         selected_video_ids=None,
         progress_callback=None,
+        cancellation_requested=None,
     ):
         youtube = self.youtube_client
         youtube.videos_skipped = 0
@@ -43,6 +44,8 @@ class LocalizationService:
             print(f"Unknown translation provider '{translation_provider}'; skipped")
             for video_title in selected_videos:
                 for language in selected_languages:
+                    if self._is_cancellation_requested(cancellation_requested):
+                        return
                     self._emit_finished(
                         progress_callback,
                         video_title,
@@ -54,6 +57,8 @@ class LocalizationService:
 
         selected_video_ids = selected_video_ids or []
         for index, video_title in enumerate(selected_videos):
+            if self._is_cancellation_requested(cancellation_requested):
+                return
             display_title = " ".join(str(video_title).split())
             print(f"\n┌─ Video {index + 1}/{len(selected_videos)}")
             print(f"│ {display_title}")
@@ -70,6 +75,8 @@ class LocalizationService:
                 youtube.videos_skipped += len(selected_languages)
                 print("│  Video was not found; skipped")
                 for language in selected_languages:
+                    if self._is_cancellation_requested(cancellation_requested):
+                        return
                     self._emit_finished(
                         progress_callback,
                         video_title,
@@ -85,6 +92,8 @@ class LocalizationService:
 
             pending_localizations = []
             for language in selected_languages:
+                if self._is_cancellation_requested(cancellation_requested):
+                    break
                 self._emit(
                     progress_callback,
                     type="item_started",
@@ -216,8 +225,11 @@ class LocalizationService:
             )
 
             if published_any and self.delay:
-                time.sleep(self.delay)
+                if not self._is_cancellation_requested(cancellation_requested):
+                    time.sleep(self.delay)
             if youtube.error_code:
+                return
+            if self._is_cancellation_requested(cancellation_requested):
                 return
 
     def _translate(
@@ -320,6 +332,10 @@ class LocalizationService:
     def _emit(progress_callback, **event):
         if progress_callback:
             progress_callback(event)
+
+    @staticmethod
+    def _is_cancellation_requested(cancellation_requested):
+        return bool(cancellation_requested and cancellation_requested())
 
     @classmethod
     def _emit_stage(cls, progress_callback, video, language, stage):

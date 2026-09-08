@@ -471,8 +471,12 @@
             </section>
         </section>
         <div id="errorPopUpContent" aria-live="polite"></div>
-        <button class="btn btn-primary" id="progressDoneBtn" onclick="closeProgressWindow()"
-                style="display: none;">Done</button>
+        <div class="progress-actions">
+            <button class="progress-cancel-button" id="progressCancelBtn"
+                    type="button" onclick="cancelLocalization()">Cancel translation</button>
+            <button class="btn btn-primary" id="progressDoneBtn" onclick="closeProgressWindow()"
+                    style="display: none;">Done</button>
+        </div>
     </div>
 </div>
 
@@ -696,6 +700,7 @@
     const progressContent = document.getElementById("progress-content");
     const errorPopUpContent = document.getElementById("errorPopUpContent");
     const progressDoneBtn = document.getElementById("progressDoneBtn");
+    const progressCancelBtn = document.getElementById("progressCancelBtn");
     const formSelect = document.getElementById("form-select");
     const progressSpinner = document.getElementById("progressSpinner");
     const localizationProgress = document.getElementById("localizationProgress");
@@ -758,6 +763,7 @@
     let allPageVideosSelected = false;
     let allChannelVideosSelected = false;
     let progressPollFailures = 0;
+    let activeLocalizationJobId = null;
     let languagePopupTrigger = addLanguageBtn;
     let languageStateRequestId = 0;
 
@@ -1302,6 +1308,11 @@
         progressContent.innerText = message;
         progressSpinner.style.display = state === 'translating' ? 'inline-block' : 'none';
         progressDoneBtn.style.display = state === 'translating' ? 'none' : 'block';
+        progressCancelBtn.style.display = state === 'translating' ? 'block' : 'none';
+        if (state === 'translating') {
+            progressCancelBtn.disabled = false;
+            progressCancelBtn.innerText = 'Cancel translation';
+        }
     }
 
     const progressStageLabels = {
@@ -1416,6 +1427,14 @@
         progressFailed.innerText = Number(job.failed || 0);
         progressRemaining.innerText = Number(job.remaining || 0);
 
+        if (job.status === 'running' && job.cancel_requested) {
+            progressCancelBtn.disabled = true;
+            progressCancelBtn.innerText = 'Stopping…';
+            progressEyebrow.innerText = 'Cancellation requested';
+            progressTitle.innerText = 'Finishing current translation';
+            progressContent.innerText = 'Completed work will be kept. No new translations will start.';
+        }
+
         if (job.current) {
             const stage = progressStageLabels[job.current.stage] || 'Processing';
             progressCurrentLabel.innerText = job.status === 'running' ? stage : 'Last item';
@@ -1430,7 +1449,19 @@
 
     function finishProgress(job) {
         renderLocalizationProgress(job);
+        activeLocalizationJobId = null;
         const summary = `${job.processed} of ${job.total} localization operations processed.`;
+        if (job.status === 'cancelled') {
+            hideProgressQuotaNotice();
+            setProgressState(
+                'cancelled',
+                'Translation cancelled',
+                'Localization run stopped',
+                summary
+            );
+            errorPopUpContent.innerText = 'Completed localizations were saved. Remaining items were not translated.';
+            return;
+        }
         if (job.status === 'error' || job.status === 'stopped') {
             if (job.error === 'quotaExceeded') {
                 const needsAttention = Number(job.failed || 0) + Number(job.remaining || 0);
@@ -1484,6 +1515,11 @@
     }
 
     async function pollLocalizationProgress(jobId) {
+        activeLocalizationJobId = jobId;
+        if (progressCancelBtn.innerText === 'Starting…') {
+            progressCancelBtn.disabled = false;
+            progressCancelBtn.innerText = 'Cancel translation';
+        }
         try {
             const response = await fetch(`/localizations/${encodeURIComponent(jobId)}`);
             if (!response.ok) throw new Error(`Progress request failed (${response.status})`);
@@ -1510,6 +1546,34 @@
                 return;
             }
             window.setTimeout(() => pollLocalizationProgress(jobId), 1500);
+        }
+    }
+
+    async function cancelLocalization() {
+        if (!activeLocalizationJobId || progressCancelBtn.disabled) return;
+        progressCancelBtn.disabled = true;
+        progressCancelBtn.innerText = 'Stopping…';
+        try {
+            const response = await fetch(
+                `/localizations/${encodeURIComponent(activeLocalizationJobId)}/cancel`,
+                {
+                    method: 'POST',
+                    headers: {'Accept': 'application/json'}
+                }
+            );
+            const result = await response.json();
+            if (!response.ok || !result.job) {
+                throw new Error(result.error || `Cancellation request failed (${response.status})`);
+            }
+            renderLocalizationProgress(result.job);
+            if (result.job.status !== 'running') {
+                finishProgress(result.job);
+            }
+        } catch (error) {
+            console.error('Could not cancel localization:', error);
+            progressCancelBtn.disabled = false;
+            progressCancelBtn.innerText = 'Cancel translation';
+            errorPopUpContent.innerText = 'Could not request cancellation. The run is still active.';
         }
     }
 
@@ -1603,6 +1667,9 @@
             percent: 0,
             current: null
         });
+        activeLocalizationJobId = null;
+        progressCancelBtn.disabled = true;
+        progressCancelBtn.innerText = 'Starting…';
 
         try {
             const response = await fetch('/localizations', {
