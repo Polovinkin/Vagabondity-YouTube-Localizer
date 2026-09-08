@@ -74,13 +74,26 @@ class DeepLTranslator:
         ):
             return
         try:
+            # deepl-python's public language methods still use the deprecated
+            # v2 endpoint, so use its configured HTTP client for the v3 call.
+            status, content, languages = self._client._api_call(
+                "v3/languages",
+                method="GET",
+                params={"resource": "translate_text"},
+            )
+            self._client._raise_for_status(status, content, languages)
+            if not isinstance(languages, list):
+                raise ValueError("DeepL returned an invalid language list")
+
             self._source_language_codes = {
-                language.code.upper()
-                for language in self._client.get_source_languages()
+                language["lang"].upper()
+                for language in languages
+                if language.get("usable_as_source") is True
             }
             self._target_language_codes = {
-                language.code.lower()
-                for language in self._client.get_target_languages()
+                language["lang"].lower()
+                for language in languages
+                if language.get("usable_as_target") is True
             }
             self._language_capability_error = None
         except Exception as exc:
