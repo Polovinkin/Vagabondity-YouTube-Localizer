@@ -11,4 +11,5 @@ The complete license text is provided in `LICENSES/MIT-JORDI-COR.txt`
 
 All other original source code, modifications, user interface,
 documentation, assets, and functionality created by Dmitrii Polovinkin
-are proprietary and are not licensed for third-party use.
+are proprietary and are licensed under the Vagabondity Free-to-Use License
+provided in the repository's `LICENSE` file.

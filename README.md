@@ -6,10 +6,10 @@
 
 ---
 
-A free, local-first YouTube metadata translator for creators. Batch-translate and publish localized YouTube video titles and descriptions in multiple languages using DeepL or Google Cloud Translation - while safely running it on your own computer. The application has no subscription fee, you only remain responsible for any usage charges imposed by the provider you choose, but there are generous free tiers in both of them, which you can use to make literally hundreds of localizations for free.
+A free-to-use, source-available, local-first YouTube metadata translator for creators. Batch-translate and publish localized YouTube video titles and descriptions in multiple languages using DeepL or Google Cloud Translation - while safely running it on your own computer. The application has no subscription fee, you only remain responsible for any usage charges imposed by the provider you choose, but there are generous free tiers in both of them, which you can use to make literally hundreds of localizations for free.
 The app updates YouTube localization fields through YouTube Data API v3 and it does not replace the original title or description.
 
-This app has no subscription fee, no app-imposed limits, totally safe to use as it has a public code and it doesn't ask you to give access to your YT channel to any third-party. It's easy to install and very easy to use! Originally built and improved for localizing videos on the developer's YT city walks channel 🐸 [Vagabondity Walks](https://www.youtube.com/@vagabondity) - now sharing it so other creators can use it too. Feel free to check out the channel it was made for!
+This app has no subscription fee, no app-imposed limits, publicly available source code, and it doesn't ask you to give access to your YT channel to any third-party. It's easy to install and very easy to use! Originally built and improved for localizing videos on the developer's YT city walks channel 🐸 [Vagabondity Walks](https://www.youtube.com/@vagabondity) - now sharing it so other creators can use it too. Feel free to check out the channel it was made for!
 
 Refer to [Quick Start](#quick-start) for a guide to set this app up and start localizing your YT Channel. Refer to [Vagabondity vs ReTranslate.ai comparison](#vagabondity-vs-retranslateai-comparison) to see the comparison between this app and ReTranslate.ai service.
 
@@ -309,7 +309,7 @@ Comparison table between Vagabondity YouTube Localizer and ReTranslate.ai:
 
 | Topic | Vagabondity YouTube Localizer | ReTranslate.ai |
 |-------|-------------------------------|----------------|
-| Source code and logic | Public and available for inspection | Not publicly available |
+| Source code and logic | Source-available under the free-to-use license: public for inspection and free to run, but redistribution, modified releases, resale, and hosted access are prohibited | Not publicly available |
 | Where it runs | Locally on your computer | Hosted third-party service |
 | Author identity | Dmitrii Polovinkin - [GitHub](https://github.com/Polovinkin) | Unknown |
 | YT Channel Safety | Source code contains no calls to YouTube's video-deletion API or anything not intented for localization. Authorization token is created by you, is shared with your own Google Cloud app, access keys are kept on your device. [Details](#why-does-youtube-show-broad-permissions) | ReTranslate Google consent screen explicitly asks for permission to `see, edit and permanently delete" YouTube videos, ratings, comments and captions`, implementation cannot be inspected. |
@@ -359,12 +359,24 @@ uv run python -m compileall -q src
 
 ## License
 
-This is proprietary software. All rights are reserved.
+Vagabondity YouTube Localizer is **source-available, free-to-use proprietary software** under the [Vagabondity Free-to-Use License](LICENSE).
+
+You may, at no charge:
+
+- download, install, and run the unmodified application;
+- use it for personal, commercial, and monetized YouTube channels that you own or are authorized to manage;
+- use it while providing localization services to clients, as long as you do not give them access to the software itself;
+- inspect the public source code to verify how the application handles credentials and YouTube access;
+- freely use, publish, and monetize the translations and other output produced with the application.
+
+You may not redistribute, resell, sublicense, rebrand, or publish modified copies of the software, use its source code to create a competing product, or offer the application as a hosted service. Configuration changes and files created during normal operation are allowed.
+
+This project is **not open source under the OSI definition**: its source is public for transparency, but reuse and redistribution are restricted. Sharing a link to the official repository is allowed and encouraged.
 
 The project contains portions derived from [YouTube-Video-Metadata-Translator](https://github.com/jordicor/YouTube-Video-Metadata-Translator) by Jordi Cor.
-Those portions are licensed under the MIT License.
+Those third-party portions remain licensed separately under the MIT License and are not restricted by the Vagabondity Free-to-Use License.
 
-See `LICENSE` and `THIRD_PARTY_NOTICES.md`.
+See [`LICENSE`](LICENSE), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), and [`LICENSES/MIT-JORDI-COR.txt`](LICENSES/MIT-JORDI-COR.txt) for the complete terms.
 
 ## Problems or bugs?
 

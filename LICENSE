@@ -1,10 +1,131 @@
-Copyright © 2026 Dmitrii Polovinkin.
-All rights reserved.
+Vagabondity Free-to-Use License
+Version 1.0, September 8, 2026
 
-This software is proprietary.
+Copyright (c) 2026 Dmitrii Polovinkin
+All rights reserved except as expressly granted below.
 
-Except for third-party components identified in THIRD_PARTY_NOTICES.md, 
-no permission is granted to use, copy, modify, distribute, sublicense, publish, or sell this software,
-in whole or in part, without prior written permission from the copyright holder.
+1. Definitions
 
-Third-party components remain subject to their respective licenses.
+"Software" means the Vagabondity YouTube Localizer source code,
+documentation, user interface, assets, and other materials distributed with
+this license, excluding Third-Party Components described in Section 8.
+
+"You" means the individual or legal entity exercising the permissions granted
+by this license.
+
+2. Free Right to Use
+
+Subject to this license, the copyright holder grants You a worldwide,
+non-exclusive, royalty-free, non-transferable, and non-sublicensable license
+to:
+
+a. download, install, and run unmodified copies of the Software;
+
+b. use the Software for personal or commercial purposes, including for
+   monetized YouTube channels that You own or are authorized to manage;
+
+c. use the Software while providing localization or channel-management
+   services to clients, provided that You do not give clients or other third
+   parties access to the Software itself;
+
+d. make copies reasonably necessary for installation and backup; and
+
+e. inspect the publicly available source code for evaluation, security review,
+   and verification of the Software's behavior.
+
+No subscription fee or license fee is owed to the copyright holder for these
+permitted uses. Third-party services used by the Software may impose their own
+terms, quotas, or charges.
+
+3. User Configuration
+
+You may edit files, fields, and settings expressly intended for user
+configuration, including local settings and credential paths. Files created or
+changed automatically during installation or normal operation do not make the
+Software a modified version for purposes of this license.
+
+4. Restrictions
+
+Except where applicable law expressly provides otherwise, You may not:
+
+a. distribute, publish, sublicense, sell, rent, lease, transfer, rebrand, or
+   otherwise provide copies of the Software to any third party;
+
+b. modify, adapt, translate, or create derivative works based on the Software,
+   except for the user configuration permitted in Section 3;
+
+c. use the Software or its source code to develop, operate, or provide a
+   product or service that competes with the Software;
+
+d. provide access to the Software or its functionality as a hosted, managed,
+   software-as-a-service, or similar offering;
+
+e. include the Software in another product or service that is distributed or
+   made available to third parties; or
+
+f. remove, obscure, or alter any copyright, attribution, trademark, or license
+   notice.
+
+Sharing a link to the official repository is allowed and encouraged.
+
+GitHub may allow users to view and fork a public repository under GitHub's own
+Terms of Service. Such platform functionality does not grant any additional
+right to modify, distribute, sell, host, or otherwise use the Software beyond
+the permissions stated in this license.
+
+5. User Content and Output
+
+This license does not claim ownership of video titles, descriptions,
+translations, configuration data, or other content created, supplied, or
+processed by a user through the Software. You may use, publish, and monetize
+such output without restriction under this license, subject to any rights of
+third parties and the terms of the services You choose to use.
+
+6. Ownership and Trademarks
+
+The Software is licensed, not sold. The copyright holder retains all rights not
+expressly granted by this license. This license grants no right to use the
+Vagabondity name, logos, or other trademarks except as needed to identify the
+unmodified Software truthfully.
+
+7. Termination
+
+Your rights under this license terminate automatically if You violate its
+terms. Upon termination, You must stop using the Software and delete all copies
+in Your possession or control. The copyright holder may reinstate permission
+in writing. Section 5 continues to apply to output lawfully created before
+termination.
+
+8. Third-Party Components
+
+This license applies only to portions of the Software owned by Dmitrii
+Polovinkin. Third-party components and portions identified in
+THIRD_PARTY_NOTICES.md are licensed separately under their respective license
+terms. In particular, portions derived from YouTube-Video-Metadata-Translator
+by Jordi Cor remain available under the MIT License reproduced in
+LICENSES/MIT-JORDI-COR.txt. Nothing in this license limits rights granted by
+those third-party licenses.
+
+9. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. YOU USE THE SOFTWARE AT
+YOUR OWN RISK.
+
+10. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT HOLDER SHALL NOT BE
+LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT,
+OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR ITS
+USE, INCLUDING LOSS OF DATA, REVENUE, OR ACCESS TO AN ONLINE ACCOUNT.
+
+11. No Support Obligation
+
+This license does not require the copyright holder to provide maintenance,
+support, updates, or future versions of the Software.
+
+12. Severability
+
+If any provision of this license is held unenforceable, the remaining
+provisions remain in effect to the fullest extent permitted by law.
