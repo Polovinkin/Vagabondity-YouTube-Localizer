@@ -31,10 +31,9 @@ TIER_1_LANGUAGES = {
     "German",
     "Japanese",
     "Korean",
+    "Russian",
     "Arabic",
     "Hindi",
-    "Indonesian",
-    "Russian",
     "Chinese (Traditional)",
     "Chinese (Simplified)",
 }
@@ -45,6 +44,7 @@ TIER_2_LANGUAGES = {
     "Filipino",
     "Greek",
     "Hebrew",
+    "Indonesian",
     "Italian",
     "Malay",
     "Persian",
@@ -809,6 +809,12 @@ def main():
     _print_startup_banner()
     started_at = time.monotonic()
     app = create_app()
+    youtube = app.extensions["youtube_client"]
+    if not youtube.error_code:
+        print("Loading YouTube video library…")
+        youtube.set_video_page(1)
+        if not youtube.error_code:
+            print(f"Video library loaded — {len(youtube.video_inventory):,} videos.\n")
     _print_startup_summary(app, url, time.monotonic() - started_at)
     _print_technical_info_notice()
     app.run(debug=debug, host=host, port=args.port)

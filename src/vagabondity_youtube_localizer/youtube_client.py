@@ -255,10 +255,9 @@ class YouTubeClient:
             "German",
             "Japanese",
             "Korean",
+            "Russian",
             "Arabic",
             "Hindi",
-            "Indonesian",
-            "Russian",
             "Chinese (Traditional)",
             "Chinese (Simplified)",
             "Bengali",
@@ -267,6 +266,7 @@ class YouTubeClient:
             "Filipino",
             "Greek",
             "Hebrew",
+            "Indonesian",
             "Italian",
             "Malay",
             "Persian",
@@ -324,8 +324,6 @@ class YouTubeClient:
         self.set_uploads_id()
         if self.error_code == '':
             self.get_total_video_count()
-            # We don't need to load the page here, home() will do it.
-            # self.set_video_page(1)
 
     @property
     def num_pages(self):
