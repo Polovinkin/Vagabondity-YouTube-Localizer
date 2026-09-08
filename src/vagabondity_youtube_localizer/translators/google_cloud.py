@@ -8,6 +8,11 @@ from .base import MonthlyTranslationLimitError, TranslationError
 from ..usage import GoogleUsageLimitError, GoogleUsageTracker
 
 
+GOOGLE_TARGET_LANGUAGE_CODES = {
+    "fil": "tl",
+}
+
+
 class GoogleCloudTranslator:
     """Small wrapper around the Google Cloud Translation v2 client."""
 
@@ -71,7 +76,18 @@ class GoogleCloudTranslator:
 
     def is_language_supported(self, language_code):
         """Return whether Google Cloud supports a target language code."""
-        return language_code.lower() in self._supported_language_codes
+        language_code = language_code.lower()
+        provider_code = self._normalize_language_code(language_code)
+        return bool(
+            {language_code, provider_code} & self._supported_language_codes
+        )
+
+    @staticmethod
+    def _normalize_language_code(language_code):
+        """Convert YouTube language codes to Google Cloud equivalents."""
+        return GOOGLE_TARGET_LANGUAGE_CODES.get(
+            language_code.lower(), language_code
+        )
 
     def test_connection(self):
         """Verify credentials with a tiny real translation request."""
@@ -109,6 +125,7 @@ class GoogleCloudTranslator:
         if isinstance(text, bytes):
             text = text.decode("utf-8")
 
+        target_language = self._normalize_language_code(target_language)
         try:
             self._usage_tracker.record_google_characters(len(text))
             result = self._client.translate(

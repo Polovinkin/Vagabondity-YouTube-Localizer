@@ -2556,9 +2556,17 @@ a.top-page-btn:focus-visible {
 
 .progress-metrics {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) auto repeat(3, minmax(0, 1fr));
     gap: 7px;
     margin-top: 12px;
+}
+
+.progress-metrics-arrow {
+    display: grid;
+    min-width: 20px;
+    place-items: center;
+    color: var(--amber-bright);
+    font-size: 1.2rem;
 }
 
 .progress-metric {
@@ -3204,6 +3212,16 @@ a.top-page-btn:focus-visible {
     }
 
     .progress-metrics {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+        grid-template-columns: minmax(0, 1fr) auto repeat(3, minmax(0, 1fr));
+    }
+
+    .progress-metric {
+        padding-right: 6px;
+        padding-left: 6px;
+    }
+
+    .progress-metrics-arrow {
+        min-width: 12px;
     }
 }

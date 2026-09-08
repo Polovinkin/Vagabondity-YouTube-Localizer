@@ -433,6 +433,11 @@
                 <span id="progressBar"></span>
             </div>
             <div class="progress-metrics">
+                <div class="progress-metric is-remaining">
+                    <span>Remaining</span>
+                    <strong id="progressRemaining">0</strong>
+                </div>
+                <span class="progress-metrics-arrow" aria-hidden="true">→</span>
                 <div class="progress-metric is-success">
                     <span>Published</span>
                     <strong id="progressSucceeded">0</strong>
@@ -444,10 +449,6 @@
                 <div class="progress-metric is-failed">
                     <span>Failed</span>
                     <strong id="progressFailed">0</strong>
-                </div>
-                <div class="progress-metric">
-                    <span>Remaining</span>
-                    <strong id="progressRemaining">0</strong>
                 </div>
             </div>
             <div class="progress-current" id="progressCurrent">
@@ -1305,7 +1306,9 @@
         progressModalContent.dataset.state = state;
         progressEyebrow.innerText = eyebrow;
         progressTitle.innerText = title;
+        progressTitle.hidden = !title;
         progressContent.innerText = message;
+        progressContent.hidden = !message;
         progressSpinner.style.display = state === 'translating' ? 'inline-block' : 'none';
         progressDoneBtn.style.display = state === 'translating' ? 'none' : 'block';
         progressCancelBtn.style.display = state === 'translating' ? 'block' : 'none';
@@ -1499,8 +1502,8 @@
             setProgressState(
                 'warning',
                 'Translation complete',
-                'Finished with notes',
-                summary
+                '',
+                ''
             );
             errorPopUpContent.innerText = '';
             return;
@@ -1508,8 +1511,8 @@
         setProgressState(
             'success',
             'Translation complete',
-            'All localizations are ready',
-            summary
+            '',
+            ''
         );
         errorPopUpContent.innerText = '';
     }
