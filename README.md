@@ -9,69 +9,41 @@
 A free, local-first YouTube metadata translator for creators. Batch-translate and publish localized YouTube video titles and descriptions in multiple languages using DeepL or Google Cloud Translation - while safely running it on your own computer. The application has no subscription fee, you only remain responsible for any usage charges imposed by the provider you choose, but there are generous free tiers in both of them, which you can use to make literally hundreds of localizations for free.
 The app updates YouTube localization fields through YouTube Data API v3 and it does not replace the original title or description.
 
-Originally built and improved for localizing videos on the author's YT city walks channel 🐸 [Vagabondity Walks](https://www.youtube.com/@vagabondity) - now sharing it so other creators can use it too. Feel free to check out the channel it was made for!
+This app has no subscription fee, no app-imposed limits, totally safe to use as it has a public code and it doesn't ask you to give access to your YT channel to any third-party. It's easy to install and very easy to use! Originally built and improved for localizing videos on the developer's YT city walks channel 🐸 [Vagabondity Walks](https://www.youtube.com/@vagabondity) - now sharing it so other creators can use it too. Feel free to check out the channel it was made for!
 
-> **Status:** Actively developed.
+Refer to [Quick Start](#quick-start) for a guide to set this app up and start localizing your YT Channel. Refer to [Vagabondity vs ReTranslate.ai comparison](#vagabondity-vs-retranslateai-comparison) to see the comparison between this app and ReTranslate.ai service.
+
+> **Status:** Being actively improved.
 
 ## Preview
 
 ![Vagabondity YouTube Localizer interface](docs/images/app-overview.png)
 
-## ReTranslate.ai alternative for translating YouTube titles and descriptions
-
-The application itself has no subscription fee, no app-imposed limits and doesn't ask you to give access to your YT channel to any third-party, so Vagabondity YouTube Localizer is mostly a better alternative to hosted YouTube metadata localization services such as **ReTranslate.ai** . Instead of connecting your channel to another hosted subscription service (do you really need another subscription in your life?) and giving it a wide access to your channel - you run the application on your own computer, use your own Google OAuth credentials, and choose your own translation provider: DeepL or Google Cloud Translation. For the core video-metadata workflow, it also includes and mostly exceeds capabilities that ReTranslate reserves for paid plans.
-
-### Vagabondity vs ReTranslate.ai comparison
-
-Detailed comparison table for those who thinks which app to use.
-
-| Capability | Vagabondity YouTube Localizer | ReTranslate.ai |
-|---|---|---|
-| Source code | Publicly available on GitHub for inspection | Not publicly available |
-| Where it runs | Locally on your computer | Hosted third-party service |
-| YouTube authorization | You create and control your own OAuth client, the token doesn't leave your device | You authorize ReTranslate's hosted service and its OAuth client |
-| **Destructive YouTube permissions** | Token with access remains local and _the source contains no call to YouTube's video-deletion API_ | ReTranslate Google consent screen explicitly asks for permission to `see, edit and permanently delete" YouTube videos, ratings, comments and captions`; most likely it won't, but the implementation cannot be inspected |
-| Application subscription | None | Free, Pro at $20/month, or Max at $50/month |
-| Time to set up | Under 10 minures using a Quick Start guide | Couple of minutes to register |
-| Daily translation limit | None, volume only depends on your own translation provider's quota and YT upload limits. Providers free quotas are enough to make hundreds of translations. | Free: 10 translations to a chosen language per day. Pro is described only as having "higher daily usage capacity" giving no specific (may as well be 50 translations - we don't know), Max is listed as 5x Pro |
-| Bulk video metadata translation | Included | None on Free tier, paying for Pro or Max subscription is required |
-| Selecting videos | Browse the channel, filter Videos or Shorts, select individual videos, a whole page, or the entire channel | You can't select videos from your channel, the free workflow only allows localizing only a single imported video at a time by pasting it's URL manually |
-| Multi-language workflow | Process every selected video-and-language pair in one run | A "Translate All" control is present, but the 10-translation free allowance prevents even a moderately sized batch |
-| Translation provider and model choice | Connect your own DeepL or Google Cloud Translation account and choose the provider once for the localization run | You need to individually choose an AI model for each language. The choice is mostly made of weak models like GPT-4o mini (was the default observed in our test) or Gemini 2.5 Flash |
-| Translation speed | Designed to batch many videos and languages: translating one video to 20 languages and uploading them to YT takes around 10 seconds | _Extremely slow_. In our test, a single language translation for one video took a whole 5 seconds on average - and it doesn't include upload time |
-| Progress monitoring and results | Live status for every video-and-language pair. Shows full translarion results, including fails/skips explanaton | Just a percentage-based progress in the hosted interface; Test showed generic failure with no cause. Tests also displayed an upload message saying that translation was partially sucessful, while listing every attempted localization as failed - not possible to tell from ReTranslate whether anything had actually changed on YouTube |
-| Subtitle translation | Not currently | Yes |
-| Channel metadata translation | Not currently | Yes, but it didn't upload to YT in our testing |
-| Playlist metadata translation | Not planned, as it doesn't seem like a serious problem to solve | Yes, currently marked Beta |
-
-
-> **Why does YouTube show broad permissions?**
->
-> YouTube does not provide a permission limited to title and description localizations - the scopes accepted for updating video metadata can also authorize video deletion.
->
-> The difference here, is that ReTranslate asks you to grant this access to its hosted service. Vagabondity uses an OAuth client you create yourself (so you basically give access to your app in Google Cloud), stores the token locally, and makes no video-deletion API calls - can be easily verified as this directly has a public source code.
-
 ## Requirements
 
 - A Google account that manages a YouTube channel.
-- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) package manager. You do not need to install Python or anything else separately apart from `uv` for this app to work.
+- Installed [`uv`](https://docs.astral.sh/uv/getting-started/installation/) package manager. _You do not need to install Python or anything else separately apart from `uv` for this app to work_.
 - YouTube Data API v3 OAuth credentials (configured in Google Cloud).
-- At least one translation provider: DeepL API or Google Cloud Translation.
+- Access keys for at least one translation provider: DeepL API or Google Cloud Translation.
+
+## Features
+
+- 🚀 **Batch localization:** Translate and publish metadata for a single video, a page of videos, or the entire channel in one run.
+- 🌍 **Localization-aware selection:** Review each video's source language and existing localizations before choosing target languages. Existing translations are skipped by default, with an option to replace and retranslate them.
+- 🎬 **Flexible video library:** Filter full-length videos and Shorts, browse by page, and select individual videos, the current page, or the entire channel.
+- 🔄 **Multiple translation providers:** Choose explicitly between DeepL and Google Cloud Translation for each localization run.
+- 📊 **Live progress tracking:** Follow every video-and-language pair as it is processed, including published, skipped, and failed localizations with their reasons.
+- 📈 **Usage and quota visibility:** View DeepL usage, locally tracked Google Cloud Translation usage, and YouTube API quota information from the **USAGE** window.
+- ✅ **Provider connection checks:** Test both configured translation providers from the **TEST** window before starting a localization run. The check uses a tiny translation request and does not modify YouTube metadata.
+- 🔋 **YouTube quota recovery:** When the daily YouTube API quota is exhausted, the app enters limited mode, keeps cached channel data available, shows the expected reset time, and lets you reconnect when access is restored.
+- 💻 **Local-first operation:** The interface runs only on `127.0.0.1`. Credentials and provider settings are stored locally and are used only to authenticate requests to the configured services.
+- 🛡️ **Original content protection:** The original video, thumbnail, title, and description remain unchanged; only additional language localizations are published.
 
 ## Quick Start
 
 **First-time setup typically takes about 10 minutes.**
 Most of that time is spent in Google Cloud creating access for your YouTube channel.
 After setup, starting the app normally takes one command and about a minute.
-
-You need:
-
-- a Google account that manages your YouTube channel
-- this project downloaded to your computer
-- one translation provider. **DeepL is the simplest option to start with.**
-
-You do **not** need to install Python, which this app is running on. The `uv` tool downloads the correct Python
-version and all required packages automatically.
 
 ### 1. Download the app and open its folder in Terminal
 
@@ -86,15 +58,11 @@ Then open Terminal in that folder:
 - **Windows:** open the folder in File Explorer, click the address bar, type
   `powershell`, and press Enter.
 
-If you already downloaded the project and opened Terminal in its folder, continue to the next step.
-
 ### 2. Install uv
 
-> **What is `uv`?**  
-> `uv` is a popular tool used by software developers around the world, which installs and manages the Python version and packages required by this app.
-> It is safe to install using the official commands below. It does not run continuously in the background
-> or use CPU or memory when you are not running a `uv` command. It only uses some disk space for the tool itself,
-> Python, and the app's packages.
+> **Wait, that is this `uv` I need to install?**
+> Worry not! `uv` is a popular tool used by software developers around the world - it installs and manages the Python version and packages required by this app. It's basically the best way to minimise the amount of stuff to install on your computer to run this app, and what makes this app basically a "portable" app as you are not installing anything.
+> It is safe to install using the official commands below. It's not a regular app, but more like a small tool which becomes accessible in your Terminal. It does not run continuously in the background or use CPU or memory when you are not actively running a `uv` command in the Terminal. It only uses some disk space for the tool itself, Python, and the app's packages.
 
 Copy the command for your operating system into Terminal and press Enter.
 
@@ -110,7 +78,7 @@ Windows PowerShell:
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-Close and reopen Terminal after installation. Alternative installation methods
+Close and reopen Terminal after installation to make `uv` available there. Alternative installation methods
 are available in the official [`uv` installation guide](https://docs.astral.sh/uv/getting-started/installation/).
 
 ### 3. Create your private settings file
@@ -145,9 +113,9 @@ This is required for the app to use data from your YouTube channel. You have to 
 
 ### 5. Add a translation provider
 
-The easiest starting option is DeepL:
+The easiest starting option is DeepL. If you prefer Google Cloud Translation, follow the [Google Cloud Translation setup](#google-cloud-translation-optional) below. DeepL's and Google's available plans and usage allowances can change, so check the current terms on its plans page.
 
-1. Choose an available API plan on the [DeepL API plans page](https://www.deepl.com/pro-api) - the Developer plan is the one you need, with the free 1 million symbols quota.
+1. Choose an available API plan on the [DeepL API plans page](https://www.deepl.com/pro-api) - the Developer plan is the one you will most likely need, with the free 1 million symbols quota.
 2. Copy your API Key from the [DeepL API Keys & Limits](https://www.deepl.com/en/your-account/keys) section of your DeepL account.
 3. Open `config/settings.toml` in any text editor and replace the placeholder:
 
@@ -155,9 +123,6 @@ The easiest starting option is DeepL:
 [deepl]
 api_key = "paste_your_deepl_api_key_here"
 ```
-
-DeepL's available plans and usage allowances can change, so check the current terms on its plans page.
-If you prefer Google Cloud Translation, follow the [Google Cloud Translation setup](#google-cloud-translation-optional) below.
 
 ### 6. Start the app
 
@@ -169,7 +134,7 @@ uv run vagabondity-youtube-localizer
 
 The first run takes longer because `uv` downloads Python and the app's packages.
 It also opens a Google authorization page in your browser. Sign in with the
-user you added in step 4 and approve the requested YouTube permissions.
+user you added in step 4 and approve the requested YouTube permissions. See [First Google authorization](#first-google-authorization) if you have questions about those permissions.
 
 Keep Terminal open while using the app, then open:
 
@@ -184,20 +149,6 @@ Keep Terminal open while using the app, then open:
 5. Confirm the result in YouTube Studio before localizing more videos.
 
 To stop the app, return to Terminal and press `Ctrl+C`.
-
-## Features
-
-- 🚀 **Batch localization:** Translate and publish metadata for a single video, a page of videos, or the entire channel in one run.
-- 🌍 **Localization-aware selection:** Review each video's source language and existing localizations before choosing target languages. Existing translations are skipped by default, with an option to replace and retranslate them.
-- 🎬 **Flexible video library:** Filter full-length videos and Shorts, browse by page, and select individual videos, the current page, or the entire channel.
-- 🔄 **Multiple translation providers:** Choose explicitly between DeepL and Google Cloud Translation for each localization run.
-- 📊 **Live progress tracking:** Follow every video-and-language pair as it is processed, including published, skipped, and failed localizations with their reasons.
-- 📈 **Usage and quota visibility:** View DeepL usage, locally tracked Google Cloud Translation usage, and YouTube API quota information from the **USAGE** window.
-- ✅ **Provider connection checks:** Test both configured translation providers from the **TEST** window before starting a localization run. The check uses a tiny translation request and does not modify YouTube metadata.
-- 🔋 **YouTube quota recovery:** When the daily YouTube API quota is exhausted, the app enters limited mode, keeps cached channel data available, shows the expected reset time, and lets you reconnect when access is restored.
-- 💻 **Local-first operation:** The interface runs only on `127.0.0.1`. Credentials and provider settings are stored locally and are used only to authenticate requests to the configured services.
-- 🛡️ **Original content protection:** The original video, thumbnail, title, and description remain unchanged; only additional language localizations are published.
-
 
 ## Local configuration in config/settings.toml
 
@@ -224,6 +175,7 @@ credentials in more detail and includes the optional Google translation provider
 1. Create or select a project in the
    [Google Cloud Console](https://console.cloud.google.com).
 2. Enable **YouTube Data API v3** ([link](https://console.cloud.google.com/marketplace/product/google/youtube.googleapis.com)).
+
 ##### Configure Google Auth Platform
 
 1. Open **Google Auth Platform** ([link](https://console.cloud.google.com/auth/overview)) for the same Google Cloud project.
@@ -342,6 +294,35 @@ In order to do so, click **Test** in **Translation provider** window. The check 
   the OAuth app remains in Testing mode.
 - **The local page does not open:** keep Terminal running, check it for an error,
   and open <http://127.0.0.1:5050> manually.
+
+
+#### Why does YouTube show broad permissions?
+
+YouTube does not provide a permission limited to title and description localizations - the scopes accepted for updating video metadata can also authorize video deletion.
+
+The difference here, is that ReTranslate asks you to grant this access to its hosted service. Vagabondity uses an OAuth client you create yourself (so you basically give access to your app in Google Cloud), stores the token locally, and makes no video-deletion API calls - can be easily verified as this directly has a public source code.
+
+## Vagabondity vs ReTranslate.ai comparison
+
+This app is a great alternative to any 3rd-party hosted YouTube metadata localization app, such as ReTranslate.ai.
+Comparison table between Vagabondity YouTube Localizer and ReTranslate.ai:
+
+| Topic | Vagabondity YouTube Localizer | ReTranslate.ai |
+|-------|-------------------------------|----------------|
+| Source code and logic | Public and available for inspection | Not publicly available |
+| Where it runs | Locally on your computer | Hosted third-party service |
+| Author identity | Dmitrii Polovinkin - [GitHub](https://github.com/Polovinkin) | Unknown |
+| YT Channel Safety | Source code contains no calls to YouTube's video-deletion API or anything not intented for localization. Authorization token is created by you, is shared with your own Google Cloud app, access keys are kept on your device. [Details](#why-does-youtube-show-broad-permissions) | ReTranslate Google consent screen explicitly asks for permission to `see, edit and permanently delete" YouTube videos, ratings, comments and captions`, implementation cannot be inspected. |
+| Application subscription | None | Pro at $20/month, or Max at $50/month. Free plan exist, but limits are not enough to even partially localize a single video |
+| Translation limits | No app-imposed limits. Usage is only limited by providers' limits, as well as a limits of YT daily upload. Providers free quotas are enough to make hundreds of translations for free. | 10 translations to a single chosen language daily. Pro has "higher daily usage capacity" with no specifics, Max is listed as 5x Pro |
+| Bulk translations; Multiple video selections | Can translate a whole channel to 50 languages in one go, if needed. | No bulk translations for free. Only allows to localize a single imported video at a time by pasting it's URL manually. |
+| Translation speed | Video localization to 20 languages and uploading it to YT takes around 25 seconds, in one go | One translation for a single video takes at least 5 seconds on average, and it's without uploading it to YT |
+| Translation providers | Your own fully powered DeepL or Google Cloud Translation accounts | Mostly relatively weak LLM models like GPT-4o mini (default) or Gemini 2.5 Flash. You have to manually hand-select a model for every single language. |
+| Localization monitoring | Full translation process with video-language monitoring granularity, results, fails/skips explanations | Simple percentage-based progress bar, no explanations when translation fails or doesn't upload. Can write that upload is partially successful, but list every attempted localization as failed |
+| Subtitle translation | No | Yes |
+| Channel metadata translation | No | Yes |
+| Playlist metadata translation | No (I mean, who needs it?) | Yes, currently marked Beta |
+
 
 ## Project structure and development details
 
