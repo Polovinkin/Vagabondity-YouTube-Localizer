@@ -404,7 +404,7 @@
     <div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>
-    <p id="loadingOverlayMessage" aria-live="polite">Loading videos…</p>
+    <p id="loadingOverlayMessage" aria-live="polite">Loading your YouTube video library…</p>
 </div>
 
 
@@ -854,9 +854,13 @@
         });
     });
 
-    // Browsers may restore checked form controls after a reload or bfcache
-    // navigation. Video selection is intentionally limited to the current view.
-    window.addEventListener('pageshow', clearVideoSelection);
+    // Browsers may restore DOM state after a reload or bfcache navigation.
+    // Video selection is limited to the current view, and a pagination overlay
+    // from the page we navigated away from must not remain visible after Back.
+    window.addEventListener('pageshow', () => {
+        loadingOverlay.style.display = 'none';
+        clearVideoSelection();
+    });
 
     function initializeTranslationProvider() {
         const savedProvider = localStorage.getItem(translationProviderStorageKey);

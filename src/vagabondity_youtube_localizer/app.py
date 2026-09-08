@@ -884,7 +884,8 @@ def main():
     app = create_app()
     youtube = app.extensions["youtube_client"]
     if not youtube.error_code:
-        print("Loading YouTube video library…")
+        # Keep macOS terminals from treating the final word as ~/Library.
+        print("Loading your YouTube video libra\u2060ry…")
         youtube.set_video_page(1)
         if not youtube.error_code:
             print(f"Video library loaded — {len(youtube.video_inventory):,} videos.\n")
