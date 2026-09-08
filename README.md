@@ -17,6 +17,13 @@ I’m sharing it so other creators can use it too - feel free to check out the c
 
 ![Vagabondity YouTube Localizer interface](docs/images/app-overview.png)
 
+## Requirements
+
+- A Google account that manages a YouTube channel.
+- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) package manager. You do not need to install Python or anything else separately apart from `uv` for this app to work.
+- YouTube Data API v3 OAuth credentials (configured in Google Cloud).
+- At least one translation provider: DeepL API or Google Cloud Translation.
+
 ## Quick Start
 
 **First-time setup typically takes about 10 minutes.**
@@ -48,6 +55,12 @@ Then open Terminal in that folder:
 If you already downloaded the project and opened Terminal in its folder, continue to the next step.
 
 ### 2. Install uv
+
+> **What is `uv`?**  
+> `uv` is a popular tool tool used by software developers around the world, which installs and manages the Python version and packages required by this app.
+> It is safe to install using the official commands below. It does not run continuously in the background
+> or use CPU or memory when you are not running a `uv` command. It only uses some disk space for the tool itself,
+> Python, and the app's packages.
 
 Copy the command for your operating system into Terminal and press Enter.
 
@@ -151,15 +164,6 @@ To stop the app, return to Terminal and press `Ctrl+C`.
 - 💻 **Local-first operation:** The interface runs only on `127.0.0.1`. Credentials and provider settings are stored locally and are used only to authenticate requests to the configured services.
 - 🛡️ **Original content protection:** The original video, thumbnail, title, and description remain unchanged; only additional language localizations are published.
 
-## Requirements
-
-- A Google account that manages a YouTube channel.
-- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) package manager.
-- YouTube Data API v3 OAuth credentials (configured in Google Cloud).
-- At least one translation provider: DeepL API or Google Cloud Translation.
-
-You do not need to install Python separately. See [Quick Start](#quick-start) for
-the complete first-time setup in the correct order.
 
 ## Local configuration in config/settings.toml
 
