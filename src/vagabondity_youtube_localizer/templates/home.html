@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>YouTube Localizer by Vagabondity</title>
+    <title>YT Localizer by Vagabondity</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
@@ -1483,7 +1483,6 @@
                     const video = document.createElement('span');
                     video.className = 'progress-breakdown-video';
                     video.textContent = detail.video || 'Untitled video';
-                    video.title = detail.video || '';
                     const language = document.createElement('span');
                     language.className = 'progress-breakdown-language';
                     language.textContent = `\u2192 ${detail.language || 'Unknown language'}`;
@@ -1534,7 +1533,6 @@
             const stage = progressStageLabels[job.current.stage] || 'Processing';
             progressCurrentLabel.innerText = job.status === 'running' ? stage : 'Last item';
             progressCurrentVideo.innerText = job.current.video || 'Untitled video';
-            progressCurrentVideo.title = job.current.video || '';
             progressCurrentLanguage.innerText = job.current.language
                 ? `→ ${job.current.language}`
                 : '';
