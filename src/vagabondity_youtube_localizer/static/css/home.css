@@ -2064,6 +2064,17 @@ a.top-page-btn:focus-visible {
     display: none;
 }
 
+.language-states-loading strong {
+    font-size: 0.96rem;
+}
+
+.language-states-loading span:last-child {
+    max-width: 480px;
+    color: var(--muted);
+    font-weight: 600;
+    line-height: 1.55;
+}
+
 .language-states-spinner {
     width: 28px;
     height: 28px;
@@ -2073,7 +2084,8 @@ a.top-page-btn:focus-visible {
     animation: language-states-spin 0.75s linear infinite;
 }
 
-.language-list-shell.has-error .language-states-spinner {
+.language-list-shell.has-error .language-states-spinner,
+.language-list-shell.has-blocked .language-states-spinner {
     display: none;
 }
 

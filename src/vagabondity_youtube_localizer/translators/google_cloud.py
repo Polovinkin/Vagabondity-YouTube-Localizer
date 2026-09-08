@@ -99,7 +99,7 @@ class GoogleCloudTranslator:
             }
 
         try:
-            self.translate_text("hi", "de")
+            self.translate_text("hi", "de", "en")
             return {
                 "ok": True,
                 "status": "connected",
@@ -112,8 +112,8 @@ class GoogleCloudTranslator:
                 "message": str(exc),
             }
 
-    def translate_text(self, text, target_language):
-        """Translate English text or raise when the request cannot be completed."""
+    def translate_text(self, text, target_language, source_language):
+        """Translate text from the video's source language."""
         if not text or not text.strip():
             return text
 
@@ -126,12 +126,13 @@ class GoogleCloudTranslator:
             text = text.decode("utf-8")
 
         target_language = self._normalize_language_code(target_language)
+        source_language = self._normalize_language_code(source_language)
         try:
             self._usage_tracker.record_google_characters(len(text))
             result = self._client.translate(
                 text,
                 format_="text",
-                source_language="en",
+                source_language=source_language,
                 target_language=target_language,
             )
             translated_text = result.get("translatedText")

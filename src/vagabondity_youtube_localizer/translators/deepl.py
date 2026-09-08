@@ -17,6 +17,13 @@ DEEPL_TARGET_LANGUAGE_CODES = {
     "zh-TW": "zh-hant",
 }
 
+DEEPL_SOURCE_LANGUAGE_CODES = {
+    "iw": "he",
+    "no": "nb",
+    "zh-CN": "zh",
+    "zh-TW": "zh",
+}
+
 
 class DeepLTranslator:
     """Translate text through DeepL without falling back to another provider."""
@@ -45,6 +52,12 @@ class DeepLTranslator:
             language_code, language_code
         ).lower()
 
+    @staticmethod
+    def _normalize_source_language_code(language_code):
+        return DEEPL_SOURCE_LANGUAGE_CODES.get(
+            language_code, language_code
+        ).upper()
+
     def is_language_supported(self, language_code):
         """Accept configured languages and let the translation endpoint validate them."""
         return bool(self._normalize_language_code(language_code))
@@ -59,7 +72,7 @@ class DeepLTranslator:
             }
 
         try:
-            self.translate_text("hi", "de")
+            self.translate_text("hi", "de", "en")
             return {
                 "ok": True,
                 "status": "connected",
@@ -103,17 +116,18 @@ class DeepLTranslator:
                 "message": f"Could not retrieve DeepL usage: {exc}",
             }
 
-    def translate_text(self, text, target_language):
+    def translate_text(self, text, target_language, source_language):
         if not text or not text.strip():
             return text
         if not self.is_available:
             raise TranslationError("DeepL is not configured")
 
         target_language = self._normalize_language_code(target_language)
+        source_language = self._normalize_source_language_code(source_language)
         try:
             return self._client.translate_text(
                 text,
-                source_lang="EN",
+                source_lang=source_language,
                 target_lang=target_language,
             ).text
         except deepl.exceptions.QuotaExceededException as exc:

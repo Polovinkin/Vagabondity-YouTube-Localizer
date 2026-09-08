@@ -378,6 +378,80 @@ def build_language_tiers(language_names):
     return tiers
 
 
+def _selected_videos_from_payload(youtube, payload):
+    """Resolve the selected videos by stable IDs, with title fallback."""
+    selected_video_names = {
+        normalize_title(name) for name in payload.get("vidNames", [])
+    }
+    if not selected_video_names:
+        selected_video_names = {
+            normalize_title(name) for name in payload.get("selected_videos", [])
+        }
+    selected_video_ids = {
+        str(video_id)
+        for video_id in (
+            payload.get("videoIds", [])
+            or payload.get("selected_video_ids", [])
+        )
+    }
+    videos_to_check = (
+        youtube.all_videos_cache
+        if youtube.results_per_page == -1
+        else youtube.page_videos
+    )
+    return [
+        video
+        for video in videos_to_check
+        if (
+            str(getattr(video, "id", "")) in selected_video_ids
+            if selected_video_ids
+            else normalize_title(video.video_title) in selected_video_names
+        )
+    ]
+
+
+def _source_language_state(youtube, selected_videos):
+    """Summarize source languages for the selected videos."""
+    source_counts = {}
+    missing_count = 0
+    for video in selected_videos:
+        source_code = getattr(video, "default_language_code", None)
+        if not source_code:
+            missing_count += 1
+            continue
+        source_counts[source_code] = source_counts.get(source_code, 0) + 1
+
+    source_languages = [
+        {
+            "code": code,
+            "name": youtube.code_to_name.get(code, code),
+            "count": count,
+        }
+        for code, count in sorted(source_counts.items())
+    ]
+    return {
+        "source_languages": source_languages,
+        "missing_source_language_count": missing_count,
+        "mixed_source_languages": len(source_counts) > 1,
+    }
+
+
+def _source_language_validation_error(youtube, payload):
+    selected_videos = _selected_videos_from_payload(youtube, payload)
+    state = _source_language_state(youtube, selected_videos)
+    if state["missing_source_language_count"]:
+        return (
+            "One or more selected videos do not have a source language set on "
+            "YouTube. Set the video language and try again."
+        )
+    if state["mixed_source_languages"]:
+        return (
+            "Selected videos have different source languages. Select videos "
+            "with the same source language to translate them together."
+        )
+    return None
+
+
 def create_app(
     youtube_client=None,
     localization_service=None,
@@ -449,6 +523,9 @@ def create_app(
                     translation_provider = payload.get("translation_provider")
                     if translation_provider not in VALID_TRANSLATION_PROVIDERS:
                         return jsonify({"error": "Select a translation provider."}), 400
+                    source_error = _source_language_validation_error(youtube, payload)
+                    if source_error:
+                        return jsonify({"error": source_error}), 400
                     localizer.localize_videos(
                         payload["selected_videos"],
                         payload["selected_languages"],
@@ -558,6 +635,9 @@ def create_app(
         selected_languages = payload.get("selected_languages", [])
         if not selected_videos or not selected_languages:
             return jsonify({"error": "Select at least one video and language."}), 400
+        source_error = _source_language_validation_error(youtube, payload)
+        if source_error:
+            return jsonify({"error": source_error}), 400
         if youtube.error_code == "quotaExceeded":
             return jsonify(
                 {"error": "YouTube quota is unavailable until the daily reset."}
@@ -679,27 +759,7 @@ def create_app(
         """Return localization and source-language state for selected videos."""
         try:
             payload = request.get_json(silent=True) or {}
-            selected_video_names = {
-                normalize_title(name) for name in payload.get("vidNames", [])
-            }
-            selected_video_ids = {
-                str(video_id) for video_id in payload.get("videoIds", [])
-            }
-            videos_to_check = (
-                youtube.all_videos_cache
-                if youtube.results_per_page == -1
-                else youtube.page_videos
-            )
-
-            selected_videos = [
-                video
-                for video in videos_to_check
-                if (
-                    str(video.id) in selected_video_ids
-                    if selected_video_ids
-                    else normalize_title(video.video_title) in selected_video_names
-                )
-            ]
+            selected_videos = _selected_videos_from_payload(youtube, payload)
             languages_refreshed = False
             if (
                 payload.get("refresh")
@@ -746,11 +806,13 @@ def create_app(
                 for language, state in language_states.items()
                 if state["localized_count"] == len(selected_videos)
             ]
+            source_state = _source_language_state(youtube, selected_videos)
             return jsonify(
                 {
                     "current_languages": common_languages,
                     "language_states": language_states,
                     "selected_count": len(selected_videos),
+                    **source_state,
                     "refreshed": languages_refreshed,
                     "youtube_quota_exceeded": (
                         youtube.error_code == "quotaExceeded"

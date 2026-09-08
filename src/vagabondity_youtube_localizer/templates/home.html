@@ -657,6 +657,7 @@
             </div>
             <div id="languageStatesLoading" class="language-states-loading" role="status" aria-live="polite" hidden>
                 <span class="language-states-spinner" aria-hidden="true"></span>
+                <strong id="languageStatesLoadingTitle"></strong>
                 <span id="languageStatesLoadingText">Loading existing localizations…</span>
             </div>
         </div>
@@ -726,6 +727,7 @@
     const languageListShell = document.getElementById("languageListShell");
     const languageList = document.getElementById("languageList");
     const languageStatesLoading = document.getElementById("languageStatesLoading");
+    const languageStatesLoadingTitle = document.getElementById("languageStatesLoadingTitle");
     const languageStatesLoadingText = document.getElementById("languageStatesLoadingText");
     const youtubeQuotaEstimate = document.getElementById("youtubeQuotaEstimate");
     const youtubeQuotaEstimateTitle = document.getElementById("youtubeQuotaEstimateTitle");
@@ -1048,18 +1050,24 @@
         }
     }
 
-    function setLanguageStatesLoading(state) {
+    function setLanguageStatesLoading(state, title = '', message = '') {
         const isReady = state === 'ready';
         const isError = state === 'error';
+        const isBlocked = state === 'blocked';
 
         languageListShell.classList.toggle('is-loading', !isReady);
         languageListShell.classList.toggle('has-error', isError);
+        languageListShell.classList.toggle('has-blocked', isBlocked);
         languageListShell.setAttribute('aria-busy', String(state === 'loading'));
+        languageStatesLoading.setAttribute('role', isBlocked ? 'alert' : 'status');
         languageStatesLoading.hidden = isReady;
         languageList.toggleAttribute('inert', !isReady);
-        languageStatesLoadingText.innerText = isError
-            ? 'Could not load existing localizations. Close and try again.'
-            : 'Loading existing localizations…';
+        languageStatesLoadingTitle.innerText = title || (
+            isError ? 'Could not load existing localizations' : ''
+        );
+        languageStatesLoadingText.innerText = message || (
+            isError ? 'Close this window and try again.' : 'Loading existing localizations…'
+        );
 
         if (!isReady) {
             languageSelectors.forEach(selector => {
@@ -1070,12 +1078,16 @@
                 button.disabled = true;
             });
             translateSelectedBtn.disabled = true;
-            translateSelectedBtn.innerText = 'Loading localizations…';
+            translateSelectedBtn.innerText = isBlocked
+                ? 'Translation unavailable'
+                : 'Loading localizations…';
             overwriteCheck.disabled = true;
+            trimCheck.disabled = true;
             return;
         }
 
         overwriteCheck.disabled = false;
+        trimCheck.disabled = false;
         updateTranslateButtonState();
     }
 
@@ -1202,6 +1214,26 @@
                     'YouTube daily quota reached. Switching to limited mode…'
                 );
                 window.location.reload();
+                return;
+            }
+            if (Number(data.missing_source_language_count || 0) > 0) {
+                setLanguageStatesLoading(
+                    'blocked',
+                    'Source language required',
+                    'One or more selected videos do not have a source language set on YouTube. Set the video language and try again.'
+                );
+                return;
+            }
+            if (data.mixed_source_languages) {
+                const sourceLanguages = (data.source_languages || [])
+                    .map(source => source.name)
+                    .filter(Boolean)
+                    .join(' and ');
+                setLanguageStatesLoading(
+                    'blocked',
+                    'Different source languages selected',
+                    `Selected videos use ${sourceLanguages || 'different source languages'}. Select videos with the same source language to translate them together.`
+                );
                 return;
             }
             const existingLanguages = data['current_languages'] || [];
@@ -1331,6 +1363,7 @@
     const progressReasonLabels = {
         already_localized: 'already published',
         source_language: 'source language',
+        source_language_missing: 'source language is not set on YouTube',
         text_too_long: 'over character limit',
         unsupported_language: 'unsupported by provider',
         provider_unavailable: 'provider unavailable',

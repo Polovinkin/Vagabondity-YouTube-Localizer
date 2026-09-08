@@ -13,6 +13,7 @@ class FakeYouTubeClient:
             video_title="Taipei Walk",
             description="A city walk",
             language_names=[],
+            default_language_code="en",
             default_language_name="English",
         )
         self.page_videos = [video]
@@ -38,7 +39,7 @@ class FakeTranslator:
     def is_language_supported(self, language_code):
         return self.supported
 
-    def translate_text(self, text, target_language):
+    def translate_text(self, text, target_language, source_language):
         if self.error:
             raise TranslationError(self.error)
         return f"{text} ({target_language})"
@@ -142,6 +143,7 @@ class LocalizationServiceTests(unittest.TestCase):
                 video_title="Taipei Walk",
                 description="Second description",
                 language_names=[],
+                default_language_code="en",
                 default_language_name="English",
             )
         )

@@ -25,7 +25,10 @@ class TranslatorTests(unittest.TestCase):
         translator._client.translate.return_value = {"translatedText": "Hola"}
 
         self.assertTrue(translator.is_language_supported("ES"))
-        self.assertEqual(translator.translate_text("Hello", "es"), "Hola")
+        self.assertEqual(
+            translator.translate_text("Hello", "es", "en"),
+            "Hola",
+        )
         translator._usage_tracker.record_google_characters.assert_called_once_with(5)
 
     def test_google_cloud_wraps_provider_errors(self):
@@ -35,7 +38,7 @@ class TranslatorTests(unittest.TestCase):
         translator._client.translate.side_effect = RuntimeError("failure")
 
         with self.assertRaises(TranslationError):
-            translator.translate_text("Hello", "es")
+            translator.translate_text("Hello", "es", "en")
 
     def test_google_cloud_connection_test_uses_real_translation_path(self):
         translator = GoogleCloudTranslator.__new__(GoogleCloudTranslator)

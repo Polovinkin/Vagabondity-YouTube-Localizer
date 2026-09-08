@@ -90,6 +90,26 @@ class LocalizationService:
                 )
                 continue
 
+            source_language_code = getattr(
+                target_video, "default_language_code", None
+            )
+            if not source_language_code:
+                youtube.videos_skipped += len(selected_languages)
+                print("│  Source language is not set on YouTube; skipped")
+                for language in selected_languages:
+                    self._emit_finished(
+                        progress_callback,
+                        target_video.video_title,
+                        language,
+                        "skipped",
+                        "source_language_missing",
+                    )
+                print(
+                    f"└─ Finished — 0/{len(selected_languages)} "
+                    "localizations published"
+                )
+                continue
+
             pending_localizations = []
             for language in selected_languages:
                 if self._is_cancellation_requested(cancellation_requested):
@@ -101,14 +121,20 @@ class LocalizationService:
                     language=language,
                     stage="preparing",
                 )
-                default_language = getattr(
-                    target_video, "default_language_name", None
-                )
-                if not default_language:
-                    default_language = youtube.code_to_name.get(
-                        getattr(target_video, "default_language_code", None)
+                language_code = youtube.name_to_code.get(language.strip())
+                if not language_code:
+                    youtube.videos_skipped += 1
+                    print(f"│  – {language}: unknown YouTube language; skipped")
+                    self._emit_finished(
+                        progress_callback,
+                        target_video.video_title,
+                        language,
+                        "skipped",
+                        "unknown_language",
                     )
-                if language == default_language:
+                    continue
+
+                if language_code == source_language_code:
                     print(f"│  – {language}: source language; skipped")
                     self._emit_finished(
                         progress_callback,
@@ -130,24 +156,12 @@ class LocalizationService:
                     )
                     continue
 
-                language_code = youtube.name_to_code.get(language.strip())
-                if not language_code:
-                    youtube.videos_skipped += 1
-                    print(f"│  – {language}: unknown YouTube language; skipped")
-                    self._emit_finished(
-                        progress_callback,
-                        target_video.video_title,
-                        language,
-                        "skipped",
-                        "unknown_language",
-                    )
-                    continue
-
                 translation, outcome, reason = self._translate(
                     provider,
                     target_video,
                     language,
                     language_code,
+                    source_language_code,
                     progress_callback,
                 )
                 if translation is not None:
@@ -238,6 +252,7 @@ class LocalizationService:
         video,
         language,
         language_code,
+        source_language_code,
         progress_callback=None,
     ):
         if not provider.is_available:
@@ -253,13 +268,13 @@ class LocalizationService:
 
             self._emit_stage(progress_callback, video, language, "translating_title")
             translated_title = provider.translate_text(
-                video.video_title, language_code
+                video.video_title, language_code, source_language_code
             )
             self._emit_stage(
                 progress_callback, video, language, "translating_description"
             )
             translated_description = provider.translate_text(
-                video.description, language_code
+                video.description, language_code, source_language_code
             )
         except TranslationError as exc:
             print(
