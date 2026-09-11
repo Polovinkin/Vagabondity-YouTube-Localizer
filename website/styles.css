@@ -46,7 +46,8 @@ body {
     position: relative;
     width: min(100%, 46rem);
     overflow: hidden;
-    padding: clamp(2rem, 7vw, 4.5rem);
+    padding: clamp(1rem, 3.5vw, 2.25rem) clamp(2rem, 7vw, 4.5rem)
+        clamp(2rem, 7vw, 4.5rem);
     border: 1px solid var(--border);
     border-radius: 1.75rem;
     background: linear-gradient(145deg, rgba(42, 29, 17, 0.96), rgba(25, 17, 10, 0.96));
@@ -84,7 +85,7 @@ body {
 }
 
 .eyebrow {
-    margin: clamp(2rem, 6vw, 3.5rem) 0 0.65rem;
+    margin: clamp(1rem, 3vw, 1.75rem) 0 0.65rem;
     color: var(--muted);
     font-size: 0.9rem;
     font-weight: 750;
@@ -92,21 +93,10 @@ body {
     text-transform: uppercase;
 }
 
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
 .brand-banner {
     display: block;
     width: 100%;
+    max-width: 100%;
     height: auto;
     margin-top: 0.75rem;
     border-radius: 1rem;
