@@ -2,7 +2,7 @@
   <img src="docs/images/yt-localizer-banner.svg" alt="YT Localizer by Vagabondity Walks" width="100%">
 </p>
 
-# Vagabondity YouTube Localizer
+# YouTube Localizer by Vagabondity
 
 ---
 
@@ -62,6 +62,7 @@ Then open Terminal in that folder:
 ### 2. Install uv
 
 > **Wait, that is this `uv` I need to install?**
+> 
 > Worry not! `uv` is a popular tool used by software developers around the world - it installs and manages the Python version and packages required by this app. It's basically the best way to minimise the amount of stuff to install on your computer to run this app, and what makes this app basically a "portable" app as you are not installing anything.
 > It is safe to install using the official commands below. It's not a regular app, but more like a small tool which becomes accessible in your Terminal. It does not run continuously in the background or use CPU or memory when you are not actively running a `uv` command in the Terminal. It only uses some disk space for the tool itself, Python, and the app's packages.
 
