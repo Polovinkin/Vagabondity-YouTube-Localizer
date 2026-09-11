@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">YT Localizer</title>
+  <rect width="64" height="64" rx="15" fill="#21170e"/>
+  <path d="M13 17h9l10 15 10-15h9L36 39v10h-8V39L13 17Z" fill="#fbbf24"/>
+</svg>
