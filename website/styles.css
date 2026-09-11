@@ -21,6 +21,7 @@ html {
 }
 
 body {
+    position: relative;
     display: flex;
     min-height: 100vh;
     min-height: 100svh;
@@ -46,8 +47,7 @@ body {
     position: relative;
     width: min(100%, 46rem);
     overflow: hidden;
-    padding: clamp(1rem, 3.5vw, 2.25rem) clamp(2rem, 7vw, 4.5rem)
-        clamp(2rem, 7vw, 4.5rem);
+    padding: clamp(1rem, 3.5vw, 2.25rem) clamp(2rem, 7vw, 4.5rem);
     border: 1px solid var(--border);
     border-radius: 1.75rem;
     background: linear-gradient(145deg, rgba(42, 29, 17, 0.96), rgba(25, 17, 10, 0.96));
@@ -63,6 +63,10 @@ body {
 }
 
 .status {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
     gap: 0.65rem;
@@ -85,7 +89,7 @@ body {
 }
 
 .eyebrow {
-    margin: clamp(1rem, 3vw, 1.75rem) 0 0.65rem;
+    margin: 0 0 0.65rem;
     color: var(--muted);
     font-size: 0.9rem;
     font-weight: 750;
@@ -152,7 +156,30 @@ footer {
     text-align: center;
 }
 
+footer a {
+    color: var(--text);
+    text-underline-offset: 0.2em;
+}
+
+footer a:hover {
+    color: var(--amber-bright);
+}
+
+footer a:focus-visible {
+    outline: 2px solid rgba(251, 191, 36, 0.45);
+    outline-offset: 3px;
+}
+
 @media (max-width: 36rem) {
+    .page-shell {
+        padding-top: 5rem;
+    }
+
+    .status {
+        top: 1rem;
+        right: 1rem;
+    }
+
     .notice-card {
         border-radius: 1.25rem;
     }
