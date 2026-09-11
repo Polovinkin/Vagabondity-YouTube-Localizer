@@ -4,8 +4,6 @@
 
 # YouTube Localizer by Vagabondity
 
----
-
 A free-to-use, source-available, local-first YouTube metadata translator for creators. Batch-translate and publish localized YouTube video titles and descriptions in multiple languages using DeepL or Google Cloud Translation - while safely running it on your own computer. The application has no subscription fee, you only remain responsible for any usage charges imposed by the provider you choose, but there are generous free tiers in both of them, which you can use to make literally hundreds of localizations for free.
 The app updates YouTube localization fields through YouTube Data API v3 and it does not replace the original title or description.
 
