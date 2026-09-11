@@ -92,16 +92,24 @@ body {
     text-transform: uppercase;
 }
 
-h1 {
-    margin: 0;
-    font-size: clamp(3.1rem, 12vw, 6.25rem);
-    font-weight: 850;
-    letter-spacing: -0.07em;
-    line-height: 0.95;
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
-h1 span {
-    color: var(--amber-bright);
+.brand-banner {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 0.75rem;
+    border-radius: 1rem;
 }
 
 .summary {

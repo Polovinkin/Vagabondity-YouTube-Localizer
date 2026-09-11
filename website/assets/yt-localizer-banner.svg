@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1025" height="260" viewBox="25 0 1025 260" role="img" aria-labelledby="title description">
+  <title id="title">YT Localizer by Vagabondity Walks</title>
+  <desc id="description">A terminal-style YT Localizer banner with the flags of Spain, Italy, Germany, and France.</desc>
+
+  <rect x="25" width="1025" height="260" rx="20" fill="#0d1117"/>
+  <rect x="26" y="1" width="1023" height="258" rx="19" fill="none" stroke="#30363d" stroke-width="2"/>
+
+  <!-- Spain -->
+  <g transform="translate(85 86)">
+    <rect width="30" height="26" fill="#aa151b"/>
+    <rect x="30" width="30" height="26" fill="#f1bf00"/>
+    <rect x="60" width="30" height="26" fill="#aa151b"/>
+  </g>
+
+  <!-- Italy -->
+  <g transform="translate(85 154)">
+    <rect width="30" height="26" fill="#009246"/>
+    <rect x="30" width="30" height="26" fill="#ffffff"/>
+    <rect x="60" width="30" height="26" fill="#ce2b37"/>
+  </g>
+
+  <!-- Germany -->
+  <g transform="translate(900 86)">
+    <rect width="30" height="26" fill="#2d2d2d"/>
+    <rect x="30" width="30" height="26" fill="#dd0000"/>
+    <rect x="60" width="30" height="26" fill="#ffce00"/>
+  </g>
+
+  <!-- France -->
+  <g transform="translate(900 154)">
+    <rect width="30" height="26" fill="#0055a4"/>
+    <rect x="30" width="30" height="26" fill="#ffffff"/>
+    <rect x="60" width="30" height="26" fill="#ef4135"/>
+  </g>
+
+  <g transform="translate(220 0)" font-family="Menlo, Monaco, Consolas, Liberation Mono, monospace" font-size="20" font-weight="400" xml:space="preserve" style="white-space: pre">
+    <text x="0" y="72"><tspan fill="#ff0000">__&#160;&#160;&#160;________.</tspan><tspan dx="14" fill="#f0f6fc">_&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;_&#160;_</tspan></text>
+    <text x="0" y="98"><tspan fill="#ff0000">\&#160;\&#160;/&#160;/_&#160;&#160;&#160;__|</tspan><tspan dx="2" fill="#f0f6fc">|&#160;|&#160;&#160;&#160;&#160;___&#160;&#160;&#160;___&#160;__&#160;_|&#160;(_)_______&#160;_&#160;__</tspan></text>
+    <text x="15" y="124"><tspan fill="#ff0000">\&#160;V&#160;/&#160;&#160;|&#160;|</tspan><tspan dx="36" fill="#f0f6fc">|&#160;|&#160;&#160;&#160;/&#160;_&#160;\&#160;/&#160;__/&#160;_`&#160;|&#160;|&#160;|_&#160;&#160;/&#160;_&#160;\&#160;'__|</tspan></text>
+    <text x="27" y="150"><tspan fill="#ff0000">|&#160;|&#160;&#160;&#160;|&#160;|</tspan><tspan dx="36" fill="#f0f6fc">|&#160;|__|&#160;(_)&#160;|&#160;(_|&#160;(_|&#160;|&#160;|&#160;|/&#160;/&#160;&#160;__/&#160;|</tspan></text>
+    <text x="27" y="176"><tspan fill="#ff0000">|_|&#160;&#160;&#160;|_|</tspan><tspan dx="36" fill="#f0f6fc">|_____\___/&#160;\___\__,_|_|_/___\___|_|</tspan></text>
+  </g>
+
+  <text x="850" y="214" text-anchor="end" fill="#f0f6fc" font-family="Menlo, Monaco, Consolas, Liberation Mono, Apple Color Emoji, Segoe UI Emoji, monospace" font-size="18">by 🐸 Vagabondity Walks</text>
+</svg>
