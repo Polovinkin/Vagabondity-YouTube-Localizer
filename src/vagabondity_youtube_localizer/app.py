@@ -105,7 +105,7 @@ SUCCESS_GREEN = "\033[1;38;2;34;197;94m"
 NOTICE_YELLOW = "\033[1;38;2;250;204;21m"
 ANSI_RESET = "\033[0m"
 
-RUSSIA_FLAG = ((255, 255, 255), (0, 57, 166), (213, 43, 30))
+SPAIN_FLAG = ((170, 21, 27), (241, 191, 0), (170, 21, 27))
 ITALY_FLAG = ((0, 146, 70), (255, 255, 255), (206, 43, 55))
 GERMANY_FLAG = ((45, 45, 45), (221, 0, 0), (255, 206, 0))
 FRANCE_FLAG = ((0, 85, 164), (255, 255, 255), (239, 65, 53))
@@ -135,7 +135,7 @@ def _print_startup_banner():
             APP_BANNER_LINES
         ):
             if line_index == 2:
-                left_flag = _colored_flag_row(RUSSIA_FLAG)
+                left_flag = _colored_flag_row(SPAIN_FLAG)
                 right_flag = _colored_flag_row(GERMANY_FLAG)
             elif line_index == 4:
                 left_flag = _colored_flag_row(ITALY_FLAG)
