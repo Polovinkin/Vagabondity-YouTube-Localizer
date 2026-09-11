@@ -13,7 +13,7 @@ This app has no subscription fee, no app-imposed limits, publicly available sour
 
 Refer to [Quick Start](#quick-start) for a guide to set this app up and start localizing your YT Channel. Refer to [Vagabondity vs ReTranslate.ai comparison](#vagabondity-vs-retranslateai-comparison) to see the comparison between this app and ReTranslate.ai service.
 
-> **Status:** Being actively improved.
+> **Status:** Fully functional and actively improved.
 
 ## Preview
 
