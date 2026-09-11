@@ -106,7 +106,7 @@ NOTICE_YELLOW = "\033[1;38;2;250;204;21m"
 ANSI_RESET = "\033[0m"
 
 SPAIN_FLAG = ((170, 21, 27), (241, 191, 0), (170, 21, 27))
-ITALY_FLAG = ((0, 146, 70), (255, 255, 255), (206, 43, 55))
+RUSSIA_FLAG = ((255, 255, 255), (0, 57, 166), (213, 43, 30))
 GERMANY_FLAG = ((45, 45, 45), (221, 0, 0), (255, 206, 0))
 FRANCE_FLAG = ((0, 85, 164), (255, 255, 255), (239, 65, 53))
 
@@ -136,10 +136,10 @@ def _print_startup_banner():
         ):
             if line_index == 2:
                 left_flag = _colored_flag_row(SPAIN_FLAG)
-                right_flag = _colored_flag_row(GERMANY_FLAG)
+                right_flag = _colored_flag_row(RUSSIA_FLAG)
             elif line_index == 4:
-                left_flag = _colored_flag_row(ITALY_FLAG)
-                right_flag = _colored_flag_row(FRANCE_FLAG)
+                left_flag = _colored_flag_row(FRANCE_FLAG)
+                right_flag = _colored_flag_row(GERMANY_FLAG)
             else:
                 left_flag = right_flag = " " * 6
 
