@@ -154,11 +154,27 @@ footer {
     color: var(--muted);
     font-size: 0.8rem;
     text-align: center;
+    white-space: nowrap;
 }
 
 footer a {
     color: var(--text);
-    text-underline-offset: 0.2em;
+    text-decoration: none;
+}
+
+.channel-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.youtube-icon {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    color: #ff0000;
 }
 
 footer a:hover {
@@ -168,6 +184,12 @@ footer a:hover {
 footer a:focus-visible {
     outline: 2px solid rgba(251, 191, 36, 0.45);
     outline-offset: 3px;
+}
+
+@media (max-width: 48rem) {
+    footer {
+        white-space: normal;
+    }
 }
 
 @media (max-width: 36rem) {
