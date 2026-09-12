@@ -1,19 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1025" height="260" viewBox="25 0 1025 260" role="img" aria-labelledby="title description">
+<svg xmlns="http://www.w3.org/2000/svg" width="1025" height="234" viewBox="25 13 1025 234" role="img" aria-labelledby="title description">
   <title id="title">YT Localizer by Vagabondity Walks</title>
   <desc id="description">A terminal-style YT Localizer banner with the flags of Spain, Russia, Germany, and France.</desc>
 
-  <rect x="25" width="1025" height="260" rx="20" fill="#0d1117"/>
-  <rect x="26" y="1" width="1023" height="258" rx="19" fill="none" stroke="#30363d" stroke-width="2"/>
+  <rect x="25" y="13" width="1025" height="234" rx="20" fill="#0d1117"/>
+  <rect x="26" y="14" width="1023" height="232" rx="19" fill="none" stroke="#30363d" stroke-width="2"/>
 
   <!-- Spain -->
-  <g transform="translate(85 86)">
+  <g transform="translate(85 102)">
     <rect width="30" height="26" fill="#aa151b"/>
     <rect x="30" width="30" height="26" fill="#f1bf00"/>
     <rect x="60" width="30" height="26" fill="#aa151b"/>
   </g>
 
   <!-- Russia -->
-  <g transform="translate(900 86)">
+  <g transform="translate(900 102)">
     <rect width="30" height="26" fill="#ffffff"/>
     <rect x="30" width="30" height="26" fill="#0039a6"/>
     <rect x="60" width="30" height="26" fill="#d52b1e"/>
