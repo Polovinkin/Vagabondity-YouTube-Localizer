@@ -1316,14 +1316,36 @@ a.top-page-btn:focus-visible {
     color: var(--amber-bright);
 }
 
+.video-title-line {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 9px;
+}
+
 .video-title {
     display: block;
+    min-width: 0;
     overflow: hidden;
     color: var(--text);
     font-size: 0.97rem;
     font-weight: 700;
     line-height: 1.35;
     text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.video-upload-status {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    border: 1px solid rgba(96, 165, 250, 0.48);
+    border-radius: 999px;
+    color: #bfdbfe;
+    background: rgba(59, 130, 246, 0.14);
+    font-size: 0.62rem;
+    font-weight: 760;
+    letter-spacing: 0.03em;
+    line-height: 1;
     white-space: nowrap;
 }
 

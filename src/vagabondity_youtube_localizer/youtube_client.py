@@ -462,7 +462,10 @@ class YouTubeClient:
 
     def set_video_page(self, page):
         """Load and slice the selected video category for a specific page."""
+        inventory_was_cached = bool(self.video_inventory)
         self.load_video_inventory()
+        if inventory_was_cached:
+            self.refresh_pending_video_statuses()
         page = max(1, min(page, self.num_pages))
         self.current_page = page
 
@@ -504,7 +507,10 @@ class YouTubeClient:
                     item["snippet"]["resourceId"]["videoId"] for item in batch
                 ]
                 details_response = self.youtube.videos().list(
-                    part="snippet,contentDetails,localizations",
+                    part=(
+                        "snippet,contentDetails,localizations,status,"
+                        "processingDetails"
+                    ),
                     id=",".join(video_ids),
                     maxResults=50,
                 ).execute(num_retries=1)
@@ -523,6 +529,10 @@ class YouTubeClient:
                     duration_seconds = parse_iso8601_duration(
                         details.get("contentDetails", {}).get("duration")
                     )
+                    upload_status = details.get("status", {}).get("uploadStatus")
+                    processing_status = details.get("processingDetails", {}).get(
+                        "processingStatus"
+                    )
                     self.video_inventory.append(
                         Video(
                             snippet.get("title", "Untitled video"),
@@ -532,6 +542,8 @@ class YouTubeClient:
                             localizations,
                             duration_seconds,
                             default_language_code=default_language_code,
+                            upload_status=upload_status,
+                            processing_status=processing_status,
                         )
                     )
 
@@ -572,6 +584,40 @@ class YouTubeClient:
             return True
         except googleapiclient.errors.HttpError as exc:
             print(f"Error refreshing video languages: {exc}")
+            self.error_code = exc.error_details[0]["reason"]
+            return False
+
+    def refresh_pending_video_statuses(self):
+        """Refresh upload state while cached videos are still being processed."""
+        pending_videos = {
+            video.id: video
+            for video in self.video_inventory
+            if video.is_upload_in_progress
+        }
+        video_ids = list(pending_videos)
+        if not video_ids:
+            return True
+
+        try:
+            for start in range(0, len(video_ids), 50):
+                response = self.youtube.videos().list(
+                    part="status,processingDetails",
+                    id=",".join(video_ids[start:start + 50]),
+                    maxResults=50,
+                ).execute(num_retries=1)
+                for item in response.get("items", []):
+                    video = pending_videos.get(item.get("id"))
+                    if video is None:
+                        continue
+                    video.upload_status = item.get("status", {}).get(
+                        "uploadStatus"
+                    )
+                    video.processing_status = item.get(
+                        "processingDetails", {}
+                    ).get("processingStatus")
+            return True
+        except googleapiclient.errors.HttpError as exc:
+            print(f"Error refreshing video upload statuses: {exc}")
             self.error_code = exc.error_details[0]["reason"]
             return False
 
@@ -877,6 +923,8 @@ class Video:
         curr_langs,
         duration_seconds=None,
         default_language_code=None,
+        upload_status=None,
+        processing_status=None,
     ):
         self.video_title = title
         self.id = vid_id
@@ -887,6 +935,15 @@ class Video:
         self.duration_seconds = duration_seconds
         self.default_language_code = default_language_code
         self.default_language_name = None
+        self.upload_status = upload_status
+        self.processing_status = processing_status
+
+    @property
+    def is_upload_in_progress(self):
+        return (
+            self.upload_status == "uploaded"
+            or self.processing_status == "processing"
+        )
 
     @property
     def is_short(self):

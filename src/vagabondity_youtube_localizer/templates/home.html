@@ -289,7 +289,15 @@
                                         aria-label="Select {{ video.video_title }}"
                                         {% if youtube_quota_exceeded %}disabled{% endif %}
                                         aria-pressed="false" onclick="toggleVideoSelection(this)">
-                                    <span class="video-title">{{ video.video_title }}</span>
+                                    <span class="video-title-line">
+                                        <span class="video-title">{{ video.video_title }}</span>
+                                        {% if video.is_upload_in_progress %}
+                                            <span class="video-upload-status"
+                                                  title="The video upload or YouTube processing is still in progress">
+                                                ⬆️ Being uploaded to YouTube…
+                                            </span>
+                                        {% endif %}
+                                    </span>
                                     <span class="video-description">
                                         {{ video.description }}
                                     </span>
