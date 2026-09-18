@@ -6,12 +6,12 @@
     <meta name="theme-color" content="#0f0b07">
     <meta
         name="description"
-        content="Free-to-use, source-available software for translating and publishing YouTube video titles and descriptions from your own computer."
+        content="Free-to-use, source-available YouTube metadata translator for translating and publishing localized video titles and descriptions on your own computer."
     >
     <link rel="canonical" href="https://ytlocalizer.com/">
     <link rel="icon" href="favicon.svg?v=20260917-1" type="image/svg+xml">
-    <link rel="stylesheet" href="styles.css?v=20260918-39">
-    <title>YT Localizer — Translate your channel on your own computer</title>
+    <link rel="stylesheet" href="styles.css?v=20260918-43">
+    <title>YT Localizer — Local YouTube metadata translator</title>
 </head>
 <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
@@ -19,7 +19,7 @@
     <main id="main-content">
         <section class="product-hero" id="top">
             <div class="hero-copy">
-                <p class="eyebrow">Local-first YouTube localization</p>
+                <p class="eyebrow">Local-first YouTube metadata translation</p>
                 <h1 class="visually-hidden">YT Localizer</h1>
                 <img
                     class="hero-banner"
@@ -29,15 +29,14 @@
                     height="234"
                 >
                 <p class="hero-lead">
-                    Free-to-use, source-available software for safely translating YouTube video titles and descriptions on your own computer.
+                    A free-to-use, source-available YouTube metadata translator for safely translating video titles and descriptions on your own computer.
                 </p>
                 <div class="start-panel">
                     <div class="start-value">
-                        <strong>Free</strong>
-                        <span>No subscriptions or fees<small>Provider usage charges may apply</small></span>
+                        <span>NO SUBSCRIPTIONS OR FEES<small>Provider usage charges may apply</small></span>
                     </div>
                     <a class="button button-primary" href="setup/">Open setup guide <span aria-hidden="true">→</span></a>
-                    <p class="hero-note">No YT Localizer account, subscription, or hosted middleman. You use your own Google and translation-provider accounts.</p>
+                    <p class="hero-note">No YT Localizer account, subscription, or hosted middleman. <br>You use your own Google and translation-provider accounts.</p>
                 </div>
             </div>
 
@@ -90,46 +89,53 @@
                 <a class="button button-secondary" href="comparison/">YT Localizer vs ReTranslate.ai comparison <span aria-hidden="true">→</span></a>
             </div>
 
-            <p class="local-disclosure">Only the text being translated is sent to your chosen translation provider. The finished localization is sent directly to YouTube.</p>
         </section>
 
         <div class="section-divider" aria-hidden="true">•••</div>
 
         <section class="product-features" id="features">
+            <h2 class="feature-section-title">Features</h2>
             <div class="feature-grid">
                 <article>
                     <span class="feature-symbol" aria-hidden="true">🚀</span>
                     <div>
-                        <h2>Localize in batches</h2>
+                        <h3>Localize in batches</h3>
                         <p>Translate one video, selected videos, the current page, or the entire channel in one run.</p>
                     </div>
                 </article>
                 <article>
                     <span class="feature-symbol" aria-hidden="true">💻</span>
                     <div>
-                        <h2>Keep access local</h2>
+                        <h3>Keep access local</h3>
                         <p>Your OAuth token, settings, and provider keys stay in local files on your computer.</p>
                     </div>
                 </article>
                 <article>
                     <span class="feature-symbol" aria-hidden="true">🔄</span>
                     <div>
-                        <h2>Choose your translator</h2>
+                        <h3>Choose your translator</h3>
                         <p>Use your own DeepL or Google Cloud Translation account for each localization run.</p>
                     </div>
                 </article>
                 <article>
                     <span class="feature-symbol" aria-hidden="true">📊</span>
                     <div>
-                        <h2>Live progress tracking</h2>
+                        <h3>Live progress tracking</h3>
                         <p>Follow every video-and-language pair as it is processed, including published, skipped, and failed localizations with their reasons.</p>
                     </div>
                 </article>
                 <article>
                     <span class="feature-symbol" aria-hidden="true">🆓</span>
                     <div>
-                        <h2>Don't need to pay</h2>
+                        <h3>Don't need to pay</h3>
                         <p>YT Localizer has no fee or subscription. Translation providers offer generous free allowances that are usually enough for hundreds of video localizations; paid usage matters only for much larger volumes.</p>
+                    </div>
+                </article>
+                <article>
+                    <span class="feature-symbol" aria-hidden="true">🛡️</span>
+                    <div>
+                        <h3>Original content protection</h3>
+                        <p>The original video, thumbnail, title, and description remain unchanged; only additional language localizations are published.</p>
                     </div>
                 </article>
             </div>
@@ -171,9 +177,9 @@
 
             <div class="faq-list">
                 <details>
-                    <summary>What exactly does the app change on YouTube?<span aria-hidden="true">+</span></summary>
+                    <summary>What YouTube metadata can YT Localizer translate?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p>It publishes additional language versions of video titles and descriptions through YouTube's localization fields. The original video, thumbnail, source title, and source description remain unchanged.</p>
+                        <p>It translates YouTube video metadata — titles and descriptions — and publishes additional language versions through YouTube's localization fields. The original video, thumbnail, source title, and source description remain unchanged.</p>
                         <p>Existing localizations are skipped by default. Replacing them requires deliberately enabling the option to retranslate existing languages.</p>
                     </div>
                 </details>
@@ -198,7 +204,7 @@
                 <details>
                     <summary>What data leaves my computer?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p>Video titles and descriptions are sent to the translation provider you configure because that service must translate them. Localized metadata is then sent to YouTube through YouTube Data API v3.</p>
+                        <p>Only the text being translated is sent to your chosen translation provider. The finished localization is sent directly to YouTube through YouTube Data API v3.</p>
                         <p>Your private settings, OAuth token, and API credential files are stored locally. The project does not require a YT Localizer account or a YT Localizer server between those direct connections.</p>
                     </div>
                 </details>

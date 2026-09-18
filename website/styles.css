@@ -221,14 +221,6 @@ code {
     gap: 1rem;
 }
 
-.start-value strong {
-    padding-right: 1rem;
-    border-right: 1px solid var(--line-bright);
-    color: var(--amber-bright);
-    font-size: 1.5rem;
-    line-height: 1;
-}
-
 .start-value span,
 .start-value small {
     display: block;
@@ -360,22 +352,24 @@ code {
     text-align: center;
 }
 
-.local-disclosure {
-    margin: 1.5rem 0 0;
-    color: var(--muted);
-    font-size: 0.75rem;
-}
-
 .product-features {
     width: min(100% - 2rem, var(--content));
     margin: 0 auto;
     padding: 0;
 }
 
+.feature-section-title {
+    margin: 0 0 2rem;
+    font-size: clamp(1.55rem, 2.8vw, 2.1rem);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    text-align: center;
+}
+
 .feature-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2.5rem 3rem;
+    gap: 1.75rem 3rem;
 }
 
 .feature-grid article {
@@ -392,7 +386,7 @@ code {
     text-align: center;
 }
 
-.feature-grid h2 {
+.feature-grid h3 {
     margin: 0;
     font-size: 1.2rem;
     letter-spacing: -0.025em;
