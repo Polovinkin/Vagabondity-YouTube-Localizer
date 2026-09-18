@@ -176,6 +176,11 @@ code {
     font-size: 1rem;
 }
 
+.hero-lead a {
+    color: var(--amber-bright);
+    text-underline-offset: 0.18em;
+}
+
 .hero-note {
     max-width: 38rem;
     margin: 0.55rem auto 0;
