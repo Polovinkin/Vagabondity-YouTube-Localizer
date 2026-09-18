@@ -947,7 +947,8 @@ pre code {
     font-size: inherit;
 }
 
-.setup-step :not(pre) > code {
+.setup-step :not(pre) > code,
+.faq-answer code {
     padding: 0.12em 0.32em;
     border: 1px solid var(--line-bright);
     border-radius: 0.3rem;

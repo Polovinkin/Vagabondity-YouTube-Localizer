@@ -29,7 +29,7 @@
                     height="234"
                 >
                 <p class="hero-lead">
-                    A free-to-use, <a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer" target="_blank" rel="noopener noreferrer">source-available</a> YouTube metadata translator for safely translating video titles and descriptions on your own computer.
+                    A free-to-use, <a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer" target="_blank" rel="noopener noreferrer">source-available</a> YouTube metadata translator for safely translating video titles and descriptions on your own computer. Simple and powerful.
                 </p>
                 <div class="start-panel">
                     <div class="start-value">
@@ -57,7 +57,7 @@
             <div class="local-intro">
                 <div>
                     <p class="eyebrow">Why you should localize locally?</p>
-                    <h2>Because you don't want to hand your channel to a service you cannot inspect.</h2>
+                    <h2>You don't want to hand your channel to a service you cannot inspect and trust.</h2>
                 </div>
                 <p>
                     Translating titles and descriptions requires a broad YouTube authorization, and permissions required can cover much more than localization - including changing channel content and <b>deleting videos</b>. With an unfamiliar website, you must trust its servers, its private code, and everyone who can access them. Will you?
@@ -71,7 +71,7 @@
                         <li>Your channel token is processed or stored on infrastructure you do not control.</li>
                         <li>You cannot inspect what its closed server code does with that access.</li>
                         <li>An update, ownership change, or security breach may put your channel at risk.</li>
-                        <li>For most of such services they share no information about its developer</li>
+                        <li>Most of such services share no information about their developers - they are basically anonymous.</li>
                     </ul>
                 </article>
                 <article class="benefit-point">
@@ -80,7 +80,7 @@
                         <li>The app runs on your computer and connects directly to YouTube and your chosen translator.</li>
                         <li>Your credentials stay in local files, with no YT Localizer account or intermediary server.</li>
                         <li>The source code is available for you to inspect.</li>
-                        <li>The idendity of author is known and you can always reach out with feedback or questions.</li>
+                        <li>The identity of author is known and you can always reach out with feedback or questions.</li>
                     </ul>
                 </article>
             </div>
@@ -170,67 +170,84 @@
 
         <div class="section-divider" aria-hidden="true">•••</div>
 
+
+        <!-- FAQ -->
         <section class="faq-section" id="questions">
             <div class="faq-heading">
                 <h2>Frequently Asked Questions</h2>
             </div>
 
             <div class="faq-list">
+
+                <details>
+                    <summary>Who is the author of YT Localizer?<span aria-hidden="true">+</span></summary>
+                    <div class="faq-answer">
+                        <p>YT Localizer is created by a single developer Dmitrii Polovinkin (me!). I work in IT as data engineer for 7+ years, but I'm also a content creator - I make city walk videos on my channel <a href="https://www.youtube.com/@vagabondity" target="_blank" rel="noopener noreferrer">Vagabondity Walks</a>.
+                        YT Localizer was originally created as a solution to translate my own 200+ videos to various world languages, and I realized it would be a great idea to also make it in such a way so other creators could use it too!</p>
+                    </div>
+                </details>
+
+
                 <details>
                     <summary>What YouTube metadata can YT Localizer translate?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p>It translates YouTube video metadata — titles and descriptions — and publishes additional language versions through YouTube's localization fields. The original video, thumbnail, source title, and source description remain unchanged.</p>
-                        <p>Existing localizations are skipped by default. Replacing them requires deliberately enabling the option to retranslate existing languages.</p>
+                        <p>This tool translates YouTube video metadata — titles and descriptions — and publishes additional language versions through YouTube's localization fields. The original video, thumbnail, source title, and source description remain unchanged.</p>
+                        <p>Existing localizations are skipped by default. Replacing them requires deliberately enabling the option to retranslate existing languages, which is a special feature and toggle we have.</p>
                     </div>
                 </details>
 
                 <details>
-                    <summary>Why should a YouTube localization tool run locally?<span aria-hidden="true">+</span></summary>
+                    <summary>Why do I need to bother to set up a YouTube localization tool to run this locally?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p>A YouTube channel may be your profession, creative archive, or a project built over years. YouTube does not provide a permission limited only to title and description localizations.</p>
-                        <p class="permission-warning"><strong>Important:</strong> the authorization used to update video metadata also includes permission to permanently delete videos from your channel.</p>
-                        <p>YT Localizer lets you create the Google Cloud project and OAuth client yourself. The app runs on your computer and connects directly to YouTube and the translation provider you choose, without giving a hosted YT Localizer service access to your channel.</p>
+                        <p>If you are a content creator, YouTube channel may be your profession, creative archive, or a project built over years - it's an important and valuable project. 
+                            But YouTube does not provide a permission limited only to title and description localizations.</p>
+                        <p class="permission-warning"><strong>And this is mportant:</strong> the authorization which is used to update video metadata also includes permission to permanently delete videos from your channel. It will ask for a permission to literally "see, edit andp ermanently delete" YouTube videos, ratings, comments and captions".</p>
+                        <p>Me personally, as a creator too, I would never give such an access to any third-party tool.
+                            But YT Localizer lets you create and manage everything yourself - so you are not giving some other random app any the access to your channel.
+                            The app runs only on your own computer and connects directly to YouTube and the translation provider you choose, without giving any hosted YT Localizer service access to your channel, which you can't control.</p>
+                    </div>
+                </details>
+
+
+                <details>
+                    <summary>How difficult is it to set it up? Do I need to be a programmer?<span aria-hidden="true">+</span></summary>
+                    <div class="faq-answer">
+                        <p>Not hard at all actually, it usually takes about 10 minutes and <b>requires no developer or IT experience!</b> Most of the time is spent creating your own Google Cloud project, OAuth client, and translation-provider access.</p>
+                        <p>It's a necessary steps to ensure only use have and access and control of your channel. After setup, starting the app only takes one Terminal command. The <a href="setup/">step-by-step setup guide</a> includes separate clear instructions for macOS and Windows.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary> Do I need to pay anything? Is it really free?<span aria-hidden="true">+</span></summary>
+                    <div class="faq-answer">
+                        <p>Yes, it's free! You don't have to pay anything to use YT Localizer to it's fullest extent! It has no purchase price, no subscription fee (do you really need another one in your life?), or any app-imposed limits!
+                            Translation providers offer generous free allowances that are usually enough for literally hundreds of video localizations - and me, a YT Localizer developer myself used this tool to make those translations for my own channel.</p>
+                        <p>But overall - getting started and using the app at normal volumes is effectively completely free for you. You only need to consider paid provider usage when translating at much larger volumes. Provider plans and free allowances can change, so check the current terms of the plan you choose before starting a large batch.</p>
                     </div>
                 </details>
 
                 <details id="youtube-permissions">
                     <summary>Why does Google show broad YouTube permissions?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p>YouTube does not offer a narrow permission specifically for localization fields. The scope accepted for updating video metadata can also authorize actions such as video deletion.</p>
-                        <p>The source code is publicly inspectable and contains no video-deletion API calls. YT Localizer updates localization fields only; it does not upload, replace, or delete videos.</p>
+                        <p>As I've mentioned in a previous question, YouTube does not offer a narrow permission specifically for localization fields. The scope accepted for updating video metadata can also authorize actions such as video deletion.</p>
+                        <p>But what's crucial here - the source code of YT Localizer, unlike other services found online, is completely publicly inspectable and contains no video-deletion API calls - you can see all the code!
+                            <b>YT Localizer updates localization fields only - it does not upload, replace, or delete videos.</b></p>
                     </div>
                 </details>
 
                 <details>
-                    <summary>What data leaves my computer?<span aria-hidden="true">+</span></summary>
+                    <summary>Does YT Localizer collect any data?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p>Only the text being translated is sent to your chosen translation provider. The finished localization is sent directly to YouTube through YouTube Data API v3.</p>
-                        <p>Your private settings, OAuth token, and API credential files are stored locally. The project does not require a YT Localizer account or a YT Localizer server between those direct connections.</p>
-                    </div>
-                </details>
-
-                <details>
-                    <summary>Does YT Localizer collect data?<span aria-hidden="true">+</span></summary>
-                    <div class="faq-answer">
-                        <p>No. YT Localizer has no built-in analytics or telemetry and does not send usage information, channel details, credentials, or translation history to a YT Localizer server.</p>
-                        <p>Usage counters and application settings are stored locally on your computer. Only the data required to perform a localization is sent directly to the services you configure: your chosen translation provider and YouTube.</p>
+                        <p><b>No.</b> YT Localizer has no built-in analytics or telemetry and does not send usage information, channel details, credentials, or translation history to a YT Localizer server or any server whatsoever.</p>
+                        <p>Usage counters and application settings are stored locally on your computer. Only the data required to perform a localization is sent directly to the services you configure: your chosen translation provider and YouTube itself.</p>
                     </div>
                 </details>
 
                 <details>
                     <summary>Is YT Localizer open source?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p>It is <strong>source-available, free-to-use proprietary software</strong>, not open source under the OSI definition. The source is public so you can inspect how credentials and YouTube access are handled.</p>
-                        <p>You may download and run the unmodified app at no charge for channels you own or are authorized to manage. Redistribution, resale, rebranding, modified releases, competing products, and offering it as a hosted service are restricted. Your translations and other output remain yours to use and monetize.</p>
+                        <p>It is <strong>source-available, free-to-use proprietary software</strong>, but not open source under the OSI definition. The source is public so you can inspect how credentials and YouTube access are handled. You may download and run the unmodified app at no charge for channels you own or are authorized to manage. But redistribution, resale, rebranding, modified releases, competing products, and offering it as a hosted service are restricted. Your translations and other output remain yours to use and monetize.</p>
                         <p><a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">Read the complete license <span aria-hidden="true">↗</span></a></p>
-                    </div>
-                </details>
-
-                <details>
-                    <summary>Is it really free?<span aria-hidden="true">+</span></summary>
-                    <div class="faq-answer">
-                        <p>Yes. YT Localizer has no purchase price, subscription fee, or app-imposed limit. Translation providers offer generous free allowances that are usually enough for hundreds of video localizations, so getting started and using the app at normal volumes is effectively completely free.</p>
-                        <p>You only need to consider paid provider usage when translating at much larger volumes. Provider plans and free allowances can change, so check the current terms of the plan you choose before starting a large batch.</p>
                     </div>
                 </details>
 
@@ -250,16 +267,9 @@
                     </div>
                 </details>
 
-                <details>
-                    <summary>How difficult is the first setup?<span aria-hidden="true">+</span></summary>
-                    <div class="faq-answer">
-                        <p>It usually takes about 10 minutes and requires no previous developer experience. Most of the time is spent creating your own Google Cloud project, OAuth client, and translation-provider access.</p>
-                        <p>After setup, starting the app normally takes one Terminal command. The <a href="setup/">step-by-step setup guide</a> includes separate instructions for macOS and Windows.</p>
-                    </div>
-                </details>
 
                 <details>
-                    <summary>What runs on my computer?<span aria-hidden="true">+</span></summary>
+                    <summary>What runs on my computer? (technical answer)<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
                         <p><code>uv</code> installs Python 3.12 and the exact locked dependencies into the project environment. The Flask interface listens only on <code>127.0.0.1:5050</code>, which points back to your own computer rather than exposing a public web server.</p>
                         <p>Private files such as <code>settings.toml</code>, Google credential JSON files, and <code>token.pickle</code> are excluded by <code>.gitignore</code>. They should never be published or shared.</p>
@@ -283,8 +293,8 @@
                 <details>
                     <summary>Where can I report a problem or ask for help?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p><a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer/issues/new" target="_blank" rel="noopener noreferrer">Create a GitHub Issue</a> and include the full error shown in Terminal plus the steps that led to it.</p>
-                        <p>Never include API keys, OAuth credential files, <code>settings.toml</code>, or <code>token.pickle</code>.</p>
+                        <p><a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer/issues/new" target="_blank" rel="noopener noreferrer">Feel free to create a GitHub Issue</a> and include all the details and also the full error shown in Terminal plus the steps that led to it.</p>
+                        <p>Please, don't include API keys, OAuth credential files, <code>settings.toml</code>, or <code>token.pickle</code> - it's all private.</p>
                     </div>
                 </details>
             </div>
