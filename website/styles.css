@@ -975,6 +975,8 @@ pre code {
     display: flex;
     align-items: flex-start;
     gap: 0.6rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
     color: var(--muted) !important;
     font-size: 0.8rem;
 }
@@ -1049,21 +1051,25 @@ pre code {
 
 .provider-heading strong,
 .provider-heading small,
-.provider-details strong,
-.provider-details small {
+.provider-details summary strong,
+.provider-details summary small {
     display: block;
 }
 
 .provider-heading small,
-.provider-details small {
+.provider-details summary small {
     margin-top: 0.1rem;
     color: var(--muted);
     font-size: 0.67rem;
 }
 
 .provider-details {
-    margin-top: 0.75rem;
-    border-block: 1px solid var(--line);
+    overflow: hidden;
+    margin-top: 1rem;
+    padding: 0 0.9rem;
+    border: 1px solid var(--line-bright);
+    border-radius: 0.7rem;
+    background: rgba(32, 24, 15, 0.55);
 }
 
 .provider-details summary {

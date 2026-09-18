@@ -10,7 +10,7 @@
     >
     <link rel="canonical" href="https://ytlocalizer.com/setup/">
     <link rel="icon" href="../favicon.svg?v=20260917-1" type="image/svg+xml">
-    <link rel="stylesheet" href="../styles.css?v=20260918-43">
+    <link rel="stylesheet" href="../styles.css?v=20260918-46">
     <script src="../script.js?v=20260918-2" defer></script>
     <title>Setup guide — YT Localizer</title>
 </head>
@@ -67,7 +67,7 @@
                         <div class="platform-card">
                             <div class="platform-name"><span aria-hidden="true">●</span> macOS</div>
                             <ol>
-                                <li>Open the <strong>Terminal</strong> app.</li>
+                                <li>Open the <strong>Terminal</strong> app. It's usually found in Utilities folder in your Applications.</li>
                                 <li>Type <code>cd </code>, including the space.</li>
                                 <li>Drag the extracted project folder from Finder into Terminal.</li>
                                 <li>Press <strong>Enter</strong>.</li>
@@ -88,9 +88,10 @@
                 <article class="setup-step" data-step="step-2">
                     <div class="step-kicker" id="step-2"><span>02</span><h3>Install <code>uv</code></h3></div>
                     <div class="explainer">
-                        <strong>What is uv?</strong>
+                        <strong>What is this uv you want me to install?</strong>
                         <p>
-                            It is a popular developer tool that installs the exact Python version and packages this app needs. It does not run continuously or use CPU and memory when you are not using it. You do not need to install Python separately.
+                            Worry not, it is a popular developer tool that installs the exact Python version and packages this app needs, basically helps to make this app portable and easy to install.
+                            Millions of developers around the world use it every day. It does not run continuously or use CPU and memory when you are not using it.
                         </p>
                     </div>
                     <p>Copy the command for your operating system, paste it into Terminal, and press Enter.</p>
@@ -102,13 +103,14 @@
                         <div class="command-label"><span aria-hidden="true">⊞</span> Windows PowerShell</div>
                         <pre><code>powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"</code><button class="copy-button" type="button" data-copy="powershell -ExecutionPolicy ByPass -c &quot;irm https://astral.sh/uv/install.ps1 | iex&quot;">Copy</button></pre>
                     </div>
-                    <p class="note"><span aria-hidden="true">i</span><span class="note-text">Close and reopen Terminal after installation. If you already use Homebrew, <code>brew install uv</code> is also supported.</span></p>
+                    <p class="note"><span aria-hidden="true">i</span><span class="note-text">Close and reopen Terminal after installation. If you use Homebrew, <code>brew install uv</code> is also supported.</span></p>
                 </article>
 
                 <article class="setup-step" data-step="step-3">
                     <div class="step-kicker" id="step-3"><span>03</span><h3>Create a private settings file</h3></div>
                     <p>
-                        This copies the included example into a private file where you will add your own provider key. The private version is ignored by Git.
+                        Next commands copy the included sample into a private file where you will add your own provider keys. The private version is ignored by Git.
+                        <br>Alternatively you can just rename <code>settings.example.toml</code> to <code>settings.toml</code>.
                     </p>
                     <div class="command-group">
                         <div class="command-label"><span aria-hidden="true">●</span> macOS and Linux</div>
@@ -127,7 +129,7 @@
                 <article class="setup-step" data-step="step-4">
                     <div class="step-kicker" id="step-4"><span>04</span><h3>Create your own YouTube access in Google Cloud</h3></div>
                     <p>
-                        This is the core of the local-first model: the OAuth app belongs to you. YT Localizer never asks you to sign in to somebody else's Google Cloud project.
+                        This is the core of the local-first model: the OAuth app belongs only to <i>you</i>! YT Localizer never asks you to sign in to somebody else's Google Cloud project, you stay in control.
                     </p>
                     <ol class="instruction-list">
                         <li>
@@ -136,7 +138,7 @@
                         </li>
                         <li>
                             <span>2</span>
-                            <div><a href="https://console.cloud.google.com/marketplace/product/google/youtube.googleapis.com" target="_blank" rel="noopener noreferrer">Enable YouTube Data API v3</a> for that project.</div>
+                            <div><a href="https://console.cloud.google.com/marketplace/product/google/youtube.googleapis.com" target="_blank" rel="noopener noreferrer">Enable YouTube Data API v3</a> for that project. You can use your email in the fields (it's your own project after all).</div>
                         </li>
                         <li>
                             <span>3</span>
