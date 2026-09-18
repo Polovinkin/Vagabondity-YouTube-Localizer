@@ -4,6 +4,15 @@
 /styles.css
     Cache-Control: no-cache
 
+/script.js
+    Cache-Control: no-cache
+
+/setup/*
+    Cache-Control: no-cache
+
+/preview/*
+    Cache-Control: no-cache
+
 /*
     X-Content-Type-Options: nosniff
     Referrer-Policy: strict-origin-when-cross-origin

@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f0b07">
+    <meta
+        name="description"
+        content="Step-by-step setup guide for installing YT Localizer and connecting your YouTube channel and translation provider."
+    >
+    <link rel="canonical" href="https://ytlocalizer.com/setup/">
+    <link rel="icon" href="../favicon.svg?v=20260917-1" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css?v=20260918-30">
+    <script src="../script.js?v=20260918-2" defer></script>
+    <title>Setup guide — YT Localizer</title>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <main class="setup-page" id="main-content">
+        <a class="back-link" href="../"><span aria-hidden="true">←</span> Back to home page</a>
+        <section class="section setup-section" id="setup">
+            <div class="setup-heading">
+                <div class="setup-title-card">
+                    <h1>YT Localizer step-by-step setup guide</h1>
+                </div>
+                <p>Good news, it's actually quite easy to install and use — you don't have to be an IT professional or be proficient with computers to do it! The first setup usually takes about 10 minutes.<br>You only complete steps 1–5 once; later launches use the single command in step 6.
+                </p>
+            </div>
+
+            <aside class="setup-nav" aria-label="Setup steps">
+                <p>Your progress</p>
+                <ol>
+                    <li><a href="#step-1"><span>1</span> Download the app</a></li>
+                    <li><a href="#step-2"><span>2</span> Install uv</a></li>
+                    <li><a href="#step-3"><span>3</span> Create settings</a></li>
+                    <li><a href="#step-4"><span>4</span> Connect YouTube</a></li>
+                    <li><a href="#step-5"><span>5</span> Add a translator</a></li>
+                    <li><a href="#step-6"><span>6</span> Start the app</a></li>
+                    <li><a href="#step-7"><span>7</span> Test one video</a></li>
+                </ol>
+            </aside>
+
+            <div class="setup-content">
+                <article class="setup-step" data-step="step-1">
+                    <div class="step-kicker" id="step-1"><span>01</span><h3>Download the app and open its folder in Terminal</h3></div>
+                    <p>
+                        Open the project on <a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer" target="_blank" rel="noopener noreferrer">GitHub</a>, choose <strong>Code → Download ZIP</strong>, extract the ZIP, and find the <code>Vagabondity-YouTube-Localizer</code> folder.
+                        It doesn't matter where this folder is located. The app stays in this folder and is not installed like a typical application.
+                    </p>
+                    <figure class="guide-screenshot">
+                        <img
+                            src="../guide_assets/download_zip.png"
+                            alt="GitHub Code menu with the Download ZIP option"
+                            width="857"
+                            height="818"
+                            loading="lazy"
+                        >
+                    </figure>
+                    <p>Alternatively, use the button below to download the ZIP directly from GitHub.</p>
+                    <a
+                        class="inline-action"
+                        href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer/archive/refs/heads/main.zip"
+                    >Download the latest ZIP <span aria-hidden="true">↓</span></a>
+
+                    <div class="platform-grid">
+                        <div class="platform-card">
+                            <div class="platform-name"><span aria-hidden="true">●</span> macOS</div>
+                            <ol>
+                                <li>Open the <strong>Terminal</strong> app.</li>
+                                <li>Type <code>cd </code>, including the space.</li>
+                                <li>Drag the extracted project folder from Finder into Terminal.</li>
+                                <li>Press <strong>Enter</strong>.</li>
+                            </ol>
+                        </div>
+                        <div class="platform-card">
+                            <div class="platform-name"><span aria-hidden="true">⊞</span> Windows</div>
+                            <ol>
+                                <li>Open the extracted folder in File Explorer.</li>
+                                <li>Click the address bar.</li>
+                                <li>Type <code>powershell</code>.</li>
+                                <li>Press <strong>Enter</strong>.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="setup-step" data-step="step-2">
+                    <div class="step-kicker" id="step-2"><span>02</span><h3>Install <code>uv</code></h3></div>
+                    <div class="explainer">
+                        <strong>What is uv?</strong>
+                        <p>
+                            It is a popular developer tool that installs the exact Python version and packages this app needs. It does not run continuously or use CPU and memory when you are not using it. You do not need to install Python separately.
+                        </p>
+                    </div>
+                    <p>Copy the command for your operating system, paste it into Terminal, and press Enter.</p>
+                    <div class="command-group">
+                        <div class="command-label"><span aria-hidden="true">●</span> macOS and Linux</div>
+                        <pre><code>curl -LsSf https://astral.sh/uv/install.sh | sh</code><button class="copy-button" type="button" data-copy="curl -LsSf https://astral.sh/uv/install.sh | sh">Copy</button></pre>
+                    </div>
+                    <div class="command-group">
+                        <div class="command-label"><span aria-hidden="true">⊞</span> Windows PowerShell</div>
+                        <pre><code>powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"</code><button class="copy-button" type="button" data-copy="powershell -ExecutionPolicy ByPass -c &quot;irm https://astral.sh/uv/install.ps1 | iex&quot;">Copy</button></pre>
+                    </div>
+                    <p class="note"><span aria-hidden="true">i</span><span class="note-text">Close and reopen Terminal after installation. If you already use Homebrew, <code>brew install uv</code> is also supported.</span></p>
+                </article>
+
+                <article class="setup-step" data-step="step-3">
+                    <div class="step-kicker" id="step-3"><span>03</span><h3>Create a private settings file</h3></div>
+                    <p>
+                        This copies the included example into a private file where you will add your own provider key. The private version is ignored by Git.
+                    </p>
+                    <div class="command-group">
+                        <div class="command-label"><span aria-hidden="true">●</span> macOS and Linux</div>
+                        <pre><code>cp config/settings.example.toml config/settings.toml</code><button class="copy-button" type="button" data-copy="cp config/settings.example.toml config/settings.toml">Copy</button></pre>
+                    </div>
+                    <div class="command-group">
+                        <div class="command-label"><span aria-hidden="true">⊞</span> Windows PowerShell</div>
+                        <pre><code>Copy-Item config/settings.example.toml config/settings.toml</code><button class="copy-button" type="button" data-copy="Copy-Item config/settings.example.toml config/settings.toml">Copy</button></pre>
+                    </div>
+                    <div class="file-preview" aria-label="Files created during setup">
+                        <div><span aria-hidden="true">▾</span> <strong>config</strong></div>
+                        <div class="file-child"><span aria-hidden="true">└</span> settings.toml <em>Your private settings</em></div>
+                    </div>
+                </article>
+
+                <article class="setup-step" data-step="step-4">
+                    <div class="step-kicker" id="step-4"><span>04</span><h3>Create your own YouTube access in Google Cloud</h3></div>
+                    <p>
+                        This is the core of the local-first model: the OAuth app belongs to you. YT Localizer never asks you to sign in to somebody else's Google Cloud project.
+                    </p>
+                    <ol class="instruction-list">
+                        <li>
+                            <span>1</span>
+                            <div>Open <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer">Google Cloud Console</a>, create or select a project, and make it active. A name such as <strong>YT Localizer</strong> is fine.</div>
+                        </li>
+                        <li>
+                            <span>2</span>
+                            <div><a href="https://console.cloud.google.com/marketplace/product/google/youtube.googleapis.com" target="_blank" rel="noopener noreferrer">Enable YouTube Data API v3</a> for that project.</div>
+                        </li>
+                        <li>
+                            <span>3</span>
+                            <div>Open <a href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noopener noreferrer">Google Auth Platform</a>. If prompted, choose <strong>Get started</strong>, enter the basic app information, and use an <strong>External</strong> audience.</div>
+                        </li>
+                        <li>
+                            <span>4</span>
+                            <div>Open <strong>Audience → Test users</strong>, add the Google account that manages your YouTube channel, and save.</div>
+                        </li>
+                        <li>
+                            <span>5</span>
+                            <div>Open <a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Google Auth Platform → Clients</a>. Create an OAuth client of type <strong>Desktop app</strong>.</div>
+                        </li>
+                        <li>
+                            <span>6</span>
+                            <div>Download its JSON file, rename it to <code>account_client_secrets_main.json</code>, and place it inside the project's <code>config</code> folder.</div>
+                        </li>
+                    </ol>
+                    <div class="file-preview file-preview-success" aria-label="Required OAuth file location">
+                        <div><span aria-hidden="true">▾</span> <strong>config</strong></div>
+                        <div class="file-child"><span aria-hidden="true">└</span> account_client_secrets_main.json <em>Correct location</em></div>
+                    </div>
+                    <p class="note"><span aria-hidden="true">!</span><span class="note-text">While your OAuth app stays in Testing mode, Google normally expires its authorization after seven days. Repeating sign-in with your test-user account restores it.</span></p>
+                </article>
+
+                <article class="setup-step" data-step="step-5">
+                    <div class="step-kicker" id="step-5"><span>05</span><h3>Add at least one translation provider</h3></div>
+                    <p>DeepL is the simplest starting option. Provider plans, free allowances, availability, and billing requirements can change, so check the provider's current terms.</p>
+                    <div class="provider-card">
+                        <div class="provider-heading">
+                            <div><strong>DeepL API</strong><small>Recommended for the simplest setup</small></div>
+                        </div>
+                        <ol>
+                            <li>Choose an available API plan on the <a href="https://www.deepl.com/pro-api" target="_blank" rel="noopener noreferrer">DeepL API plans page</a>.</li>
+                            <li>Copy the key from <strong>DeepL → Account → API Keys &amp; Limits</strong>.</li>
+                            <li>Open <code>config/settings.toml</code> in a text editor and replace the placeholder:</li>
+                        </ol>
+                        <div class="command-group">
+                            <div class="command-label">settings.toml</div>
+                            <pre><code><span class="code-section">[deepl]</span>
+api_key = <span class="code-string">"paste_your_deepl_api_key_here"</span></code><button class="copy-button" type="button" data-copy="[deepl]
+api_key = &quot;paste_your_deepl_api_key_here&quot;">Copy</button></pre>
+                        </div>
+                    </div>
+                    <details class="provider-details">
+                        <summary>
+                            <span><strong>Prefer Google Cloud Translation?</strong><small>Show optional setup</small></span>
+                            <span class="details-arrow" aria-hidden="true">⌄</span>
+                        </summary>
+                        <div class="details-content">
+                            <ol>
+                                <li>Enable <strong>Cloud Translation API</strong> and billing in the same Google Cloud project.</li>
+                                <li>Create a service account with the <strong>Cloud Translation API User</strong> role.</li>
+                                <li>For that service account, choose <strong>Keys → Add key → Create new key → JSON</strong>.</li>
+                                <li>Rename the downloaded file to <code>translate_key.json</code> and place it in <code>config</code>.</li>
+                            </ol>
+                        </div>
+                    </details>
+                </article>
+
+                <article class="setup-step" data-step="step-6">
+                    <div class="step-kicker" id="step-6"><span>06</span><h3>Start the app</h3></div>
+                    <p>Run this from the project folder. The first launch takes longer while <code>uv</code> downloads Python 3.12 and the exact locked packages.</p>
+                    <div class="command-group command-primary">
+                        <div class="command-label">Terminal</div>
+                        <pre><code>uv run vagabondity-youtube-localizer</code><button class="copy-button" type="button" data-copy="uv run vagabondity-youtube-localizer">Copy</button></pre>
+                    </div>
+                    <div class="authorization-box">
+                        <div>
+                            <h4>Complete Google's authorization once.</h4>
+                            <p>Sign in with the account you added under Test users and approve the requested YouTube access. A “Google hasn't verified this app” warning is expected for your personal OAuth app in Testing mode.</p>
+                            <p>If you see <code>Error 403: access_denied</code>, confirm that the selected account is listed under <strong>Google Auth Platform → Audience → Test users</strong>.</p>
+                        </div>
+                    </div>
+                    <p>Keep Terminal open, then visit:</p>
+                    <a class="local-url" href="http://127.0.0.1:5050"><span class="pulse" aria-hidden="true"></span> http://127.0.0.1:5050</a>
+                    <p class="note"><span aria-hidden="true">i</span><span class="note-text">To stop the app, return to Terminal and press <code>Ctrl+C</code>. Your local OAuth token is saved as <code>token.pickle</code>.</span></p>
+                </article>
+
+                <article class="setup-step" data-step="step-7">
+                    <div class="step-kicker" id="step-7"><span>07</span><h3>Test with one video and one language</h3></div>
+                    <ol class="check-list">
+                        <li><span aria-hidden="true">✓</span><div>Open <strong>TEST</strong> and verify your translation-provider connection.</div></li>
+                        <li><span aria-hidden="true">✓</span><div>Confirm the correct provider is selected on the main screen.</div></li>
+                        <li><span aria-hidden="true">✓</span><div>Select one public or unlisted video.</div></li>
+                        <li><span aria-hidden="true">✓</span><div>Choose one language that has not already been published.</div></li>
+                        <li><span aria-hidden="true">✓</span><div>Start localization and follow each result in the progress window.</div></li>
+                        <li><span aria-hidden="true">✓</span><div>Confirm the localized title and description in YouTube Studio.</div></li>
+                    </ol>
+                    <div class="success-panel">
+                        <div><strong>You are ready.</strong><p>Once the first result looks right, select more videos and languages whenever you want.</p></div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-copy">
+            <p>
+                Created by
+                <a class="creator-link" href="https://github.com/Polovinkin" target="_blank" rel="noopener noreferrer">Dmitrii Polovinkin</a>
+                for the
+                <a class="channel-link" href="https://www.youtube.com/@vagabondity" target="_blank" rel="noopener noreferrer">
+                    <svg class="youtube-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                    Vagabondity Walks
+                </a>.
+            </p>
+            <p>Independent project. Not affiliated with YouTube or Google.</p>
+        </div>
+        <div class="footer-links">
+            <a href="../">Overview</a>
+            <a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer/issues/new" target="_blank" rel="noopener noreferrer">Support</a>
+            <a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+    </footer>
+</body>
+</html>
