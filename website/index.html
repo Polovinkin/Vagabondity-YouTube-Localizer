@@ -10,7 +10,7 @@
     >
     <link rel="canonical" href="https://ytlocalizer.com/">
     <link rel="icon" href="favicon.svg?v=20260917-1" type="image/svg+xml">
-    <link rel="stylesheet" href="styles.css?v=20260918-30">
+    <link rel="stylesheet" href="styles.css?v=20260918-39">
     <title>YT Localizer — Translate your channel on your own computer</title>
 </head>
 <body>
@@ -18,29 +18,29 @@
 
     <main id="main-content">
         <section class="product-hero" id="top">
-            <p class="eyebrow">Local-first YouTube localization</p>
-            <h1 class="visually-hidden">YT Localizer</h1>
-            <img
-                class="hero-banner"
-                src="assets/yt-localizer-banner.svg"
-                alt="YT Localizer by Vagabondity Walks"
-                width="1025"
-                height="234"
-            >
-            <p class="hero-lead">
-                Free-to-use, source-available software for safely translating YouTube video titles and descriptions on your own computer.
-            </p>
-            <p class="hero-note">No YT Localizer account, subscription, or hosted middleman. You use your own Google and translation-provider accounts.</p>
-
-            <div class="start-panel">
-                <div class="start-value">
-                    <strong>Free</strong>
-                    <span>No subscriptions or fees<small>Provider usage charges may apply</small></span>
+            <div class="hero-copy">
+                <p class="eyebrow">Local-first YouTube localization</p>
+                <h1 class="visually-hidden">YT Localizer</h1>
+                <img
+                    class="hero-banner"
+                    src="assets/yt-localizer-banner.svg"
+                    alt="YT Localizer by Vagabondity Walks"
+                    width="1025"
+                    height="234"
+                >
+                <p class="hero-lead">
+                    Free-to-use, source-available software for safely translating YouTube video titles and descriptions on your own computer.
+                </p>
+                <div class="start-panel">
+                    <div class="start-value">
+                        <strong>Free</strong>
+                        <span>No subscriptions or fees<small>Provider usage charges may apply</small></span>
+                    </div>
+                    <a class="button button-primary" href="setup/">Open setup guide <span aria-hidden="true">→</span></a>
+                    <p class="hero-note">No YT Localizer account, subscription, or hosted middleman. You use your own Google and translation-provider accounts.</p>
                 </div>
-                <a class="button button-primary" href="setup/">Open setup guide <span aria-hidden="true">→</span></a>
             </div>
 
-            <p class="app-preview-label">Here is what the main YT Localizer window looks like:</p>
             <figure class="hero-screenshot">
                 <img
                     src="assets/app-overview.webp"
@@ -48,6 +48,7 @@
                     width="2872"
                     height="1706"
                 >
+                <figcaption class="app-preview-label">Functional app interface for your localizations</figcaption>
             </figure>
         </section>
 
@@ -56,23 +57,37 @@
         <section class="local-section" id="why-local">
             <div class="local-intro">
                 <div>
-                    <p class="eyebrow">Why local matters</p>
-                    <h2>Do not hand your channel to a service you cannot inspect.</h2>
+                    <p class="eyebrow">Why you should localize locally?</p>
+                    <h2>Because you don't want to hand your channel to a service you cannot inspect.</h2>
                 </div>
                 <p>
-                    Translating titles and descriptions requires a broad YouTube authorization. That permission can cover much more than localization, including changing channel content and deleting videos. With an unfamiliar website, you must trust its servers, its private code, and everyone who can access them.
+                    Translating titles and descriptions requires a broad YouTube authorization, and permissions required can cover much more than localization - including changing channel content and <b>deleting videos</b>. With an unfamiliar website, you must trust its servers, its private code, and everyone who can access them. Will you?
                 </p>
             </div>
 
             <div class="local-points">
                 <article class="risk-point">
-                    <h3>The risk with an unknown service</h3>
-                    <p>Your channel token may be processed or stored on infrastructure you do not control. You cannot verify what its closed server code does today or what it may do after an update, ownership change, or security breach.</p>
+                    <h3>The risk with an unknown service ❌</h3>
+                    <ul>
+                        <li>Your channel token is processed or stored on infrastructure you do not control.</li>
+                        <li>You cannot inspect what its closed server code does with that access.</li>
+                        <li>An update, ownership change, or security breach may put your channel at risk.</li>
+                        <li>For most of such services they share no information about its developer</li>
+                    </ul>
                 </article>
                 <article class="benefit-point">
-                    <h3>What YT Localizer gives you</h3>
-                    <p>The app runs on your computer and connects directly to YouTube and the translator you choose. Credentials stay in local files, there is no YT Localizer account or intermediary server, and the source code is available for inspection.</p>
+                    <h3>What YT Localizer gives you ✅</h3>
+                    <ul>
+                        <li>The app runs on your computer and connects directly to YouTube and your chosen translator.</li>
+                        <li>Your credentials stay in local files, with no YT Localizer account or intermediary server.</li>
+                        <li>The source code is available for you to inspect.</li>
+                        <li>The idendity of author is known and you can always reach out with feedback or questions.</li>
+                    </ul>
                 </article>
+            </div>
+
+            <div class="local-comparison-action">
+                <a class="button button-secondary" href="comparison/">YT Localizer vs ReTranslate.ai comparison <span aria-hidden="true">→</span></a>
             </div>
 
             <p class="local-disclosure">Only the text being translated is sent to your chosen translation provider. The finished localization is sent directly to YouTube.</p>
@@ -83,37 +98,37 @@
         <section class="product-features" id="features">
             <div class="feature-grid">
                 <article>
-                    <span class="feature-symbol" aria-hidden="true">◎</span>
+                    <span class="feature-symbol" aria-hidden="true">🚀</span>
                     <div>
                         <h2>Localize in batches</h2>
                         <p>Translate one video, selected videos, the current page, or the entire channel in one run.</p>
                     </div>
                 </article>
                 <article>
-                    <span class="feature-symbol" aria-hidden="true">⌂</span>
+                    <span class="feature-symbol" aria-hidden="true">💻</span>
                     <div>
                         <h2>Keep access local</h2>
                         <p>Your OAuth token, settings, and provider keys stay in local files on your computer.</p>
                     </div>
                 </article>
                 <article>
-                    <span class="feature-symbol" aria-hidden="true">↔</span>
+                    <span class="feature-symbol" aria-hidden="true">🔄</span>
                     <div>
                         <h2>Choose your translator</h2>
                         <p>Use your own DeepL or Google Cloud Translation account for each localization run.</p>
                     </div>
                 </article>
                 <article>
-                    <span class="feature-symbol" aria-hidden="true">✓</span>
+                    <span class="feature-symbol" aria-hidden="true">📊</span>
                     <div>
-                        <h2>See every result</h2>
-                        <p>Follow each video-and-language pair, including published, skipped, failed, and cancelled results.</p>
+                        <h2>Live progress tracking</h2>
+                        <p>Follow every video-and-language pair as it is processed, including published, skipped, and failed localizations with their reasons.</p>
                     </div>
                 </article>
                 <article>
-                    <span class="feature-symbol" aria-hidden="true">0</span>
+                    <span class="feature-symbol" aria-hidden="true">🆓</span>
                     <div>
-                        <h2>Start without paying</h2>
+                        <h2>Don't need to pay</h2>
                         <p>YT Localizer has no fee or subscription. Translation providers offer generous free allowances that are usually enough for hundreds of video localizations; paid usage matters only for much larger volumes.</p>
                     </div>
                 </article>
@@ -172,7 +187,7 @@
                     </div>
                 </details>
 
-                <details>
+                <details id="youtube-permissions">
                     <summary>Why does Google show broad YouTube permissions?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
                         <p>YouTube does not offer a narrow permission specifically for localization fields. The scope accepted for updating video metadata can also authorize actions such as video deletion.</p>
@@ -255,6 +270,7 @@
                             <li><strong>Workflow:</strong> it supports multi-video batches, provider compatibility checks, and detailed results for every attempted localization.</li>
                         </ul>
                         <p>The tradeoff is that you must complete the one-time local setup yourself. YT Localizer also focuses specifically on video titles and descriptions; it does not translate subtitles, channel metadata, or playlist metadata.</p>
+                        <p><a href="comparison/">Open the full comparison table <span aria-hidden="true">→</span></a></p>
                     </div>
                 </details>
 

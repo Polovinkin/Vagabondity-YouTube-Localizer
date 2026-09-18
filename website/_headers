@@ -10,7 +10,7 @@
 /setup/*
     Cache-Control: no-cache
 
-/preview/*
+/comparison/*
     Cache-Control: no-cache
 
 /*

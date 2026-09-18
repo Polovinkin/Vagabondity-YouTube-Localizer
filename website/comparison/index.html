@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f0b07">
+    <meta
+        name="description"
+        content="Feature-by-feature comparison of YT Localizer and the hosted ReTranslate.ai YouTube localization service."
+    >
+    <link rel="canonical" href="https://ytlocalizer.com/comparison/">
+    <link rel="icon" href="../favicon.svg?v=20260917-1" type="image/svg+xml">
+    <link rel="stylesheet" href="../styles.css?v=20260918-39">
+    <title>YT Localizer vs ReTranslate.ai</title>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <main class="comparison-page" id="main-content">
+        <a class="back-link" href="../"><span aria-hidden="true">←</span> Back to home page</a>
+
+        <section class="comparison-section">
+            <div class="comparison-heading">
+                <div class="comparison-title-card">
+                    <h1>YT Localizer vs ReTranslate.ai</h1>
+                </div>
+                <p>A feature-by-feature comparison with a hosted YouTube metadata localization service.</p>
+            </div>
+
+            <div class="comparison-table-wrap" tabindex="0" role="region" aria-label="Scrollable product comparison">
+                <table class="comparison-table">
+                    <caption class="visually-hidden">Comparison between YT Localizer and ReTranslate.ai</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Topic</th>
+                            <th scope="col">YT Localizer</th>
+                            <th scope="col">ReTranslate.ai</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Source code and logic</th>
+                            <td>Source-available under the free-to-use license: public for inspection and free to run, but redistribution, modified releases, resale, and hosted access are prohibited.</td>
+                            <td>Not publicly available.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Where it runs</th>
+                            <td>Locally on your computer.</td>
+                            <td>Hosted third-party service.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Author identity</th>
+                            <td>Dmitrii Polovinkin — <a href="https://github.com/Polovinkin" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></td>
+                            <td>Unknown.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">YouTube channel safety</th>
+                            <td>The source contains no calls to YouTube's video-deletion API or anything unrelated to localization. You create the authorization token for your own Google Cloud app, and access keys stay on your device. <a href="../#youtube-permissions">Details</a></td>
+                            <td>The ReTranslate Google consent screen explicitly requests permission to see, edit, and permanently delete YouTube videos, ratings, comments, and captions. Its implementation cannot be inspected.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Application subscription</th>
+                            <td>None.</td>
+                            <td>Pro at $20/month or Max at $50/month. A free plan exists, but its limits are not enough to partially localize a single video.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Translation limits</th>
+                            <td>No app-imposed limits. Usage is limited only by the translation provider and YouTube's daily API quota. Provider free quotas are usually enough for hundreds of translations.</td>
+                            <td>10 translations to one chosen language per day. Pro lists a “higher daily usage capacity” without specifics; Max is listed as five times Pro.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Bulk translation and multiple-video selection</th>
+                            <td>Can translate an entire channel into as many as 50 languages in one run.</td>
+                            <td>No bulk translation on the free plan. A single imported video is localized at a time by manually pasting its URL.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Translation speed</th>
+                            <td>Localizing one video into 20 languages and uploading the results to YouTube takes around 25 seconds in one run.</td>
+                            <td>One translation for one video takes at least five seconds on average, without uploading it to YouTube.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Translation providers</th>
+                            <td>Your own full DeepL or Google Cloud Translation account.</td>
+                            <td>Primarily smaller LLM models such as GPT-4o mini by default or Gemini 2.5 Flash. A model must be selected manually for each language.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Localization monitoring</th>
+                            <td>Video-and-language-level progress with individual results and explanations for failed or skipped localizations.</td>
+                            <td>Percentage-based progress without explanations when a translation fails or is not uploaded. A run may be marked partially successful while every attempted localization is listed as failed.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Subtitle translation</th>
+                            <td>No.</td>
+                            <td>Yes.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Channel metadata translation</th>
+                            <td>No.</td>
+                            <td>Yes.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Playlist metadata translation</th>
+                            <td>No.</td>
+                            <td>Yes, currently marked Beta.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-copy">
+            <p>
+                Created by
+                <a class="creator-link" href="https://github.com/Polovinkin" target="_blank" rel="noopener noreferrer">Dmitrii Polovinkin</a>
+                for the
+                <a class="channel-link" href="https://www.youtube.com/@vagabondity" target="_blank" rel="noopener noreferrer">
+                    <svg class="youtube-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                    Vagabondity Walks
+                </a>.
+            </p>
+            <p>Independent project. Not affiliated with YouTube or Google.</p>
+        </div>
+        <div class="footer-links">
+            <a href="../">Home</a>
+            <a href="../setup/">Setup</a>
+            <a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+    </footer>
+</body>
+</html>
