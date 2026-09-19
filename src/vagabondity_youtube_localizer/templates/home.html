@@ -419,74 +419,80 @@
 
 <!-- Progress Modal -->
 <div id="progressPopup" class="modal" role="dialog" aria-modal="true" aria-labelledby="progress-title">
-    <div class="modal-content progress-modal-content" id="progressModalContent" data-state="translating">
-        <span class="eyebrow" id="progressEyebrow">Translation in progress</span>
-        <h2 id="progress-title">Localizing metadata</h2>
-        <div class="spinner-border modal-spinner" role="status" id="progressSpinner"></div>
-        <div class="progress-success-burst" id="progressSuccessBurst" aria-hidden="true">
-            <span></span>
-        </div>
-        <p id="progress-content" aria-live="polite">Translating videos, this may take some time…</p>
-        <section class="localization-progress" id="localizationProgress" aria-live="polite">
-            <div class="localization-progress-heading">
-                <span id="progressCount">0 of 0 processed</span>
-                <strong id="progressPercent">0%</strong>
+    <div class="progress-modal-stack">
+        <div class="modal-content progress-modal-content" id="progressModalContent" data-state="translating">
+            <span class="eyebrow" id="progressEyebrow">Translation in progress</span>
+            <h2 id="progress-title">Localizing metadata</h2>
+            <div class="spinner-border modal-spinner" role="status" id="progressSpinner"></div>
+            <div class="progress-success-burst" id="progressSuccessBurst" aria-hidden="true">
+                <span></span>
             </div>
-            <div class="localization-progress-track"
-                 id="progressTrack"
-                 role="progressbar"
-                 aria-label="Localization progress"
-                 aria-valuemin="0"
-                 aria-valuemax="100"
-                 aria-valuenow="0">
-                <span id="progressBar"></span>
-            </div>
-            <div class="progress-metrics">
-                <div class="progress-metric is-remaining">
-                    <span>Remaining</span>
-                    <strong id="progressRemaining">0</strong>
+            <p id="progress-content" aria-live="polite">Translating videos, this may take some time…</p>
+            <section class="localization-progress" id="localizationProgress" aria-live="polite">
+                <div class="localization-progress-heading">
+                    <span id="progressCount">0 of 0 processed</span>
+                    <strong id="progressPercent">0%</strong>
                 </div>
-                <span class="progress-metrics-arrow" aria-hidden="true">→</span>
-                <div class="progress-metric is-success">
-                    <span>Published</span>
-                    <strong id="progressSucceeded">0</strong>
+                <div class="localization-progress-track"
+                     id="progressTrack"
+                     role="progressbar"
+                     aria-label="Localization progress"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     aria-valuenow="0">
+                    <span id="progressBar"></span>
                 </div>
-                <div class="progress-metric is-skipped">
-                    <span>Skipped</span>
-                    <strong id="progressSkipped">0</strong>
+                <div class="progress-metrics">
+                    <div class="progress-metric is-remaining">
+                        <span>Remaining</span>
+                        <strong id="progressRemaining">0</strong>
+                    </div>
+                    <span class="progress-metrics-arrow" aria-hidden="true">→</span>
+                    <div class="progress-metric is-success">
+                        <span>Published</span>
+                        <strong id="progressSucceeded">0</strong>
+                    </div>
+                    <div class="progress-metric is-skipped">
+                        <span>Skipped</span>
+                        <strong id="progressSkipped">0</strong>
+                    </div>
+                    <div class="progress-metric is-failed">
+                        <span>Failed</span>
+                        <strong id="progressFailed">0</strong>
+                    </div>
                 </div>
-                <div class="progress-metric is-failed">
-                    <span>Failed</span>
-                    <strong id="progressFailed">0</strong>
+                <div class="progress-current" id="progressCurrent">
+                    <span class="progress-current-label" id="progressCurrentLabel">Preparing</span>
+                    <strong id="progressCurrentVideo">Waiting for the first video…</strong>
+                    <span id="progressCurrentLanguage"></span>
                 </div>
-            </div>
-            <div class="progress-current" id="progressCurrent">
-                <span class="progress-current-label" id="progressCurrentLabel">Preparing</span>
-                <strong id="progressCurrentVideo">Waiting for the first video…</strong>
-                <span id="progressCurrentLanguage"></span>
-            </div>
-            <div class="progress-breakdown" id="progressBreakdown"></div>
-            <section class="progress-quota-notice" id="progressQuotaNotice" hidden
-                     aria-labelledby="progressQuotaTitle">
-                <span class="progress-quota-icon" aria-hidden="true">◷</span>
-                <div>
-                    <strong id="progressQuotaTitle">YouTube’s daily API budget is used up</strong>
-                    <p id="progressQuotaSummary"></p>
-                    <small id="progressQuotaReset"></small>
-                    <a href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas"
-                       target="_blank" rel="noopener noreferrer">
-                        Open YouTube quota settings <span aria-hidden="true">↗</span>
-                    </a>
-                </div>
+                <div class="progress-breakdown" id="progressBreakdown"></div>
+                <section class="progress-quota-notice" id="progressQuotaNotice" hidden
+                         aria-labelledby="progressQuotaTitle">
+                    <span class="progress-quota-icon" aria-hidden="true">◷</span>
+                    <div>
+                        <strong id="progressQuotaTitle">YouTube’s daily API budget is used up</strong>
+                        <p id="progressQuotaSummary"></p>
+                        <small id="progressQuotaReset"></small>
+                        <a href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas"
+                           target="_blank" rel="noopener noreferrer">
+                            Open YouTube quota settings <span aria-hidden="true">↗</span>
+                        </a>
+                    </div>
+                </section>
             </section>
-        </section>
-        <div id="errorPopUpContent" aria-live="polite"></div>
-        <div class="progress-actions">
-            <button class="progress-cancel-button" id="progressCancelBtn"
-                    type="button" onclick="cancelLocalization()">Cancel translation</button>
-            <button class="btn btn-primary" id="progressDoneBtn" onclick="closeProgressWindow()"
-                    style="display: none;">Done</button>
+            <div id="errorPopUpContent" aria-live="polite"></div>
+            <div class="progress-actions">
+                <button class="progress-cancel-button" id="progressCancelBtn"
+                        type="button" onclick="cancelLocalization()">Cancel translation</button>
+                <button class="btn btn-primary" id="progressDoneBtn" onclick="closeProgressWindow()"
+                        style="display: none;">Done</button>
+            </div>
         </div>
+        <aside class="progress-donation-card" id="progressDonationCard" aria-label="Support YT Localizer" hidden>
+            <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="polovinkin" data-color="#f7ab15" data-emoji="☕" data-font="Poppins" data-text="Support YT Localizer" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#FFDD00"></script>
+            <p>If YT Localizer helped you, you can support the project with whatever amount you feel it was worth to you.</p>
+        </aside>
     </div>
 </div>
 
@@ -716,6 +722,7 @@
     const errorPopUpContent = document.getElementById("errorPopUpContent");
     const progressDoneBtn = document.getElementById("progressDoneBtn");
     const progressCancelBtn = document.getElementById("progressCancelBtn");
+    const progressDonationCard = document.getElementById("progressDonationCard");
     const formSelect = document.getElementById("form-select");
     const progressSpinner = document.getElementById("progressSpinner");
     const localizationProgress = document.getElementById("localizationProgress");
@@ -1412,6 +1419,7 @@
         progressSpinner.style.display = state === 'translating' ? 'inline-block' : 'none';
         progressDoneBtn.style.display = state === 'translating' ? 'none' : 'block';
         progressCancelBtn.style.display = state === 'translating' ? 'block' : 'none';
+        progressDonationCard.hidden = !['success', 'partial'].includes(state);
         if (state === 'translating') {
             progressCancelBtn.disabled = false;
             progressCancelBtn.innerText = 'Cancel translation';
