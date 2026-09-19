@@ -101,3 +101,11 @@ See [`LICENSE`](LICENSE), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), an
 If you run into a problem, find a bug, or need help with the app, please
 [create a GitHub Issue](https://github.com/Polovinkin/Vagabondity-YouTube-Localizer/issues/new)
 and describe what happened. If possible, include the full error message shown in Terminal and all the steps that led to the problem. More details - the better!
+
+## Support YT Localizer
+
+If YT Localizer helped you, you can support the project with whatever amount you feel it was worth to you.
+
+<a href="https://www.buymeacoffee.com/polovinkin">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Support YT Localizer on Buy Me a Coffee" height="50">
+</a>
