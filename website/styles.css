@@ -584,6 +584,7 @@ code {
     display: grid;
     grid-template-columns: 11rem minmax(0, 1fr);
     gap: 0 2.5rem;
+    padding-bottom: 0;
 }
 
 .setup-page {
@@ -791,6 +792,10 @@ code {
 
 .setup-step {
     padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.setup-step:last-child {
+    padding-bottom: 0;
 }
 
 .setup-step:not(:first-child) {
