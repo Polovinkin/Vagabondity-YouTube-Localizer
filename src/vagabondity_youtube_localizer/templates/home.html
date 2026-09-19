@@ -575,6 +575,9 @@
                 <div class="usage-meter" aria-label="Google usage">
                     <span id="googleUsageBar"></span>
                 </div>
+                <p class="google-paid-usage-warning" id="googlePaidUsageWarning" role="status" hidden>
+                    🚨 Alert: You have exceeded Google's free monthly allowance. Translations are now paid and billed to your Google Cloud account.
+                </p>
                 <div class="provider-usage-actions" aria-label="Google Cloud Translation actions">
                     <a href="https://console.cloud.google.com/apis/api/translate.googleapis.com/overview"
                        target="_blank" rel="noopener noreferrer">Settings <span aria-hidden="true">↗</span></a>
@@ -582,15 +585,15 @@
                        target="_blank" rel="noopener noreferrer">Quotas &amp; limits <span aria-hidden="true">↗</span></a>
                 </div>
                 <div class="provider-usage-info-content">
-                    <p>500,000 free characters/month. Protection stops requests above 490,000 characters/month when enabled.</p>
-                    <p>Google is an app-only meter for the current calendar month; it does not include other apps using the same Google Cloud project. Requests are counted before sending, including failed attempts. Keep the local usage file to preserve this protection.</p>
+                    <p>Google's has an allowance of 500,000 free characters/month.</p>
+                    <p>This is an app-only meter for the current calendar month; it does not include other apps using the same Google Cloud project. Requests are counted before sending, including failed attempts.</p>
                     <div class="google-usage-protection">
                         <label for="googleUsageProtection">
                             <input id="googleUsageProtection" type="checkbox" checked disabled
                                    aria-describedby="googleUsageProtectionNote">
                             Stop at 490,000 characters/month
                         </label>
-                        <small id="googleUsageProtectionNote">Turn off to allow paid translations beyond the free allowance.</small>
+                        <small id="googleUsageProtectionNote">Turn off the protection to allow paid translations beyond the free allowance.</small>
                         <small id="googleUsageProtectionError" role="alert"></small>
                     </div>
                 </div>
@@ -1035,7 +1038,9 @@
 
         if (provider === 'google') {
             const protection = document.getElementById('googleUsageProtection');
+            const paidUsageWarning = document.getElementById('googlePaidUsageWarning');
             protection.disabled = result.status !== 'ready';
+            paidUsageWarning.hidden = true;
             if (result.status === 'ready') {
                 protection.checked = result.safety_limit_enabled !== false;
             }
@@ -1050,6 +1055,9 @@
         const used = Number(result.used);
         const limit = Number(result.limit);
         const percent = limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
+        if (provider === 'google') {
+            document.getElementById('googlePaidUsageWarning').hidden = used <= 500000;
+        }
         summary.innerText = (
             formatCharacterCount(used) + ' of ' + formatCharacterCount(limit)
             + ' characters'

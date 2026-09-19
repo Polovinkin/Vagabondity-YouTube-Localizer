@@ -1912,6 +1912,18 @@ a.top-page-btn:focus-visible {
     margin-top: 7px;
 }
 
+.google-paid-usage-warning {
+    margin: 8px 0 0;
+    padding: 8px 10px;
+    border: 1px solid var(--amber);
+    border-radius: 9px;
+    background: rgba(255, 179, 0, 0.12);
+    color: var(--amber-bright);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
 .google-usage-protection {
     margin-top: 7px;
     padding-top: 7px;
