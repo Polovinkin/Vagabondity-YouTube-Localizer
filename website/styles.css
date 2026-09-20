@@ -662,6 +662,10 @@ code {
     font-size: 0.96rem;
 }
 
+.comparison-heading > .comparison-summary-wide {
+    max-width: 64rem;
+}
+
 .not-found-page {
     display: grid;
     min-height: 100vh;
