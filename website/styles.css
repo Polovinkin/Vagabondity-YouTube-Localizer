@@ -433,7 +433,7 @@ code {
 
 .showcase-copy li {
     position: relative;
-    padding: 0.55rem 0 0.55rem 1.25rem;
+    padding: 0.3rem 0 0.3rem 1.25rem;
     color: var(--muted-strong);
     font-size: 0.86rem;
 }
@@ -456,6 +456,12 @@ code {
     border-radius: 1rem;
     box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.38);
     transform: rotate(1deg);
+}
+
+.result-showcase img {
+    width: min(100%, 27rem);
+    margin-right: auto;
+    margin-left: 0;
 }
 
 .faq-section {
