@@ -91,40 +91,40 @@
                     <tbody>
                         <tr>
                             <th scope="row">Automation and scalability</th>
-                            <td><strong>An entire channel can be translated and published to as many as 50 target languages in one automated run.</strong> Video loading, selection, compatibility checks, translation, publishing, and result tracking are part of the same workflow.</td>
-                            <td><strong>No automation exists.</strong> The user must manually enter one video's metadata, generate no more than five target languages per run, then manually copy every result into YouTube Studio. This workflow does not scale to a real video library localization.</td>
+                            <td>An entire channel can be translated and published to as many as 50 target languages in one automated run. Video loading, selection, compatibility checks, translation, publishing, and result tracking are part of the same workflow.</td>
+                            <td>No automation exists.The user must manually enter one video's metadata, generate no more than five target languages per run, then manually copy every result into YouTube Studio. This workflow does not scale to a real video library localization.</td>
                         </tr>
                         <tr>
                             <th scope="row">Input validation and translation fidelity</th>
-                            <td><strong>Translates the real title and description already loaded from the selected YouTube video.</strong> It preserves one source meaning across target languages and reports missing source-language data or unsupported combinations</td>
-                            <td>Can hallucinate and create translation which can't exist based on the source. In hands-on testing, the meaningless title like <code>kjsdflkajf</code> with no description was accepted as valid input, and UNmiss <i>invented</i> an English video titled “Uncovering the Mystery: A Guide to Hidden Life Hacks,” a 527-character description about productivity and everyday problems, 15 tags, four hashtags, and the thumbnail text “Hidden Life Hacks.”
+                            <td>Translates the real title and description already loaded from the selected YouTube video. It preserves one source meaning across target languages and reports missing source-language data or unsupported combinations</td>
+                            <td>Can hallucinate and create translation which can't exist based on the source. 
+                                In hands-on testing, the meaningless title like <code>kjsdflkajf</code> with no description was accepted as valid input, and UNmiss <i>invented</i> an English video titled “Uncovering the Mystery: A Guide to Hidden Life Hacks,” a big description about productivity and everyday problems, 15 tags, four hashtags, and the thumbnail text “Hidden Life Hacks.”
                                 This meaningless input also produced <b>different</b> invented topics about growth, success, and marketing in German, Portuguese, and French rather than translations of one shared source.</td>
                         </tr>
                         <tr>
                             <th scope="row">Target-language scale</th>
                             <td><strong>As many as 50 target languages can be selected in one run</strong>, separated by the importance and markets.</td>
-                            <td>Rather than the full YouTube localization range, <strong>only five target languages per run are available.</strong>, while the page separately claims 16 available target languages.</td>
+                            <td>Instead of full YouTube range, only five target languages per run are available, while the page separately claims 16 available target languages (?).</td>
                         </tr>
                         <tr>
                             <th scope="row">Source code and logic</th>
-                            <td><strong>Source-available and inspectable.</strong> It is free to run under the free-to-use license, while redistribution, modified releases, resale, and hosted access are prohibited.</td>
+                            <td>Source-available and inspectable. It is free to run under the free-to-use license, while redistribution, modified releases, resale, and hosted access are prohibited.</td>
                             <td>Source code is not available. Server-side implementation and data handling cannot be independently inspected.</td>
                         </tr>
                         <tr>
                             <th scope="row">Where it runs</th>
-                            <td><strong>Locally on your computer.</strong> Your browser talks to the local app, which connects directly to YouTube and your chosen translation provider.</td>
+                            <td>Locally on your computer.Your browser talks to the local app, which connects directly to YouTube and your chosen translation provider.</td>
                             <td>Runs on service infrastructure. Metadata entered into the tool is processed by a third-party hosted service.</td>
                         </tr>
                         <tr>
                             <th scope="row">YouTube channel access and safety</th>
-                            <td><strong>YT Localizer has no video-deletion functions and makes no calls to YouTube's video-deletion API - complete application source can be inspected to verify this. <a href="../../#youtube-permissions">Read details</a></strong>
-                                You create and use your own Google Cloud OAuth application, while its credentials and authorization token remain on your computer and don't leave it.
-                                Channel access stays between your local application and Google/YouTube: no third-party localization service or intermediary receives access to your channel.</td>
+                            <td>YT Localizer has no video-deletion functions and makes no calls to YouTube's video-deletion API - complete application source can be inspected to verify this. <a href="../../#youtube-permissions">Read details</a>
+                                You create and use your own Google Cloud OAuth application, while its credentials and authorization token remain on your computer and don't leave it.</td>
                             <td>The public UNmiss workflow only generates text for manual copying into YouTube Studio. It does not connect to a YouTube channel and don't need channel authorization.</td>
                         </tr>
                         <tr>
                             <th scope="row">Account and registration</th>
-                            <td><strong>There is no YT Localizer account or registration you need to do.</strong> You use your own Google Cloud and translation-provider credentials.</td>
+                            <td>There is no YT Localizer account or registration you need to do. You use your own Google Cloud and translation-provider credentials.</td>
                             <td>Registration is required before any translation or generation could be made.</td>
                         </tr>
                         <tr>
@@ -136,8 +136,8 @@
                             <th scope="row">Application limits</th>
                             <td><strong>No app-imposed limit on runs, videos, or languages.</strong> Practical limits come only from the selected translation provider and YouTube API quota.</td>
                             <td>The page simultaneously displays “0/3 free localizations used today” and “2 of 2 free uses left today.”
-                                After registration, a hands-on test did generate a free result, with a "10 of 10 free uses left today" which stays the same even after test translations.
-                                Its instructions say free users get two languages per run (but allows to translate to more), while Pro unlocks all selected languages.</td>
+                                After registration, changes to "10 of 10 free uses left today" which stays the same even after test translations (?).
+                                They say that free users get two languages per run (but allows to translate to more), while Pro unlocks all selected languages.</td>
                         </tr>
                         <tr>
                             <th scope="row">Videos in one run</th>
@@ -172,10 +172,10 @@
                         <tr>
                             <th scope="row">Metadata coverage</th>
                             <td>Translates the two fields supported by YouTube's localization API: video title and description.</td>
-                            <td><strong>Broader generated content.</strong> UNmiss advertises localized titles, descriptions, tags, hashtags, and thumbnail overlay text, including cultural and SEO adaptation.</td>
+                            <td>Broader generated content. UNmiss advertises localized titles, descriptions, tags, hashtags, and thumbnail overlay text, including cultural and SEO adaptation.</td>
                         </tr>
                         <tr>
-                            <th scope="row">Setup tradeoff</th>
+                            <th scope="row">Setup</th>
                             <td>Requires a one-time local setup of Google OAuth and at least one translation provider. The step-by-step guide is written for non-technical users.</td>
                             <td>The form is visible in a browser, no set up is needed, but translation remains unavailable until the user is registered.</td>
                         </tr>
