@@ -6,15 +6,15 @@
     <meta name="theme-color" content="#0f0b07">
     <meta
         name="description"
-        content="Feature-by-feature comparison of YT Localizer and the hosted ReTranslate.ai YouTube localization service."
+        content="Direct feature-by-feature comparisons between YT Localizer and hosted YouTube localization services."
     >
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta property="og:site_name" content="YT Localizer">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="YT Localizer vs ReTranslate.ai">
+    <meta property="og:title" content="YT Localizer comparisons">
     <meta
         property="og:description"
-        content="Feature-by-feature comparison of YT Localizer and the hosted ReTranslate.ai YouTube localization service."
+        content="Direct feature-by-feature comparisons between YT Localizer and hosted YouTube localization services."
     >
     <meta property="og:url" content="https://ytlocalizer.com/comparison/">
     <meta property="og:image" content="https://ytlocalizer.com/assets/app-overview.webp">
@@ -23,17 +23,17 @@
     <meta property="og:image:height" content="1706">
     <meta property="og:image:alt" content="YT Localizer video library and localization controls">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="YT Localizer vs ReTranslate.ai">
+    <meta name="twitter:title" content="YT Localizer comparisons">
     <meta
         name="twitter:description"
-        content="Feature-by-feature comparison of YT Localizer and the hosted ReTranslate.ai YouTube localization service."
+        content="Direct feature-by-feature comparisons between YT Localizer and hosted YouTube localization services."
     >
     <meta name="twitter:image" content="https://ytlocalizer.com/assets/app-overview.webp">
     <meta name="twitter:image:alt" content="YT Localizer video library and localization controls">
     <link rel="canonical" href="https://ytlocalizer.com/comparison/">
     <link rel="icon" href="../favicon.svg?v=20260917-1" type="image/svg+xml">
     <link rel="stylesheet" href="../styles.css?v=20260918-51">
-    <title>YT Localizer vs ReTranslate.ai</title>
+    <title>YT Localizer comparisons</title>
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -48,7 +48,7 @@
                 {
                     "@type": "ListItem",
                     "position": 2,
-                    "name": "YT Localizer vs ReTranslate.ai",
+                    "name": "Comparisons",
                     "item": "https://ytlocalizer.com/comparison/"
                 }
             ]
@@ -64,94 +64,14 @@
         <section class="comparison-section">
             <div class="comparison-heading">
                 <div class="comparison-title-card">
-                    <h1>YT Localizer vs ReTranslate.ai</h1>
+                    <h1>YT Localizer comparisons</h1>
                 </div>
-                <p>A feature-by-feature comparison with a hosted YouTube metadata localization service.</p>
+                <p>Direct feature-by-feature comparisons with hosted YouTube localization services.</p>
             </div>
 
-            <div class="comparison-table-wrap" tabindex="0" role="region" aria-label="Scrollable product comparison">
-                <table class="comparison-table">
-                    <caption class="visually-hidden">Comparison between YT Localizer and ReTranslate.ai</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">Topic</th>
-                            <th scope="col">YT Localizer</th>
-                            <th scope="col">ReTranslate.ai</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">Source code and logic</th>
-                            <td>Source-available under the free-to-use license: public and open for inspection and free to run, but redistribution, modified releases, resale, and hosted access are prohibited.</td>
-                            <td>Not publicly available - impossible to verify what app does, what data it collects and which API calls it makes.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Where it runs</th>
-                            <td>Locally on your computer.</td>
-                            <td>Hosted third-party service.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Author identity</th>
-                            <td>Dmitrii Polovinkin — <a href="https://github.com/Polovinkin" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>, an experienced developer and digital nomad.</td>
-                            <td>Unknown.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">YouTube channel safety</th>
-                            <td>The source contains no calls to YouTube's video-deletion API or anything unrelated to localization. 
-                                You create the authorization token for your own Google Cloud app, and access keys stay on your device. 
-                                <a href="../#youtube-permissions">Details</a></td>
-                            <td>When you log in, ReTranslate Google consent screen explicitly requests <code>permission to see, edit, and permanently delete YouTube videos, 
-                                ratings, comments, and captions</code>. Its implementation cannot be inspected.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Application subscription</th>
-                            <td>There is no subscription, as well as no fees to use the app. You can only <a class="creator-link" href="https://buymeacoffee.com/polovinkin" target="_blank" rel="noopener noreferrer">donate</a> to support the project if you want to.</td>
-                            <td>You have to pay subscription - Pro at $20/month or Max at $50/month. A free plan exists, but its limits are not enough to localize a single video even partially.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Translation limits</th>
-                            <td>No app-imposed limits. Usage is limited only by the translation provider and YouTube's daily API quota. 
-                                Provider free quotas are usually enough for hundreds of translations.</td>
-                            <td>10 translations to a chosen language per day. Pro lists a “higher daily usage capacity” without specifics; Max is listed as "5x Pro".</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Bulk translation and multiple-video selection</th>
-                            <td>Automatically loads the list of all your videos. Can translate an entire channel into as many as 50 languages in a single run.</td>
-                            <td>No bulk translation on the free plan. A single imported video is localized at a time by manually copying and pasting its URL.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Translation speed</th>
-                            <td>Localizing one video into 20 languages <b>and</b> uploading the results to YouTube in one run takes around 25 seconds.</td>
-                            <td>One translation for one video even without uploading it to YouTube takes at least <i>five seconds</i> on average, so 20 languages will take at least 100 seconds.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Translation providers</th>
-                            <td>You use your own accounts of DeepL (the most powerful translation provider in the world) or Google Cloud Translation (most popular translation tool worldwide powered by Gemini).</td>
-                            <td>Mostly only weak LLM models such as GPT-4o mini (used by default, last one is 5.6) or Gemini 2.5 Flash (last one is 3.8 Flash) are available. A model must be selected manually for each language.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Localization monitoring</th>
-                            <td>Video-and-language-level progress with individual results and explanations for failed or skipped localizations.</td>
-                            <td>Percentage-based progress without explanations when a translation fails or is not uploaded. 
-                                A run may be marked partially successful while every attempted localization is listed as failed.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Subtitle translation</th>
-                            <td>Not yet.</td>
-                            <td>Yes.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Channel metadata translation</th>
-                            <td>Not yet.</td>
-                            <td>Yes.</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Playlist metadata translation</th>
-                            <td>Not yet.</td>
-                            <td>Yes, currently marked Beta.</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="local-comparison-action">
+                <a class="button button-secondary" href="retranslate/">YT Localizer vs ReTranslate.ai <span aria-hidden="true">→</span></a>
+                <a class="button button-secondary" href="unmiss/">YT Localizer vs UNmiss <span aria-hidden="true">→</span></a>
             </div>
         </section>
     </main>

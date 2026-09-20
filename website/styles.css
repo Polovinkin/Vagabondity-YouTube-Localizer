@@ -352,8 +352,22 @@ code {
     color: var(--green);
 }
 
+.comparison-links-label {
+    margin: 1rem 0 0;
+    color: var(--muted-strong);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
 .local-comparison-action {
-    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.65rem;
     text-align: center;
 }
 
@@ -1276,6 +1290,8 @@ pre code {
 
 .footer-links {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 1rem;
     font-size: 0.7rem;
 }

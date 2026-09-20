@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f0b07">
+    <meta
+        name="description"
+        content="Feature-by-feature comparison of YT Localizer and the hosted UNmiss YouTube Localizer service."
+    >
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta property="og:site_name" content="YT Localizer">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="YT Localizer vs UNmiss YouTube Localizer">
+    <meta
+        property="og:description"
+        content="Feature-by-feature comparison of YT Localizer and the hosted UNmiss YouTube Localizer service."
+    >
+    <meta property="og:url" content="https://ytlocalizer.com/comparison/unmiss/">
+    <meta property="og:image" content="https://ytlocalizer.com/assets/app-overview.webp">
+    <meta property="og:image:type" content="image/webp">
+    <meta property="og:image:width" content="2872">
+    <meta property="og:image:height" content="1706">
+    <meta property="og:image:alt" content="YT Localizer video library and localization controls">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="YT Localizer vs UNmiss YouTube Localizer">
+    <meta
+        name="twitter:description"
+        content="Feature-by-feature comparison of YT Localizer and the hosted UNmiss YouTube Localizer service."
+    >
+    <meta name="twitter:image" content="https://ytlocalizer.com/assets/app-overview.webp">
+    <meta name="twitter:image:alt" content="YT Localizer video library and localization controls">
+    <link rel="canonical" href="https://ytlocalizer.com/comparison/unmiss/">
+    <link rel="icon" href="../../favicon.svg?v=20260917-1" type="image/svg+xml">
+    <link rel="stylesheet" href="../../styles.css?v=20260918-51">
+    <title>YT Localizer vs UNmiss YouTube Localizer</title>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "YT Localizer",
+                    "item": "https://ytlocalizer.com/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Comparisons",
+                    "item": "https://ytlocalizer.com/comparison/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "YT Localizer vs UNmiss YouTube Localizer",
+                    "item": "https://ytlocalizer.com/comparison/unmiss/"
+                }
+            ]
+        }
+    </script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <main class="comparison-page" id="main-content">
+        <a class="back-link" href="../../"><span aria-hidden="true">←</span> Back to home page</a>
+
+        <section class="comparison-section">
+            <div class="comparison-heading">
+                <div class="comparison-title-card">
+                    <h1>YT Localizer vs UNmiss YouTube Localizer</h1>
+                </div>
+                <p>A feature-by-feature comparison with UNmiss's hosted AI YouTube metadata tool.</p>
+                <p>
+                    <a href="https://unmiss.com/youtube-localizer" target="_blank" rel="noopener noreferrer">UNmiss product claims</a> and pricing were checked on September 20, 2026. The free-access result below is a hands-on observation from the same date and is labelled separately from UNmiss's published claims.
+                </p>
+            </div>
+
+            <div class="comparison-table-wrap" tabindex="0" role="region" aria-label="Scrollable product comparison">
+                <table class="comparison-table">
+                    <caption class="visually-hidden">Comparison between YT Localizer and UNmiss YouTube Localizer</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Topic</th>
+                            <th scope="col">YT Localizer by Vagabondity</th>
+                            <th scope="col">UNmiss YouTube Localizer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Source code and logic</th>
+                            <td><strong>Source-available and inspectable.</strong> It is free to run under the free-to-use license, while redistribution, modified releases, resale, and hosted access are prohibited.</td>
+                            <td>Source code is not available. Server-side implementation and data handling cannot be independently inspected.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Where it runs</th>
+                            <td><strong>Locally on your computer.</strong> Your browser talks to the local app, which connects directly to YouTube and your chosen translation provider.</td>
+                            <td>Runs on service infrastructure. Metadata entered into the tool is processed by a third-party hosted service.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">YouTube channel access and safety</th>
+                            <td><strong>Automatic publishing requires broad YouTube authorization.</strong> Google does not provide a scope limited to localization, so its consent text can include permission to <code>see, edit, and permanently delete YouTube videos, ratings, comments, and captions</code>. With YT Localizer, you create the OAuth client yourself, the token stays on your computer, and the inspectable source contains no calls to YouTube's video-deletion API. <a href="../../#youtube-permissions">Details</a></td>
+                            <td>The public UNmiss workflow does not connect to a YouTube channel: it generates text for manual copying into YouTube Studio. It therefore does not need broad channel authorization, but it also cannot publish localizations automatically or verify their result.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Account and registration</th>
+                            <td><strong>No YT Localizer account or registration.</strong> You use your own Google Cloud and translation-provider credentials.</td>
+                            <td>The public page labels the product “Free AI Tool” and says “Free, no signup,” but the tested localization workflow required registration before a result could be generated.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Testing before payment</th>
+                            <td><strong>The application can be used and tested without starting a subscription.</strong> You can test either configured provider with a tiny request, then run a one-language localization before scaling up. Provider usage and YouTube quota still apply.</td>
+                            <td>After registration, a hands-on test on September 20, 2026 did generate a free result. However, the page showed “0/3 free localizations used today” and immediately covered the generated result with a subscription popup. Dismissing it with “Maybe tomorrow” revealed the result.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Application subscription</th>
+                            <td><strong>No subscription and no application fee.</strong> Optional donations support the project; only the chosen provider may charge for usage beyond its allowance.</td>
+                            <td><a href="https://unmiss.com/pricing" target="_blank" rel="noopener noreferrer">UNmiss lists</a> Lite at $24/month, Pro at $49/month, and Business at $99/month. It advertises a 7-day trial that converts to the selected subscription unless cancelled.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Application limits</th>
+                            <td><strong>No app-imposed limit on runs, videos, or languages.</strong> Practical limits come only from the selected translation provider and YouTube API quota.</td>
+                            <td>The page simultaneously displays “0/3 free localizations used today” and “2 of 2 free uses left today.” Its instructions say free users get two languages per run, while Pro unlocks all selected languages.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Videos in one run</th>
+                            <td><strong>One video, selected videos, the current page, or the entire channel can be localized in a single run.</strong></td>
+                            <td>One manually entered metadata set is processed at a time. Its “Batch Export” refers to exporting language packs as JSON or CSV, not selecting and processing multiple YouTube videos.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Target-language scale</th>
+                            <td><strong>As many as 50 target languages can be selected in one run</strong>, subject to YouTube and provider compatibility.</td>
+                            <td><strong>Only five target languages per run are advertised.</strong> The page separately claims 16 available target languages, but the workflow remains restricted to a small fixed selection rather than the full YouTube localization range.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Automation and scalability</th>
+                            <td><strong>An entire channel can be translated and published to as many as 50 target languages in one automated run.</strong> Video loading, selection, compatibility checks, translation, publishing, and result tracking are part of the same workflow.</td>
+                            <td><strong>No channel-level automation.</strong> The user must manually enter one video's metadata, generate no more than five target languages per run, then manually copy every result into YouTube Studio. There is no channel import, multiple-video batch, automatic publishing, or publishing verification, so the workflow does not scale to a real video library.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Channel library and selection</th>
+                            <td><strong>Automatically loads the complete channel library.</strong> You can filter full-length videos and Shorts, browse by page, and select individual videos, a page, or the whole channel.</td>
+                            <td>Does not load a YouTube channel or its video library. The user manually pastes title, description, tags, and thumbnail text.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Publishing workflow</th>
+                            <td><strong>Publishes localized titles and descriptions directly to YouTube in the same run.</strong> Original metadata remains unchanged.</td>
+                            <td>Generates packs to copy manually into YouTube Studio or export as JSON/CSV. It does not publish the localization to YouTube.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Existing localization awareness</th>
+                            <td><strong>Shows existing languages for every video, skips them by default, and provides an explicit option to replace them.</strong></td>
+                            <td>Because it is not connected to the channel, it cannot detect existing localizations or protect them from accidental manual replacement.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Language compatibility checks</th>
+                            <td><strong>Checks the video's source language and each target against live provider capabilities before a run.</strong> Unsupported combinations are disabled and provider-only targets are labelled.</td>
+                            <td>The public workflow accepts pasted metadata and target choices but does not expose equivalent source-language or provider-compatibility checks.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Translation provider</th>
+                            <td><strong>You choose between your own DeepL and Google Cloud Translation accounts for every run.</strong> Their supported language data and usage can be checked directly.</td>
+                            <td>The site says the tool uses OpenAI GPT-5 Nano. The user cannot choose a different translation provider.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Input validation and translation fidelity</th>
+                            <td><strong>Translates the real title and description already loaded from the selected YouTube video.</strong> It preserves one source meaning across target languages and reports missing source-language data or unsupported combinations instead of inventing a video topic.</td>
+                            <td>In hands-on testing, the meaningless title <code>kjsdflkajfnsdkj</code> with no description was accepted as valid input. Instead of rejecting it, UNmiss invented an English video titled “Uncovering the Mystery: A Guide to Hidden Life Hacks,” a 527-character description about productivity and everyday problems, 15 tags, four hashtags, and the thumbnail text “Hidden Life Hacks.” A separate meaningless input produced different invented topics about growth, success, and marketing in German, Portuguese, and French rather than translations of one shared source.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Progress and result details</th>
+                            <td><strong>Tracks every video-and-language pair</strong> and explains published, skipped, shortened, failed, cancelled, and quota-stopped results individually.</td>
+                            <td>Generates language packs, but it cannot report whether they were successfully published, skipped, or rejected by YouTube because publishing is manual.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Usage and quota visibility</th>
+                            <td><strong>Shows DeepL usage, locally tracked Google Translation usage, and YouTube quota information inside the app.</strong> It also enters a recoverable limited mode when YouTube quota is exhausted.</td>
+                            <td>Shows conflicting free-use counters on the public tool. Provider consumption and YouTube publishing quota are not relevant or exposed because UNmiss controls the model and does not publish to YouTube.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Metadata coverage</th>
+                            <td>Translates the two fields supported by YouTube's localization API: video title and description.</td>
+                            <td><strong>Broader generated content.</strong> UNmiss advertises localized titles, descriptions, tags, hashtags, and thumbnail overlay text, including cultural and SEO adaptation.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Setup tradeoff</th>
+                            <td>Requires a one-time local setup of Google OAuth and at least one translation provider. The step-by-step guide is written for non-technical users.</td>
+                            <td>The form is visible in a browser, but translation remained unavailable until the user registered. After generation, a subscription popup had to be dismissed before the free result could be inspected.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-copy">
+            <p>
+                Created by
+                <a class="creator-link" href="https://github.com/Polovinkin" target="_blank" rel="noopener noreferrer">Dmitrii Polovinkin</a>
+                for the
+                <a class="channel-link" href="https://www.youtube.com/@vagabondity" target="_blank" rel="noopener noreferrer">
+                    <svg class="youtube-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                    Vagabondity Walks
+                </a>.
+            </p>
+            <p>Independent project. Not affiliated with YouTube, Google, or UNmiss.</p>
+        </div>
+        <div class="footer-links">
+            <a href="../../">Home</a>
+            <a href="../">All comparisons</a>
+            <a href="../retranslate/">ReTranslate comparison</a>
+            <a href="../../setup/">Setup</a>
+            <a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+    </footer>
+</body>
+</html>
