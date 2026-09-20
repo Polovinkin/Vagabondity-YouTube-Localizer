@@ -108,7 +108,7 @@ See [`LICENSE`](LICENSE), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), an
 ## Problems or bugs?
 
 If you run into a problem, find a bug, or need help with the app, please
-[create a GitHub Issue](https://github.com/Polovinkin/Vagabondity-YouTube-Localizer/issues/new)
+[create a GitHub Issue](https://github.com/Polovinkin/YouTube-Localizer/issues/new)
 and describe what happened. If possible, include the full error message shown in Terminal and all the steps that led to the problem. More details - the better!
 
 ## Support YT Localizer
