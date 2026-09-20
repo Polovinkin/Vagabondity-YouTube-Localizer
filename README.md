@@ -20,18 +20,11 @@ Refer to [Quick Start](#quick-start) for a guide to set this app up and start lo
   <strong>Browse your channel and select videos to localize</strong>
 </div>
 
-<table>
-  <tr>
-    <td width="50%" align="center">
-      <img src="website/assets/language-selection.webp" alt="YT Localizer language selector showing available languages and existing localizations" width="90%"><br>
-      <strong>Choose target languages with full localization context</strong>
-    </td>
-    <td width="50%" align="center">
-      <img src="website/assets/result_window.webp" alt="YT Localizer result window showing published, skipped, failed, and remaining localization totals" width="100%"><br>
-      <strong>Review the result of every localization run</strong>
-    </td>
-  </tr>
-</table>
+<div align="center">
+  <img src="website/assets/language-selection.webp" alt="YT Localizer language selector showing available languages and existing localizations" width="45%">
+  <img src="website/assets/result_window.webp" alt="YT Localizer result window showing published, skipped, failed, and remaining localization totals" width="50%"><br>
+  <strong>Choose target languages with full localization context</strong> · <strong>Review the result of every localization run</strong>
+</div>
 
 ## Requirements
 
