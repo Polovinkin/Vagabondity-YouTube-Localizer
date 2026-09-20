@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f0b07">
+    <meta
+        name="description"
+        content="Feature-by-feature comparison of YT Localizer and the hosted Creator Tools YouTube Translator."
+    >
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta property="og:site_name" content="YT Localizer">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="YT Localizer vs Creator Tools">
+    <meta
+        property="og:description"
+        content="Feature-by-feature comparison of YT Localizer and the hosted Creator Tools YouTube Translator."
+    >
+    <meta property="og:url" content="https://ytlocalizer.com/comparison/creator-tools/">
+    <meta property="og:image" content="https://ytlocalizer.com/assets/app-overview.webp">
+    <meta property="og:image:type" content="image/webp">
+    <meta property="og:image:width" content="2872">
+    <meta property="og:image:height" content="1706">
+    <meta property="og:image:alt" content="YT Localizer video library and localization controls">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="YT Localizer vs Creator Tools">
+    <meta
+        name="twitter:description"
+        content="Feature-by-feature comparison of YT Localizer and the hosted Creator Tools YouTube Translator."
+    >
+    <meta name="twitter:image" content="https://ytlocalizer.com/assets/app-overview.webp">
+    <meta name="twitter:image:alt" content="YT Localizer video library and localization controls">
+    <link rel="canonical" href="https://ytlocalizer.com/comparison/creator-tools/">
+    <link rel="icon" href="../../favicon.svg?v=20260917-1" type="image/svg+xml">
+    <link rel="stylesheet" href="../../styles.css?v=20260918-51">
+    <title>YT Localizer vs Creator Tools</title>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "YT Localizer",
+                    "item": "https://ytlocalizer.com/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "Comparisons",
+                    "item": "https://ytlocalizer.com/comparison/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "YT Localizer vs Creator Tools",
+                    "item": "https://ytlocalizer.com/comparison/creator-tools/"
+                }
+            ]
+        }
+    </script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <main class="comparison-page" id="main-content">
+        <a class="back-link" href="../../"><span aria-hidden="true">←</span> Back to home page</a>
+
+        <section class="comparison-section">
+            <div class="comparison-heading">
+                <div class="comparison-title-card">
+                    <h1>YT Localizer vs Creator Tools</h1>
+                </div>
+                <p class="comparison-summary-wide">A feature-by-feature comparison with the hosted Creator Tools YouTube Translator.</p>
+                <p>
+                    YT Localizer by Vagabondity is a great free, local-first alternative to closed hosted YouTube translation services such as Creator Tools.
+                </p>
+            </div>
+
+            <div class="comparison-table-wrap" tabindex="0" role="region" aria-label="Scrollable product comparison">
+                <table class="comparison-table">
+                    <caption class="visually-hidden">Comparison between YT Localizer and Creator Tools YouTube Translator</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Topic</th>
+                            <th scope="col">YT Localizer by Vagabondity</th>
+                            <th scope="col">Creator Tools</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Source code and logic</th>
+                            <td><strong>Source-available and inspectable.</strong> It is free to run under the free-to-use license, while redistribution, modified releases, resale, and hosted access are prohibited.</td>
+                            <td>Source code is not publicly available. Server-side implementation, data handling, and the exact translation requests cannot be independently inspected.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Where it runs</th>
+                            <td><strong>Locally on your computer.</strong> Your browser talks to the local app, which connects directly to YouTube and your chosen translation provider.</td>
+                            <td>Runs as a hosted third-party service. Channel access and video metadata pass through infrastructure controlled by Creator Tools.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">YouTube channel access and safety</th>
+                            <td><strong>YT Localizer has no video-deletion functions and makes no calls to YouTube's video-deletion API; the complete application source can be inspected to verify this. <a href="../../#youtube-permissions">Read details</a>.</strong> 
+                                You create your own Google Cloud OAuth application, and its credentials and authorization token remain on your computer.</td>
+                            <td>Creator Tools requests permission to <code>see, edit, and permanently delete YouTube videos, ratings, comments, and captions</code>. That broad YouTube scope can be required for supported write operations, but the closed implementation cannot be inspected to confirm how the access is used or stored.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Application cost and limits</th>
+                            <td><strong>No subscription, application fee, or app-imposed translation limit.</strong> Practical limits come only from the selected provider and YouTube API quota; optional donations support the project.</td>
+                            <td>Creator Tools advertises a free allowance of 300 translations with no credit card. One video translated into one language counts as one translation; continued use beyond the allowance is sold through paid plans.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Payment transparency</th>
+                            <td><strong>YT Localizer does not collect payments or payment details.</strong> If provider usage exceeds a free allowance, billing stays directly between the user and their chosen provider.</td>
+                            <td>The company or payment processor that would handle the transaction for Creator Tools isn't shown in the payment window, this makes it difficult to verify who receives and processes payment details before proceeding and where your credit card details go.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Translation providers and models</th>
+                            <td><strong>You choose between your own DeepL and Google Cloud Translation accounts for every run.</strong> The selected provider is explicit, its supported language data can be checked directly, and billing or free-tier usage belongs to your account.</td>
+                            <td>The tested interface offered an <strong>OpenAI</strong> or <strong>Gemini</strong> provider choice. The exact model used for either option, as well as model version and how modern/powerful is this model is unknown.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Language selection</th>
+                            <td><strong>Languages are grouped by practical priority and shown by name.</strong> Users can select individual languages or a complete tier, while unsupported provider combinations are disabled and existing localizations are marked before the run starts.</td>
+                            <td>The interface provides saved groups, continent filters, search, and presets labelled mainly by counts such as 50, 60, 70, 90, and 110 languages. Those labels do not explain which markets they represent. 
+                                Even the smallest 50-language preset includes many low-priority languages and regional variants that will be unnecessary for most channels.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Before translation starts</th>
+                            <td><strong>The language-selection step shows the provider, target languages, existing-localization status, YouTube quota estimate, and an explicit opt-in to replace published localizations.</strong> Translation starts only from the dedicated action in this context.</td>
+                            <td>In the hands-on test, pressing <strong>Translate video</strong> started the operation without a final confirmation summarising the selected languages, expected credit use, or which existing localizations could be affected.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Live progress and result visibility</th>
+                            <td><strong>Shows live video-and-language-level progress.</strong> Every attempted localization ends as published, skipped, or failed with an explanation, and the final result remains reviewable in the app.</td>
+                            <td>Creator Tools' public website illustrates a dashboard with a percentage, progress bar, and language chips - that is <b>not</b> the interface which is actually there: after the run started, there is a window with no meaningful progress or per-language results. Progress could only be inferred as new languages gradually appeared in YouTube Studio.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Existing localization awareness</th>
+                            <td><strong>Shows the actual existing languages for every selected video, skips them by default, and requires an explicit option to replace them.</strong></td>
+                            <td>The library row marks a video only as “Translated to N languages” - There is no info of which languages are already localized. Creator Tools separately states that previously translated languages are not charged again.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Interface and UX</th>
+                            <td><strong>Focused on one workflow:</strong> browse a channel, select videos and named languages, translate, publish, and inspect results. Advanced details are kept in dedicated setup and usage views.</td>
+                            <td>Interface is subjectively heavy, not modern and difficult to orient around - with pop-up promotion windows, narrow settings sidebar, unexplained numeric presets, filters, chat, and links to unrelated Creator Tools products.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Videos and publishing</th>
+                            <td><strong>Loads the complete channel library and can publish one video, selected videos, a page, or the entire channel in one run.</strong></td>
+                            <td>Loads the connected channel library and publishes translations directly to YouTube. The tested screen presented a separate <strong>Translate video</strong> action for each video.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Metadata coverage</th>
+                            <td>Translates the two fields supported by YouTube's localization API: video title and description.</td>
+                            <td><strong>Broader coverage.</strong> Creator Tools advertises direct translation of titles, descriptions, and subtitles, plus options for hashtags, rewriting, tone, regional language codes, and protected text inside double brackets.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Setup tradeoff</th>
+                            <td>Requires a one-time local setup of Google OAuth and at least one translation provider. The step-by-step guide is written for non-technical users.</td>
+                            <td>Faster hosted onboarding through a Creator Tools account and Google OAuth, with no local installation or separate provider credentials.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-copy">
+            <p>
+                Created by
+                <a class="creator-link" href="https://github.com/Polovinkin" target="_blank" rel="noopener noreferrer">Dmitrii Polovinkin</a>
+                for the
+                <a class="channel-link" href="https://www.youtube.com/@vagabondity" target="_blank" rel="noopener noreferrer">
+                    <svg class="youtube-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                    Vagabondity Walks
+                </a>.
+            </p>
+            <p>Independent project. Not affiliated with YouTube, Google, or Creator Tools.</p>
+        </div>
+        <div class="footer-links">
+            <a href="../../">Home</a>
+            <a href="../">All comparisons</a>
+            <a href="../../setup/">Setup</a>
+            <a href="https://github.com/Polovinkin/Vagabondity-YouTube-Localizer" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+    </footer>
+</body>
+</html>

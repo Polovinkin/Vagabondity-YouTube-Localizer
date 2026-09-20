@@ -9,7 +9,7 @@ The app updates YouTube localization fields through YouTube Data API v3 and it d
 
 This app has no subscription fee, no app-imposed limits, publicly available source code, and it doesn't ask you to give access to your YT channel to any third-party. It's easy to install and very easy to use! Originally built and improved for localizing videos on the developer's YT city walks channel 🐸 [Vagabondity Walks](https://www.youtube.com/@vagabondity) - now sharing it so other creators can use it too. Feel free to check out the channel it was made for!
 
-Refer to [Quick Start](#quick-start) for a guide to set this app up and start localizing your YT Channel. See direct comparisons with [ReTranslate.ai](https://ytlocalizer.com/comparison/retranslate/) and [UNmiss YouTube Localizer](https://ytlocalizer.com/comparison/unmiss/).
+Refer to [Quick Start](#quick-start) for a guide to set this app up and start localizing your YT Channel. See direct comparisons with [ReTranslate.ai](https://ytlocalizer.com/comparison/retranslate/), [Creator Tools](https://ytlocalizer.com/comparison/creator-tools/), and [UNmiss YouTube Localizer](https://ytlocalizer.com/comparison/unmiss/).
 
 > **Status:** Fully functional and actively improved.
 
