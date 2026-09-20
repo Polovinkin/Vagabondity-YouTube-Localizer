@@ -7,6 +7,12 @@
 /script.js
     Cache-Control: no-cache
 
+/robots.txt
+    Cache-Control: no-cache
+
+/sitemap.xml
+    Cache-Control: no-cache
+
 /setup/*
     Cache-Control: no-cache
 

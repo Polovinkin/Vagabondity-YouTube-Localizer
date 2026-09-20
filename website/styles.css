@@ -648,6 +648,35 @@ code {
     font-size: 0.96rem;
 }
 
+.not-found-page {
+    display: grid;
+    min-height: 100vh;
+    min-height: 100svh;
+    place-items: center;
+    padding: 2rem 1rem;
+}
+
+.not-found-card {
+    width: min(100%, 36rem);
+    padding: clamp(2rem, 6vw, 4rem);
+    border: 1px solid var(--line-bright);
+    border-radius: 1rem;
+    background: rgba(23, 18, 13, 0.82);
+    text-align: center;
+}
+
+.not-found-card h1 {
+    margin: 0;
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+}
+
+.not-found-card > p:not(.eyebrow) {
+    margin: 1rem auto 0;
+    color: var(--muted-strong);
+}
+
 .comparison-table-wrap {
     overflow-x: auto;
     border: 1px solid var(--line-bright);
