@@ -40,8 +40,8 @@
                     <tbody>
                         <tr>
                             <th scope="row">Source code and logic</th>
-                            <td>Source-available under the free-to-use license: public for inspection and free to run, but redistribution, modified releases, resale, and hosted access are prohibited.</td>
-                            <td>Not publicly available.</td>
+                            <td>Source-available under the free-to-use license: public and open for inspection and free to run, but redistribution, modified releases, resale, and hosted access are prohibited.</td>
+                            <td>Not publicly available - impossible to verify what app does, what data it collects and which API calls it makes.</td>
                         </tr>
                         <tr>
                             <th scope="row">Where it runs</th>
@@ -50,57 +50,62 @@
                         </tr>
                         <tr>
                             <th scope="row">Author identity</th>
-                            <td>Dmitrii Polovinkin — <a href="https://github.com/Polovinkin" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></td>
+                            <td>Dmitrii Polovinkin — <a href="https://github.com/Polovinkin" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>, an experienced developer and digital nomad.</td>
                             <td>Unknown.</td>
                         </tr>
                         <tr>
                             <th scope="row">YouTube channel safety</th>
-                            <td>The source contains no calls to YouTube's video-deletion API or anything unrelated to localization. You create the authorization token for your own Google Cloud app, and access keys stay on your device. <a href="../#youtube-permissions">Details</a></td>
-                            <td>The ReTranslate Google consent screen explicitly requests permission to see, edit, and permanently delete YouTube videos, ratings, comments, and captions. Its implementation cannot be inspected.</td>
+                            <td>The source contains no calls to YouTube's video-deletion API or anything unrelated to localization. 
+                                You create the authorization token for your own Google Cloud app, and access keys stay on your device. 
+                                <a href="../#youtube-permissions">Details</a></td>
+                            <td>When you log in, ReTranslate Google consent screen explicitly requests <code>permission to see, edit, and permanently delete YouTube videos, 
+                                ratings, comments, and captions</code>. Its implementation cannot be inspected.</td>
                         </tr>
                         <tr>
                             <th scope="row">Application subscription</th>
-                            <td>None.</td>
-                            <td>Pro at $20/month or Max at $50/month. A free plan exists, but its limits are not enough to partially localize a single video.</td>
+                            <td>There is no subscription, as well as no fees to use the app. You can only <a class="creator-link" href="https://buymeacoffee.com/polovinkin" target="_blank" rel="noopener noreferrer">donate</a> to support the project if you want to.</td>
+                            <td>You have to pay subscription - Pro at $20/month or Max at $50/month. A free plan exists, but its limits are not enough to localize a single video even partially.</td>
                         </tr>
                         <tr>
                             <th scope="row">Translation limits</th>
-                            <td>No app-imposed limits. Usage is limited only by the translation provider and YouTube's daily API quota. Provider free quotas are usually enough for hundreds of translations.</td>
-                            <td>10 translations to one chosen language per day. Pro lists a “higher daily usage capacity” without specifics; Max is listed as five times Pro.</td>
+                            <td>No app-imposed limits. Usage is limited only by the translation provider and YouTube's daily API quota. 
+                                Provider free quotas are usually enough for hundreds of translations.</td>
+                            <td>10 translations to a chosen language per day. Pro lists a “higher daily usage capacity” without specifics; Max is listed as "5x Pro".</td>
                         </tr>
                         <tr>
                             <th scope="row">Bulk translation and multiple-video selection</th>
-                            <td>Can translate an entire channel into as many as 50 languages in one run.</td>
-                            <td>No bulk translation on the free plan. A single imported video is localized at a time by manually pasting its URL.</td>
+                            <td>Automatically loads the list of all your videos. Can translate an entire channel into as many as 50 languages in a single run.</td>
+                            <td>No bulk translation on the free plan. A single imported video is localized at a time by manually copying and pasting its URL.</td>
                         </tr>
                         <tr>
                             <th scope="row">Translation speed</th>
-                            <td>Localizing one video into 20 languages and uploading the results to YouTube takes around 25 seconds in one run.</td>
-                            <td>One translation for one video takes at least five seconds on average, without uploading it to YouTube.</td>
+                            <td>Localizing one video into 20 languages <b>and</b> uploading the results to YouTube in one run takes around 25 seconds.</td>
+                            <td>One translation for one video even without uploading it to YouTube takes at least <i>five seconds</i> on average, so 20 languages will take at least 100 seconds.</td>
                         </tr>
                         <tr>
                             <th scope="row">Translation providers</th>
-                            <td>Your own full DeepL or Google Cloud Translation account.</td>
-                            <td>Primarily smaller LLM models such as GPT-4o mini by default or Gemini 2.5 Flash. A model must be selected manually for each language.</td>
+                            <td>You use your own accounts of DeepL (the most powerful translation provider in the world) or Google Cloud Translation (most popular translation tool worldwide powered by Gemini).</td>
+                            <td>Mostly only weak LLM models such as GPT-4o mini (used by default, last one is 5.6) or Gemini 2.5 Flash (last one is 3.8 Flash) are available. A model must be selected manually for each language.</td>
                         </tr>
                         <tr>
                             <th scope="row">Localization monitoring</th>
                             <td>Video-and-language-level progress with individual results and explanations for failed or skipped localizations.</td>
-                            <td>Percentage-based progress without explanations when a translation fails or is not uploaded. A run may be marked partially successful while every attempted localization is listed as failed.</td>
+                            <td>Percentage-based progress without explanations when a translation fails or is not uploaded. 
+                                A run may be marked partially successful while every attempted localization is listed as failed.</td>
                         </tr>
                         <tr>
                             <th scope="row">Subtitle translation</th>
-                            <td>No.</td>
+                            <td>Not yet.</td>
                             <td>Yes.</td>
                         </tr>
                         <tr>
                             <th scope="row">Channel metadata translation</th>
-                            <td>No.</td>
+                            <td>Not yet.</td>
                             <td>Yes.</td>
                         </tr>
                         <tr>
                             <th scope="row">Playlist metadata translation</th>
-                            <td>No.</td>
+                            <td>Not yet.</td>
                             <td>Yes, currently marked Beta.</td>
                         </tr>
                     </tbody>
