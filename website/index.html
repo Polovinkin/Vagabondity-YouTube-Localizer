@@ -289,7 +289,9 @@
                 <details>
                     <summary>Are there translation or YouTube limits?<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p>YT Localizer adds no artificial limit. Translation volume depends on your provider plan, while publishing depends on YouTube's daily API quota.</p>
+                        <p>YT Localizer does not impose a permanent usage cap. Translation volume depends on your provider plan. For Google Cloud Translation, a local safety limit stops requests at 490,000 characters per month by default; you can disable it in the app's Usage section to allow paid translations.</p>
+                        <p>Publishing depends on your YouTube Data API quota. The standard allowance is 10,000 units per day, although your project may have a different limit. YT Localizer uses about 51 units per selected video when publishing a localization batch.</p>
+                        <p>Check your current limits and usage: <a href="https://www.deepl.com/your-account/keys" target="_blank" rel="noopener noreferrer">DeepL API keys &amp; limits <span aria-hidden="true">↗</span></a>, <a href="https://console.cloud.google.com/iam-admin/quotas?service=translate.googleapis.com" target="_blank" rel="noopener noreferrer">Google Translation quotas &amp; limits <span aria-hidden="true">↗</span></a>, <a href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas" target="_blank" rel="noopener noreferrer">YouTube exact usage &amp; quota <span aria-hidden="true">↗</span></a>, and <a href="https://developers.google.com/youtube/v3/determine_quota_cost" target="_blank" rel="noopener noreferrer">YouTube quota costs <span aria-hidden="true">↗</span></a>.</p>
                         <p>If the YouTube quota is exhausted, the app enters a limited mode, keeps cached channel data available, shows the expected reset time, and lets you reconnect after access is restored.</p>
                     </div>
                 </details>
@@ -298,8 +300,11 @@
                 <details>
                     <summary>What runs on my computer? (technical answer)<span aria-hidden="true">+</span></summary>
                     <div class="faq-answer">
-                        <p><code>uv</code> installs Python 3.12 and the exact locked dependencies into the project environment. The Flask interface listens only on <code>127.0.0.1:5050</code>, which points back to your own computer rather than exposing a public web server.</p>
-                        <p>Private files such as <code>settings.toml</code>, Google credential JSON files, and <code>token.pickle</code> are excluded by <code>.gitignore</code>. They should never be published or shared.</p>
+                        <p><code>uv</code> downloads a managed Python 3.12 installation if needed and creates an isolated <code>.venv</code> with the exact dependency versions recorded in <code>uv.lock</code>. It does not replace your system Python.</p>
+                        <p>The Flask interface listens only on <code>127.0.0.1:5050</code>, so it can be opened only from your computer. The app runs only while the Terminal command is running — press <code>Ctrl+C</code> to stop it. It does not install a background service or start automatically with your computer.</p>
+                        <p>Your browser communicates with the local Flask app. The app then makes outbound connections directly to Google/YouTube and the translation provider you selected. There is no YT Localizer cloud server between them.</p>
+                        <p>Credentials and settings remain in local files such as <code>config/settings.toml</code>, Google credential JSON files, and <code>token.pickle</code>. The video library cache is kept in memory and disappears when the app stops; the local Google usage counter is stored in <code>config/usage.json</code>.</p>
+                        <p>These private files are excluded by <code>.gitignore</code> to help prevent accidental commits, but they are not encrypted by YT Localizer and should never be published or shared.</p>
                     </div>
                 </details>
 
