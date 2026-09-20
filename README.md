@@ -15,7 +15,23 @@ Refer to [Quick Start](#quick-start) for a guide to set this app up and start lo
 
 ## Preview
 
-![Vagabondity YouTube Localizer interface](docs/images/app-overview.png)
+<div align="center">
+  <img src="docs/images/app-overview.png" alt="Vagabondity YouTube Localizer interface" width="100%"><br>
+  <strong>Browse your channel and select videos to localize</strong>
+</div>
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="website/assets/language-selection.webp" alt="YT Localizer language selector showing available languages and existing localizations" width="90%"><br>
+      <strong>Choose target languages with full localization context</strong>
+    </td>
+    <td width="50%" align="center">
+      <img src="website/assets/result_window.webp" alt="YT Localizer result window showing published, skipped, failed, and remaining localization totals" width="100%"><br>
+      <strong>Review the result of every localization run</strong>
+    </td>
+  </tr>
+</table>
 
 ## Requirements
 
