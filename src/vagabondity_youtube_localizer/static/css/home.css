@@ -1614,6 +1614,8 @@ a.top-page-btn:focus-visible {
 .language-modal-content {
     display: flex;
     flex-direction: column;
+    max-height: calc(94vh - 56px);
+    margin: 3vh auto;
 }
 
 .modal-header {
@@ -1623,6 +1625,10 @@ a.top-page-btn:focus-visible {
     gap: 24px;
     padding: 0 0 19px;
     border-bottom: 1px solid var(--border);
+}
+
+.language-modal-content .modal-header {
+    border-bottom: 0;
 }
 
 .modal-header-actions,
